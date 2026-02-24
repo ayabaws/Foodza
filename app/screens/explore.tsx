@@ -1,35 +1,41 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ExploreScreen() {
+  const router = useRouter();
+  const [selectedFilter, setSelectedFilter] = useState('Tous');
+  const { colors, isDarkMode } = useTheme();
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="arrow-back" size={24} color="#2C1810" />
+      <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
+        <TouchableOpacity style={styles.headerButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Explorer</Text>
-        <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="search" size={24} color="#2C1810" />
+        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Explorer</Text>
+        <TouchableOpacity style={styles.headerButton} onPress={() => router.push('/screens/search')}>
+          <Ionicons name="search" size={24} color={colors.text.primary} />
         </TouchableOpacity>
       </View>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#999" />
+        <View style={[styles.searchBar, { backgroundColor: colors.surface }]}>
+          <Ionicons name="search" size={20} color={colors.text.tertiary} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text.primary }]}
             placeholder="Rechercher des restaurants..."
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.text.tertiary}
           />
-          <TouchableOpacity style={styles.filterButton}>
-            <Ionicons name="options" size={20} color="#2C1810" />
+          <TouchableOpacity style={styles.filterButton} onPress={() => router.push('/screens/filters')}>
+            <Ionicons name="options" size={20} color={colors.text.primary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -37,18 +43,62 @@ export default function ExploreScreen() {
       {/* Filters */}
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.filterChip}>
-            <Text style={styles.filterChipText}>Tous</Text>
-          </View>
-          <View style={[styles.filterChip, styles.filterChipActive]}>
-            <Text style={[styles.filterChipText, styles.filterChipTextActive]}>Pizza</Text>
-          </View>
-          <View style={styles.filterChip}>
-            <Text style={styles.filterChipText}>Fast-food</Text>
-          </View>
-          <View style={styles.filterChip}>
-            <Text style={styles.filterChipText}>Dessert</Text>
-          </View>
+          <TouchableOpacity 
+            style={[
+              styles.filterChip, 
+              selectedFilter === 'Tous' && styles.filterChipActive,
+              selectedFilter === 'Tous' && { backgroundColor: colors.primary }
+            ]} 
+            onPress={() => setSelectedFilter('Tous')}
+          >
+            <Text style={[
+              styles.filterChipText, 
+              selectedFilter === 'Tous' && styles.filterChipTextActive,
+              selectedFilter === 'Tous' && { color: '#FFFFFF' }
+            ]}>Tous</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[
+              styles.filterChip, 
+              selectedFilter === 'Pizza' && styles.filterChipActive,
+              selectedFilter === 'Pizza' && { backgroundColor: colors.primary }
+            ]} 
+            onPress={() => setSelectedFilter('Pizza')}
+          >
+            <Text style={[
+              styles.filterChipText, 
+              selectedFilter === 'Pizza' && styles.filterChipTextActive,
+              selectedFilter === 'Pizza' && { color: '#FFFFFF' }
+            ]}>Pizza</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[
+              styles.filterChip, 
+              selectedFilter === 'Fast-food' && styles.filterChipActive,
+              selectedFilter === 'Fast-food' && { backgroundColor: colors.primary }
+            ]} 
+            onPress={() => setSelectedFilter('Fast-food')}
+          >
+            <Text style={[
+              styles.filterChipText, 
+              selectedFilter === 'Fast-food' && styles.filterChipTextActive,
+              selectedFilter === 'Fast-food' && { color: '#FFFFFF' }
+            ]}>Fast-food</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[
+              styles.filterChip, 
+              selectedFilter === 'Dessert' && styles.filterChipActive,
+              selectedFilter === 'Dessert' && { backgroundColor: colors.primary }
+            ]} 
+            onPress={() => setSelectedFilter('Dessert')}
+          >
+            <Text style={[
+              styles.filterChipText, 
+              selectedFilter === 'Dessert' && styles.filterChipTextActive,
+              selectedFilter === 'Dessert' && { color: '#FFFFFF' }
+            ]}>Dessert</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
 
@@ -56,76 +106,76 @@ export default function ExploreScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.restaurantList}>
           {/* Restaurant Card 1 */}
-          <TouchableOpacity style={styles.restaurantCard}>
-            <View style={styles.restaurantImagePlaceholder}>
-              <Ionicons name="restaurant" size={40} color="#FFFFFF" />
+          <TouchableOpacity style={[styles.restaurantCard, { backgroundColor: colors.surface }]} onPress={() => router.push('/restaurant')}>
+            <View style={[styles.restaurantImagePlaceholder, { backgroundColor: colors.border.medium }]}>
+              <Ionicons name="restaurant" size={40} color={colors.text.primary} />
             </View>
             <View style={styles.restaurantInfo}>
-              <Text style={styles.restaurantName}>La Brioche Dorée</Text>
+              <Text style={[styles.restaurantName, { color: colors.text.primary }]}>La Brioche Dorée</Text>
               <View style={styles.restaurantMeta}>
                 <View style={styles.rating}>
                   <Ionicons name="star" size={14} color="#FFA500" />
                   <Text style={styles.ratingText}>4.7</Text>
                 </View>
-                <Text style={styles.cuisineType}>Boulangerie</Text>
+                <Text style={[styles.cuisineType, { color: colors.text.secondary }]}>Boulangerie</Text>
                 <View style={styles.deliveryInfo}>
                   <Ionicons name="bicycle" size={14} color="#4CAF50" />
-                  <Text style={styles.deliveryText}>25-30 mins</Text>
+                  <Text style={[styles.deliveryText, { color: colors.text.secondary }]}>25-30 mins</Text>
                 </View>
               </View>
-              <Text style={styles.priceRange}>2500 - 8000 CFA</Text>
+              <Text style={[styles.priceRange, { color: colors.text.primary }]}>2500 - 8000 CFA</Text>
             </View>
-            <TouchableOpacity style={styles.favoriteButton}>
+            <TouchableOpacity style={styles.favoriteButton} onPress={() => {}}>
               <Ionicons name="heart-outline" size={20} color="#FFA500" />
             </TouchableOpacity>
           </TouchableOpacity>
 
           {/* Restaurant Card 2 */}
-          <TouchableOpacity style={styles.restaurantCard}>
-            <View style={styles.restaurantImagePlaceholder}>
-              <Ionicons name="fast-food" size={40} color="#FFFFFF" />
+          <TouchableOpacity style={[styles.restaurantCard, { backgroundColor: colors.surface }]} onPress={() => router.push('/restaurant')}>
+            <View style={[styles.restaurantImagePlaceholder, { backgroundColor: colors.border.medium }]}>
+              <Ionicons name="fast-food" size={40} color={colors.text.primary} />
             </View>
             <View style={styles.restaurantInfo}>
-              <Text style={styles.restaurantName}>Fast Food King</Text>
+              <Text style={[styles.restaurantName, { color: colors.text.primary }]}>Fast Food King</Text>
               <View style={styles.restaurantMeta}>
                 <View style={styles.rating}>
                   <Ionicons name="star" size={14} color="#FFA500" />
                   <Text style={styles.ratingText}>4.6</Text>
                 </View>
-                <Text style={styles.cuisineType}>Fast Food</Text>
+                <Text style={[styles.cuisineType, { color: colors.text.secondary }]}>Fast Food</Text>
                 <View style={styles.deliveryInfo}>
                   <Ionicons name="bicycle" size={14} color="#4CAF50" />
-                  <Text style={styles.deliveryText}>20-25 mins</Text>
+                  <Text style={[styles.deliveryText, { color: colors.text.secondary }]}>20-25 mins</Text>
                 </View>
               </View>
-              <Text style={styles.priceRange}>1500 - 6000 CFA</Text>
+              <Text style={[styles.priceRange, { color: colors.text.primary }]}>1500 - 6000 CFA</Text>
             </View>
-            <TouchableOpacity style={styles.favoriteButton}>
+            <TouchableOpacity style={styles.favoriteButton} onPress={() => {}}>
               <Ionicons name="heart-outline" size={20} color="#FFA500" />
             </TouchableOpacity>
           </TouchableOpacity>
 
           {/* Restaurant Card 3 */}
-          <TouchableOpacity style={styles.restaurantCard}>
-            <View style={styles.restaurantImagePlaceholder}>
-              <Ionicons name="storefront" size={40} color="#FFFFFF" />
+          <TouchableOpacity style={[styles.restaurantCard, { backgroundColor: colors.surface }]} onPress={() => router.push('/restaurant')}>
+            <View style={[styles.restaurantImagePlaceholder, { backgroundColor: colors.border.medium }]}>
+              <Ionicons name="storefront" size={40} color={colors.text.primary} />
             </View>
             <View style={styles.restaurantInfo}>
-              <Text style={styles.restaurantName}>Restaurant Malien</Text>
+              <Text style={[styles.restaurantName, { color: colors.text.primary }]}>Restaurant Malien</Text>
               <View style={styles.restaurantMeta}>
                 <View style={styles.rating}>
                   <Ionicons name="star" size={14} color="#FFA500" />
                   <Text style={styles.ratingText}>4.3</Text>
                 </View>
-                <Text style={styles.cuisineType}>Cuisine locale</Text>
+                <Text style={[styles.cuisineType, { color: colors.text.secondary }]}>Cuisine locale</Text>
                 <View style={styles.deliveryInfo}>
                   <Ionicons name="bicycle" size={14} color="#4CAF50" />
-                  <Text style={styles.deliveryText}>30-35 mins</Text>
+                  <Text style={[styles.deliveryText, { color: colors.text.secondary }]}>30-35 mins</Text>
                 </View>
               </View>
-              <Text style={styles.priceRange}>2000 - 5000 CFA</Text>
+              <Text style={[styles.priceRange, { color: colors.text.primary }]}>2000 - 5000 CFA</Text>
             </View>
-            <TouchableOpacity style={styles.favoriteButton}>
+            <TouchableOpacity style={styles.favoriteButton} onPress={() => {}}>
               <Ionicons name="heart-outline" size={20} color="#FFA500" />
             </TouchableOpacity>
           </TouchableOpacity>
@@ -138,7 +188,6 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -147,7 +196,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
   },
   headerButton: {
     padding: 8,
@@ -155,7 +203,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2C1810',
   },
   searchContainer: {
     paddingHorizontal: 20,
@@ -164,7 +211,6 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -172,7 +218,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
   },
   filterButton: {
     padding: 8,
@@ -182,7 +227,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   filterChip: {
-    backgroundColor: '#F8F8F8',
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
@@ -202,7 +246,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   restaurantCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 15,
     marginBottom: 15,
     shadowColor: '#000',
@@ -215,41 +258,40 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   restaurantImagePlaceholder: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     borderRadius: 10,
-    backgroundColor: '#2C1810',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
   },
   restaurantInfo: {
     flex: 1,
+    marginLeft: 15,
   },
   restaurantName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2C1810',
     marginBottom: 5,
   },
   restaurantMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   rating: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 10,
   },
   ratingText: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
+    fontSize: 14,
+    marginLeft: 5,
+    color: '#FFA500',
   },
   cuisineType: {
     fontSize: 12,
     color: '#666',
-    marginLeft: 8,
+    marginRight: 10,
   },
   deliveryInfo: {
     flexDirection: 'row',
@@ -257,13 +299,12 @@ const styles = StyleSheet.create({
   },
   deliveryText: {
     fontSize: 12,
+    marginLeft: 5,
     color: '#4CAF50',
-    marginLeft: 4,
   },
   priceRange: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2C1810',
+    fontWeight: '600',
   },
   favoriteButton: {
     position: 'absolute',

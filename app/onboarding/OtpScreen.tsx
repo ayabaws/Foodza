@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, StatusBar, TouchableOpacity, TextInput, Alert }
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function OtpScreen() {
   const router = useRouter();
+  const { colors, isDarkMode } = useTheme();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const inputRefs = useRef<(TextInput | null)[]>([]);
@@ -38,18 +40,18 @@ export default function OtpScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       {/* Header */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#000" />
+        <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
       </TouchableOpacity>
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.title}>Code de vérification</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.text.primary }]}>Code de vérification</Text>
+        <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
           Le code de vérification a été envoyé par SMS à votre numéro.
         </Text>
 
@@ -67,8 +69,13 @@ export default function OtpScreen() {
                 }}
                 style={[
                   styles.otpInput,
-                  isFocused && styles.otpFocused,
-                  isFilled && styles.otpFilled,
+                  { 
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border.light,
+                    color: colors.text.primary 
+                  },
+                  isFocused && [styles.otpFocused, { borderColor: colors.primary }],
+                  isFilled && [styles.otpFilled, { backgroundColor: colors.primary }],
                 ]}
                 value={digit}
                 onChangeText={(value) => handleOtpChange(value, index)}
@@ -84,13 +91,13 @@ export default function OtpScreen() {
         </View>
 
         {/* Button */}
-        <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-          <Text style={styles.continueText}>CONTINUE</Text>
+        <TouchableOpacity style={[styles.continueButton, { backgroundColor: colors.primary }]} onPress={handleContinue}>
+          <Text style={[styles.continueText, { color: '#FFFFFF' }]}>CONTINUE</Text>
         </TouchableOpacity>
 
         {/* Resend */}
-        <Text style={styles.resendText}>
-          Vous n’avez pas reçu l’OTP ? <Text style={styles.resendLink}>Renvoyer l’OTP</Text>
+        <Text style={[styles.resendText, { color: colors.text.secondary }]}>
+          Vous n'avez pas reçu l'OTP ? <Text style={[styles.resendLink, { color: colors.primary }]}>Renvoyer l'OTP</Text>
         </Text>
       </View>
     </SafeAreaView>
@@ -100,7 +107,6 @@ export default function OtpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
   },
 
   backButton: {

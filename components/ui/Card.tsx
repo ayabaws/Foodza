@@ -10,21 +10,23 @@ interface CardTextProps extends TextProps {}
 
 export function Card({ style, variant = 'default', ...props }: CardProps) {
   const colorScheme = useColorScheme();
-  const theme = Theme.colors[colorScheme as keyof typeof Theme.colors];
+  const theme = Theme.colors[colorScheme === 'dark' ? 'dark' : 'light'];
   
   const getVariantStyles = () => {
+    const backgroundColor = typeof theme.background === 'string' ? theme.background : theme.background.primary;
+    
     switch (variant) {
       case 'elevated':
-        return [Theme.shadow.md, { backgroundColor: theme.background.primary }];
+        return [Theme.shadow.md, { backgroundColor }];
       case 'outlined':
         return [{ 
-          backgroundColor: theme.background.primary,
+          backgroundColor,
           borderWidth: 1,
           borderColor: theme.border.medium
         }];
       default:
         return [{ 
-          backgroundColor: theme.background.primary,
+          backgroundColor,
           borderWidth: 1,
           borderColor: theme.border.light
         }];
@@ -40,14 +42,14 @@ export function CardHeader({ style, ...props }: CardProps) {
 
 export function CardTitle({ style, ...props }: CardTextProps) {
   const colorScheme = useColorScheme();
-  const theme = Theme.colors[colorScheme as keyof typeof Theme.colors];
+  const theme = Theme.colors[colorScheme === 'dark' ? 'dark' : 'light'];
   
   return <Text style={[styles.cardTitle, { color: theme.text.primary }, style]} {...props} />;
 }
 
 export function CardDescription({ style, ...props }: CardTextProps) {
   const colorScheme = useColorScheme();
-  const theme = Theme.colors[colorScheme as keyof typeof Theme.colors];
+  const theme = Theme.colors[colorScheme === 'dark' ? 'dark' : 'light'];
   
   return <Text style={[styles.cardDescription, { color: theme.text.secondary }, style]} {...props} />;
 }

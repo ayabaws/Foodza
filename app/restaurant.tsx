@@ -1,646 +1,297 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TextInput, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image, 
+  Dimensions, 
+  FlatList, 
+  NativeSyntheticEvent, 
+  NativeScrollEvent 
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+import Svg, { Path } from 'react-native-svg';
 
-interface Restaurant {
-  id: string;
-  name: string;
-  image: any;
-  rating: number;
-  deliveryTime: string;
-  distance: string;
-  location: string;
-  discount?: string;
-  discountCode?: string;
-}
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface MenuItem {
-  id: string;
-  name: string;
-  image: any;
-  price: number;
-  rating?: number;
-  description?: string;
-}
+// Données fictives pour le rendu
+const HERO_IMAGES = [
+  { id: '1', source: require('@/assets/food/food1.jpg') },
+  { id: '2', source: require('@/assets/food/food2.jpeg') },
+  { id: '3', source: require('@/assets/food/food3.jpeg') },
+];
+
+const POPULAR_ITEMS = [
+  { 
+    id: '1', 
+    name: 'Poulet Yassa', 
+    price: '2000- 5000 FCFA', 
+    rating: '4.3', 
+    discount: '70% OFF',
+    image: require('@/assets/home/pizza.png') 
+  },
+  { 
+    id: '2', 
+    name: 'Croissant', 
+    price: '2000- 5000 FCFA', 
+    rating: '4.3', 
+    discount: '70% OFF',
+    image: require('@/assets/home/grill.png') 
+  },
+];
 
 export default function RestaurantScreen() {
-  const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('Moyenne');
-  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
-  const [specialInstructions, setSpecialInstructions] = useState('');
-  const [showCustomization, setShowCustomization] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const restaurant: Restaurant = {
-    id: '1',
-    name: 'La Brioche Dorée',
-    image: require('@/assets/food/food2.jpeg'),
-    rating: 4.7,
-    deliveryTime: '25 - 30 mins',
-    distance: '5 km',
-    location: 'Badalabougou, Bamako',
-    discount: '-30% sur tout',
-    discountCode: 'FOOD20',
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const index = Math.round(scrollPosition / SCREEN_WIDTH);
+    setActiveIndex(index);
   };
-
-  const popularItems: MenuItem[] = [
-    {
-      id: '1',
-      name: 'Pizza Margherita',
-      image: require('@/assets/food/food2.jpeg'),
-      price: 4500,
-      rating: 4.8,
-      description: 'Sauce tomate, mozzarella fraîche, basilic',
-    },
-    {
-      id: '2',
-      name: 'Pizza Pepperoni',
-      image: require('@/assets/food/food2.jpeg'),
-      price: 5500,
-      rating: 4.6,
-      description: 'Sauce tomate, mozzarella, pepperoni épicé',
-    },
-    {
-      id: '3',
-      name: 'Croissant au beurre',
-      image: require('@/assets/food/food2.jpeg'),
-      price: 800,
-      rating: 4.5,
-      description: 'Beurre français, feuilletage croustillant',
-    },
-  ];
-
-  const sizes = [
-    { name: 'Petits', price: 2500 },
-    { name: 'Moyenne', price: 4500 },
-    { name: 'Grande', price: 6000 },
-  ];
-
-  const extras = [
-    { name: 'Fromage', price: 250 },
-    { name: 'Mayonnaise', price: 50 },
-    { name: 'Sauce pimentée', price: 100 },
-    { name: 'Olives', price: 150 },
-  ];
-
-  const toggleExtra = (extraName: string) => {
-    setSelectedExtras(prev => 
-      prev.includes(extraName) 
-        ? prev.filter(item => item !== extraName)
-        : [...prev, extraName]
-    );
-  };
-
-  const calculateTotalPrice = () => {
-    const basePrice = sizes.find(size => size.name === selectedSize)?.price || 4500;
-    const extrasPrice = selectedExtras.reduce((total, extraName) => {
-      const extra = extras.find(extra => extra.name === extraName);
-      return total + (extra?.price || 0);
-    }, 0);
-    return (basePrice + extrasPrice) * quantity;
-  };
-
-  const renderPopularItem = (item: MenuItem) => (
-    <TouchableOpacity 
-      style={styles.popularItem}
-      onPress={() => setShowCustomization(true)}
-    >
-      <View style={styles.popularItemImagePlaceholder}>
-        <Ionicons name="restaurant" size={30} color="#FFFFFF" />
-      </View>
-      <View style={styles.popularItemInfo}>
-        <Text style={styles.popularItemName}>{item.name}</Text>
-        {item.rating && (
-          <View style={styles.popularItemRating}>
-            <Ionicons name="star" size={14} color="#FFA500" />
-            <Text style={styles.popularItemRatingText}>{item.rating}</Text>
-          </View>
-        )}
-        <Text style={styles.popularItemPrice}>{item.price} CFA</Text>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <View style={styles.container}>
+      <StatusBar style="light" />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="arrow-back" size={24} color="#2C1810" />
-        </TouchableOpacity>
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="search" size={24} color="#2C1810" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="share-outline" size={24} color="#2C1810" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="heart-outline" size={24} color="#2C1810" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Hero Image */}
+      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+        
+        {/* --- SECTION HERO (CAROUSEL) --- */}
         <View style={styles.heroContainer}>
-          <Image source={restaurant.image} style={styles.heroImage} />
+          <FlatList
+            data={HERO_IMAGES}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={handleScroll}
+            renderItem={({ item }) => (
+              <Image source={item.source} style={styles.heroImage} />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+
+          {/* Header Buttons */}
+          <SafeAreaView style={styles.headerNav} edges={['top']}>
+            <TouchableOpacity style={styles.blurBtn}>
+              <Ionicons name="chevron-back" size={24} color="white" />
+            </TouchableOpacity>
+            <View style={styles.headerRight}>
+              <TouchableOpacity style={styles.blurBtn}><Ionicons name="search" size={20} color="white" /></TouchableOpacity>
+              <TouchableOpacity style={styles.blurBtn}><Ionicons name="share-outline" size={20} color="white" /></TouchableOpacity>
+              <TouchableOpacity style={styles.blurBtn}><Ionicons name="heart-outline" size={20} color="white" /></TouchableOpacity>
+            </View>
+          </SafeAreaView>
+
+          {/* LA WAVE (COURBE BLANCHE) */}
+          <View style={styles.waveWrapper}>
+            <Svg height="100" width={SCREEN_WIDTH} viewBox={`0 0 ${SCREEN_WIDTH} 100`}>
+              <Path
+                d={`M0 100 Q${SCREEN_WIDTH * 0.75} 100 ${SCREEN_WIDTH} 0 L${SCREEN_WIDTH} 100 Z`}
+                fill="white"
+              />
+            </Svg>
+          </View>
+
+          {/* Pagination Dots */}
+          <View style={styles.paginationRow}>
+            {HERO_IMAGES.map((_, i) => (
+              <View key={i} style={[styles.dot, i === activeIndex && styles.activeDot]} />
+            ))}
+          </View>
         </View>
 
-        {/* Restaurant Info Card */}
-        <View style={styles.restaurantInfoCard}>
-          <View style={styles.restaurantHeader}>
-            <View style={styles.restaurantLogo}>
-              <Text style={styles.restaurantLogoText}>NOIR</Text>
-            </View>
-            <View style={styles.restaurantDetails}>
-              <Text style={styles.restaurantName}>{restaurant.name}</Text>
-              <View style={styles.restaurantLocation}>
-                <Ionicons name="location" size={16} color="#666" />
-                <Text style={styles.restaurantLocationText}>{restaurant.location}</Text>
-              </View>
-              <View style={styles.restaurantMeta}>
-                <View style={styles.metaItem}>
-                  <Ionicons name="time" size={16} color="#4CAF50" />
-                  <Text style={styles.metaText}>{restaurant.deliveryTime}</Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Ionicons name="bicycle" size={16} color="#4CAF50" />
-                  <Text style={styles.metaText}>{restaurant.distance}</Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <Ionicons name="star" size={16} color="#FFA500" />
-                  <Text style={styles.metaText}>{restaurant.rating}</Text>
-                </View>
-              </View>
-            </View>
-          </View>
+        {/* --- SECTION CONTENU --- */}
+        <View style={styles.contentSection}>
           
-          {restaurant.discount && (
-            <View style={styles.discountBanner}>
-              <Text style={styles.discountText}>{restaurant.discount}</Text>
-              <Text style={styles.discountCode}>Utiliser le code {restaurant.discountCode}</Text>
+          {/* Logo Restaurant */}
+          <View style={styles.logoContainer}>
+            <View style={styles.logoCircle}>
+              <Image 
+                source={require('@/assets/home/all.png')} 
+                style={styles.logoImg} 
+                resizeMode="contain" 
+              />
             </View>
-          )}
-        </View>
-
-        {/* Popular Items */}
-        <View style={styles.popularContainer}>
-          <Text style={styles.sectionTitle}>Les Plus Populaires</Text>
-          <View style={styles.popularList}>
-            {popularItems.map(renderPopularItem)}
           </View>
+
+          {/* Note & Pour toi */}
+          <View style={styles.ratingBox}>
+            <View style={styles.blackBadge}>
+              <Text style={styles.ratingText}>4.3</Text>
+              <Ionicons name="star" size={12} color="gold" />
+            </View>
+            <Text style={styles.subText}>Pour toi</Text>
+          </View>
+
+          <Text style={styles.mainTitle}>La Brioche Dorée</Text>
+
+          {/* Info Pills */}
+          <View style={styles.pillsRow}>
+            <View style={styles.pill}>
+              <Ionicons name="location" size={14} color="#555" />
+              <Text style={styles.pillText}>Badalabougou, Bamako</Text>
+            </View>
+            <View style={styles.pill}>
+              <MaterialCommunityIcons name="moped" size={16} color="#555" />
+              <Text style={styles.pillText}>25 - 30 mins • 5 km</Text>
+            </View>
+          </View>
+
+          {/* PROMO BOX */}
+          <View style={styles.promoContainer}>
+            <View style={styles.promoIconCircle}>
+               <MaterialCommunityIcons name="brightness-percent" size={24} color="#5D2E17" />
+            </View>
+            <View>
+              <Text style={styles.promoTitle}>-30% sur tout</Text>
+              <Text style={styles.promoSubtitle}>Utilisez le code <Text style={{fontWeight: 'bold'}}>FOOD20</Text></Text>
+            </View>
+          </View>
+
+          {/* Section Populaires */}
+          <Text style={styles.sectionHeader}>Les Plus Populaires</Text>
+          
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.popularScroll}>
+            {POPULAR_ITEMS.map((item) => (
+              <View key={item.id} style={styles.foodCard}>
+                <View style={styles.imageWrapper}>
+                  <Image source={item.image} style={styles.foodImage} />
+                  <View style={styles.discountTag}>
+                    <MaterialCommunityIcons name="brightness-percent" size={12} color="white" />
+                    <Text style={styles.discountText}>{item.discount}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.favBtn}>
+                    <Ionicons name="heart-outline" size={20} color="white" />
+                  </TouchableOpacity>
+                </View>
+                
+                <View style={styles.cardInfo}>
+                  <View style={styles.miniRating}>
+                    <Text style={styles.miniRatingText}>{item.rating} ★</Text>
+                  </View>
+                  <Text style={styles.foodName}>{item.name}</Text>
+                  <Text style={styles.foodPrice}>Prix: {item.price}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
         </View>
       </ScrollView>
 
-      {/* Customization Modal */}
-      {showCustomization && (
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {/* Modal Header */}
-            <View style={styles.modalHeader}>
-              <TouchableOpacity 
-                style={styles.closeButton}
-                onPress={() => setShowCustomization(false)}
-              >
-                <Ionicons name="close" size={24} color="#2C1810" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Item Details */}
-            <View style={styles.itemDetails}>
-              <View style={styles.itemImagePlaceholder}>
-                <Ionicons name="pizza" size={40} color="#FFFFFF" />
-              </View>
-              <Text style={styles.itemName}>Pizza Margherita</Text>
-              <Text style={styles.itemPrice}>{calculateTotalPrice()} CFA</Text>
-              <Text style={styles.itemDescription}>
-                Sauce tomate, mozzarella fraîche, basilic
-              </Text>
-            </View>
-
-            {/* Size Selection */}
-            <View style={styles.sizeSection}>
-              <Text style={styles.sectionTitle}>Choisir la taille</Text>
-              <View style={styles.sizeOptions}>
-                {sizes.map((size) => (
-                  <TouchableOpacity
-                    key={size.name}
-                    style={[
-                      styles.sizeOption,
-                      selectedSize === size.name && styles.sizeOptionSelected
-                    ]}
-                    onPress={() => setSelectedSize(size.name)}
-                  >
-                    <Text style={[
-                      styles.sizeOptionText,
-                      selectedSize === size.name && styles.sizeOptionTextSelected
-                    ]}>
-                      {size.name} ({size.price} CFA)
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Extras */}
-            <View style={styles.extrasSection}>
-              <Text style={styles.sectionTitle}>Options supplémentaires</Text>
-              {extras.map((extra) => (
-                <TouchableOpacity
-                  key={extra.name}
-                  style={styles.extraOption}
-                  onPress={() => toggleExtra(extra.name)}
-                >
-                  <View style={[
-                    styles.checkbox,
-                    selectedExtras.includes(extra.name) && styles.checkboxSelected
-                  ]}>
-                    {selectedExtras.includes(extra.name) && (
-                      <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                    )}
-                  </View>
-                  <Text style={styles.extraOptionText}>{extra.name}</Text>
-                  <Text style={styles.extraPrice}>+{extra.price} CFA</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Special Instructions */}
-            <View style={styles.instructionsSection}>
-              <Text style={styles.sectionTitle}>Instructions special</Text>
-              <TextInput
-                style={styles.instructionsInput}
-                placeholder="Ex: Pas de piment"
-                value={specialInstructions}
-                onChangeText={setSpecialInstructions}
-                multiline
-              />
-            </View>
-
-            {/* Bottom Bar */}
-            <View style={styles.bottomBar}>
-              <View style={styles.quantitySelector}>
-                <TouchableOpacity 
-                  style={styles.quantityButton}
-                  onPress={() => setQuantity(Math.max(1, quantity - 1))}
-                >
-                  <Ionicons name="remove" size={20} color="#2C1810" />
-                </TouchableOpacity>
-                <Text style={styles.quantityText}>{quantity}</Text>
-                <TouchableOpacity 
-                  style={styles.quantityButton}
-                  onPress={() => setQuantity(quantity + 1)}
-                >
-                  <Ionicons name="add" size={20} color="#2C1810" />
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addButtonText}>
-                  Ajouter un article {calculateTotalPrice()} CFA
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      )}
-    </SafeAreaView>
+      {/* BOUTON FLOTTANT MENUS */}
+      <TouchableOpacity style={styles.menuFloatingBtn}>
+        <MaterialCommunityIcons name="silverware-fork-knife" size={20} color="white" />
+        <Text style={styles.menuBtnText}>Menus</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  headerButton: {
-    padding: 8,
-  },
-  headerActions: {
-    flexDirection: 'row',
-  },
-  heroContainer: {
-    height: 250,
-    overflow: 'hidden',
-  },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-  },
-  restaurantInfoCard: {
-    margin: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  restaurantHeader: {
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  restaurantLogo: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#2C1810',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  restaurantLogoText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  restaurantDetails: {
-    flex: 1,
-  },
-  restaurantName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2C1810',
-    marginBottom: 5,
-  },
-  restaurantLocation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  restaurantLocationText: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 5,
-  },
-  restaurantMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  metaText: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
-  },
-  discountBanner: {
-    backgroundColor: '#4CAF50',
-    borderRadius: 10,
-    padding: 12,
-  },
-  discountText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  discountCode: {
-    color: '#FFFFFF',
-    fontSize: 14,
-  },
-  popularContainer: {
-    marginBottom: 100,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2C1810',
-    marginHorizontal: 20,
-    marginBottom: 15,
-  },
-  popularList: {
+  container: { flex: 1, backgroundColor: 'white' },
+  
+  // Hero
+  heroContainer: { height: 360, width: '100%' },
+  heroImage: { width: SCREEN_WIDTH, height: 360 },
+  headerNav: {
+    position: 'absolute', top: 0, left: 0, right: 0,
+    flexDirection: 'row', justifyContent: 'space-between',
     paddingHorizontal: 20,
   },
-  popularItem: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    marginBottom: 15,
-    padding: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+  blurBtn: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center', alignItems: 'center',
   },
-  popularItemImagePlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    backgroundColor: '#2C1810',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
+  headerRight: { flexDirection: 'row', gap: 10 },
+  
+  // Wave & Pagination
+  waveWrapper: { position: 'absolute', bottom: -1, width: '100%' },
+  paginationRow: {
+    flexDirection: 'row', position: 'absolute',
+    bottom: 50, alignSelf: 'center', gap: 6
   },
-  popularItemInfo: {
-    flex: 1,
-    justifyContent: 'center',
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.4)' },
+  activeDot: { width: 22, backgroundColor: 'white' },
+
+  // Content
+  contentSection: { paddingHorizontal: 20, paddingTop: 10 },
+  logoContainer: { position: 'absolute', top: -55, left: 20, zIndex: 10 },
+  logoCircle: {
+    width: 100, height: 100, borderRadius: 50,
+    backgroundColor: '#111', borderWidth: 4, borderColor: 'white',
+    justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, elevation: 5,
   },
-  popularItemName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2C1810',
-    marginBottom: 5,
+  logoImg: { width: 65, height: 65 },
+
+  ratingBox: { alignItems: 'flex-end', marginTop: 10 },
+  blackBadge: {
+    backgroundColor: 'black', flexDirection: 'row',
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, gap: 5, alignItems: 'center'
   },
-  popularItemRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
+  ratingText: { color: 'white', fontWeight: 'bold' },
+  subText: { fontSize: 11, color: '#999', marginTop: 2 },
+
+  mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#1A1A1A', marginTop: 8 },
+  
+  pillsRow: { flexDirection: 'row', gap: 8, marginTop: 15 },
+  pill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 8,
+    borderRadius: 25, borderWidth: 1, borderColor: '#F2F2F2'
   },
-  popularItemRatingText: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 4,
-  },
-  popularItemPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2C1810',
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    padding: 20,
-    paddingBottom: 10,
-  },
-  closeButton: {
-    padding: 5,
-  },
-  itemDetails: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  itemImagePlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 15,
-    backgroundColor: '#2C1810',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  itemName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2C1810',
-    marginBottom: 5,
-  },
-  itemPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    marginBottom: 10,
-  },
-  itemDescription: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  sizeSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  sizeOptions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  sizeOption: {
-    flex: 1,
-    backgroundColor: '#F8F8F8',
-    borderRadius: 10,
-    padding: 12,
-    marginHorizontal: 5,
-    alignItems: 'center',
-  },
-  sizeOptionSelected: {
-    backgroundColor: '#2C1810',
-  },
-  sizeOptionText: {
-    fontSize: 14,
-    color: '#2C1810',
-    textAlign: 'center',
-  },
-  sizeOptionTextSelected: {
-    color: '#FFFFFF',
-  },
-  extrasSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  extraOption: {
+  pillText: { fontSize: 12, color: '#555' },
+
+  // Promo Box
+  promoContainer: {
+    backgroundColor: '#5D2E17',
+    borderRadius: 50,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    marginTop: 25,
   },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
+  promoIconCircle: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center', alignItems: 'center', marginRight: 15
   },
-  checkboxSelected: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+  promoTitle: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  promoSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 13 },
+
+  // Populaires
+  sectionHeader: { fontSize: 20, fontWeight: 'bold', marginTop: 30 },
+  popularScroll: { marginTop: 15, marginBottom: 100 },
+  foodCard: { width: 240, marginRight: 15, borderRadius: 20, overflow: 'hidden', backgroundColor: 'white' },
+  imageWrapper: { width: '100%', height: 150 },
+  foodImage: { width: '100%', height: '100%', borderRadius: 20 },
+  discountTag: {
+    position: 'absolute', top: 10, left: 10,
+    backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 4
   },
-  extraOptionText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#2C1810',
+  discountText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
+  favBtn: { position: 'absolute', top: 10, right: 10 },
+  
+  cardInfo: { paddingVertical: 10 },
+  miniRating: {
+    backgroundColor: 'black', width: 45, borderRadius: 5,
+    paddingVertical: 2, alignItems: 'center', marginBottom: 6
   },
-  extraPrice: {
-    fontSize: 14,
-    color: '#666',
+  miniRatingText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
+  foodName: { fontSize: 16, fontWeight: 'bold' },
+  foodPrice: { fontSize: 12, color: '#777', marginTop: 2 },
+
+  // Floating Btn
+  menuFloatingBtn: {
+    position: 'absolute', bottom: 30, alignSelf: 'center',
+    backgroundColor: 'black', flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 25, paddingVertical: 15, borderRadius: 30, gap: 10,
+    shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 10, elevation: 8
   },
-  instructionsSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  instructionsInput: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-    color: '#2C1810',
-    minHeight: 60,
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-  },
-  quantitySelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  quantityButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#F8F8F8',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2C1810',
-    marginHorizontal: 15,
-  },
-  addButton: {
-    flex: 1,
-    backgroundColor: '#2C1810',
-    paddingVertical: 15,
-    borderRadius: 25,
-    alignItems: 'center',
-  },
-  addButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  menuBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
 });

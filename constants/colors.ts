@@ -98,8 +98,13 @@ export const ColorScheme = {
     shadow: Colors.shadow,
     primary: Colors.primary[500],
     secondary: Colors.secondary[500],
+    success: Colors.success,
+    warning: Colors.warning,
+    error: Colors.error,
+    info: Colors.info,
   },
   dark: {
+    ...Colors.brand,
     primary: '#FFFFFF',
     secondary: '#4CAF50',
     background: '#151515',
@@ -122,5 +127,9 @@ export const ColorScheme = {
       medium: 'rgba(255, 255, 255, 0.1)',
       dark: 'rgba(255, 255, 255, 0.15)',
     },
+    success: Colors.success,
+    warning: Colors.warning,
+    error: Colors.error,
+    info: Colors.info,
   },
 };

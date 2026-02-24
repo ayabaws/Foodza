@@ -3,16 +3,18 @@ import { View, Text, StyleSheet, Image, StatusBar, TouchableOpacity, TextInput, 
 import { useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 export default function OtpVerificationScreen() {
   const router = useRouter();
+  const { colors, isDarkMode } = useTheme();
   const [phoneNumber, setPhoneNumber] = useState('');
 
   return (
-    <View style={styles.mainContainer}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+    <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
 
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
 
@@ -51,20 +53,20 @@ export default function OtpVerificationScreen() {
         </View>
 
         {/* FORM CARD */}
-        <View style={styles.formContainer}>
-          <Text style={styles.title}>Vérification OTP</Text>
-          <Text style={styles.subtitle}>Entrez votre e-mail ou numéro.</Text>
+        <View style={[styles.formContainer, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.title, { color: colors.text.primary }]}>Vérification OTP</Text>
+          <Text style={[styles.subtitle, { color: colors.text.secondary }]}>Entrez votre e-mail ou numéro.</Text>
 
           <View style={styles.inputRow}>
-            <View style={styles.countryPicker}>
-              <Text style={styles.countryText}>+223</Text>
+            <View style={[styles.countryPicker, { backgroundColor: colors.border.medium }]}>
+              <Text style={[styles.countryText, { color: colors.text.primary }]}>+223</Text>
             </View>
 
-            <View style={styles.phoneInputBox}>
+            <View style={[styles.phoneInputBox, { backgroundColor: colors.border.medium }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text.primary }]}
                 placeholder="Numero de telephone"
-                placeholderTextColor="#C4C4C4"
+                placeholderTextColor={colors.text.tertiary}
                 keyboardType="phone-pad"
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
@@ -72,14 +74,14 @@ export default function OtpVerificationScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.buttonMain} onPress={() => router.push('/onboarding/otp')}>
-            <Text style={styles.buttonText}>ENVOIE OTP</Text>
+          <TouchableOpacity style={[styles.buttonMain, { backgroundColor: colors.primary }]} onPress={() => router.push('/onboarding/otp')}>
+            <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>ENVOIE OTP</Text>
           </TouchableOpacity>
 
           <View style={styles.dividerRow}>
-            <View style={styles.line} />
-            <Text style={styles.ouText}>ou</Text>
-            <View style={styles.line} />
+            <View style={[styles.line, { backgroundColor: colors.border.light }]} />
+            <Text style={[styles.ouText, { color: colors.text.secondary }]}>ou</Text>
+            <View style={[styles.line, { backgroundColor: colors.border.light }]} />
           </View>
 
           <View style={styles.socialRow}>
@@ -93,11 +95,10 @@ export default function OtpVerificationScreen() {
           </View>
 
           <View style={styles.footerContainer}>
-            <Text style={styles.footerText}>
+            <Text style={[styles.footerText, { color: colors.text.secondary }]}>
               En continuant, vous acceptez nos :{"\n"}
-              <Text style={styles.footerLink}>Conditions d'utilisation</Text>{" "}
-              <Text style={styles.footerLink}>Politique de confidentialité</Text>{"\n"}
-              <Text style={styles.footerLink}>Politique de contenu</Text>
+              <Text style={[styles.footerLink, { color: colors.primary }]}>Conditions générales</Text> et{" "}
+              <Text style={[styles.footerLink, { color: colors.primary }]}>Politique de confidentialité</Text>
             </Text>
           </View>
         </View>
@@ -109,7 +110,6 @@ export default function OtpVerificationScreen() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#121212',
   },
 
   headerImageContainer: {

@@ -1,20 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function OrderTrackScreen() {
+  const router = useRouter();
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton}>
+        <TouchableOpacity style={styles.headerButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#2C1810" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Suivi de commande</Text>
-        <TouchableOpacity style={styles.headerButton}>
+        <TouchableOpacity style={styles.headerButton} onPress={() => router.push('/screens/assistant')}>
           <Ionicons name="call" size={24} color="#2C1810" />
         </TouchableOpacity>
       </View>
