@@ -7,6 +7,9 @@ import {
     TouchableOpacity,
     ViewStyle,
 } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Theme } from '@/constants/theme';
+import { Colors } from '@/constants/colors';
 
 type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
@@ -19,6 +22,7 @@ interface ButtonProps {
   disabled?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  loading?: boolean;
 }
 
 export function Button({
@@ -29,18 +33,25 @@ export function Button({
   disabled = false,
   style,
   textStyle,
+  loading = false,
 }: ButtonProps) {
-  const variantStyles = VARIANT_STYLES[variant] || VARIANT_STYLES.default;
-  const sizeStyles = SIZE_STYLES[size] || SIZE_STYLES.default;
+  const colorScheme = useColorScheme();
+  const theme = Theme.colors[colorScheme as keyof typeof Theme.colors];
+  
+  const variantStyles = getVariantStyles(variant, theme);
+  const sizeStyles = getSizeStyles(size);
+  const textVariantStyles = getTextVariantStyles(variant, theme);
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       style={[styles.base, variantStyles, sizeStyles, disabled && styles.disabled, style]}
     >
-      {typeof children === 'string' ? (
-        <Text style={[styles.text, TEXT_VARIANT_STYLES[variant], textStyle]}>
+      {loading ? (
+        <Text style={[styles.text, textVariantStyles, textStyle]}>...</Text>
+      ) : typeof children === 'string' ? (
+        <Text style={[styles.text, textVariantStyles, textStyle]}>
           {children}
         </Text>
       ) : (
@@ -50,31 +61,83 @@ export function Button({
   );
 }
 
-// Couleurs et styles par variant
-const VARIANT_STYLES: Record<ButtonVariant, ViewStyle> = {
-  default: { backgroundColor: '#A64B2A' },
-  destructive: { backgroundColor: '#dc2626' },
-  outline: { borderWidth: 1, borderColor: '#A64B2A', backgroundColor: 'transparent' },
-  secondary: { backgroundColor: '#f3f4f6' },
-  ghost: { backgroundColor: 'transparent' },
-  link: { backgroundColor: 'transparent' },
+const getVariantStyles = (variant: ButtonVariant, theme: any): ViewStyle => {
+  switch (variant) {
+    case 'default':
+      return { backgroundColor: theme.brand.primary };
+    case 'destructive':
+      return { backgroundColor: Colors.error };
+    case 'outline':
+      return { 
+        borderWidth: 1, 
+        borderColor: theme.brand.primary, 
+        backgroundColor: 'transparent' 
+      };
+    case 'secondary':
+      return { backgroundColor: theme.background.secondary };
+    case 'ghost':
+      return { backgroundColor: 'transparent' };
+    case 'link':
+      return { backgroundColor: 'transparent' };
+    default:
+      return { backgroundColor: theme.brand.primary };
+  }
 };
 
-const TEXT_VARIANT_STYLES: Record<ButtonVariant, TextStyle> = {
-  default: { color: '#fff' },
-  destructive: { color: '#fff' },
-  outline: { color: '#A64B2A' },
-  secondary: { color: '#000' },
-  ghost: { color: '#000' },
-  link: { color: '#A64B2A', textDecorationLine: 'underline' },
+const getTextVariantStyles = (variant: ButtonVariant, theme: any): TextStyle => {
+  switch (variant) {
+    case 'default':
+      return { color: theme.text.inverse };
+    case 'destructive':
+      return { color: theme.text.inverse };
+    case 'outline':
+      return { color: theme.brand.primary };
+    case 'secondary':
+      return { color: theme.text.primary };
+    case 'ghost':
+      return { color: theme.text.primary };
+    case 'link':
+      return { color: theme.brand.primary, textDecorationLine: 'underline' };
+    default:
+      return { color: theme.text.inverse };
+  }
 };
 
-// Tailles du bouton
-const SIZE_STYLES: Record<ButtonSize, ViewStyle> = {
-  default: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
-  sm: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6 },
-  lg: { paddingVertical: 14, paddingHorizontal: 20, borderRadius: 10 },
-  icon: { width: 36, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: 8 },
+const getSizeStyles = (size: ButtonSize): ViewStyle => {
+  switch (size) {
+    case 'default':
+      return { 
+        paddingVertical: Theme.spacing.button.padding.md.vertical, 
+        paddingHorizontal: Theme.spacing.button.padding.md.horizontal, 
+        borderRadius: Theme.spacing.button.borderRadius.md 
+      };
+    case 'sm':
+      return { 
+        paddingVertical: Theme.spacing.button.padding.sm.vertical, 
+        paddingHorizontal: Theme.spacing.button.padding.sm.horizontal, 
+        borderRadius: Theme.spacing.button.borderRadius.sm 
+      };
+    case 'lg':
+      return { 
+        paddingVertical: Theme.spacing.button.padding.lg.vertical, 
+        paddingHorizontal: Theme.spacing.button.padding.lg.horizontal, 
+        borderRadius: Theme.spacing.button.borderRadius.lg 
+      };
+    case 'icon':
+      return { 
+        width: 36, 
+        height: 36, 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        borderRadius: Theme.spacing.button.borderRadius.sm 
+      };
+    default:
+      return { 
+        paddingVertical: Theme.spacing.button.padding.md.vertical, 
+        paddingHorizontal: Theme.spacing.button.padding.md.horizontal, 
+        borderRadius: Theme.spacing.button.borderRadius.md 
+      };
+  }
 };
 
 const styles = StyleSheet.create({
@@ -82,10 +145,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    ...Theme.shadow.sm,
   },
   text: {
-    fontSize: 14,
-    fontWeight: '500',
+    ...Theme.typography.styles.button,
   },
   disabled: {
     opacity: 0.5,
