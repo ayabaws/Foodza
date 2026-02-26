@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, TextIn
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Message {
   id: string;
@@ -13,6 +14,7 @@ interface Message {
 
 export default function AssistantScreen() {
   const router = useRouter();
+  const { colors, isDarkMode } = useTheme();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',

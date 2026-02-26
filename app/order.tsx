@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TextInput, TouchableOpacity, StatusBar, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface CartItem {
   id: string;
@@ -24,6 +25,7 @@ interface RecommendedItem {
 }
 
 export default function OrderScreen() {
+  const { colors, isDarkMode } = useTheme();
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: '1',
@@ -97,70 +99,142 @@ export default function OrderScreen() {
     return calculateSubtotal() + calculateDeliveryFee();
   };
 
+  // Styles dynamiques qui dépendent du thème
+  const dynamicStyles = {
+    cartItem: {
+      flexDirection: 'row' as const,
+      backgroundColor: colors.surface,
+      borderRadius: 15,
+      padding: 15,
+      marginBottom: 15,
+      shadowColor: colors.shadow.dark,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    quantityButton: {
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: colors.surface,
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+    },
+    couponButton: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      backgroundColor: colors.surface,
+      borderRadius: 10,
+      padding: 15,
+    },
+    couponInput: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderRadius: 8,
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      borderWidth: 1,
+      borderColor: colors.border.medium,
+    },
+    addressButton: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      backgroundColor: colors.surface,
+      borderRadius: 10,
+      padding: 15,
+    },
+    paymentButton: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      backgroundColor: colors.surface,
+      borderRadius: 10,
+      padding: 15,
+    },
+    recommendedItem: {
+      flexDirection: 'row' as const,
+      backgroundColor: colors.surface,
+      borderRadius: 15,
+      padding: 15,
+      marginBottom: 15,
+      shadowColor: colors.shadow.dark,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+  };
+
   const renderCartItem = ({ item }: { item: CartItem }) => (
-    <View style={styles.cartItem}>
+    <View style={[styles.cartItem, dynamicStyles.cartItem]}>
       <Image source={item.image} style={styles.cartItemImage} />
       <View style={styles.cartItemInfo}>
-        <Text style={styles.cartItemName}>{item.name}</Text>
-        <Text style={styles.cartItemRestaurant}>{item.restaurant}</Text>
+        <Text style={[styles.cartItemName, { color: colors.text.primary }]}>{item.name}</Text>
+        <Text style={[styles.cartItemRestaurant, { color: colors.text.secondary }]}>{item.restaurant}</Text>
         {item.size && (
-          <Text style={styles.cartItemSize}>Taille: {item.size}</Text>
+          <Text style={[styles.cartItemSize, { color: colors.text.tertiary }]}>Taille: {item.size}</Text>
         )}
         {item.extras && item.extras.length > 0 && (
-          <Text style={styles.cartItemExtras}>
+          <Text style={[styles.cartItemExtras, { color: colors.text.tertiary }]}>
             Extras: {item.extras.join(', ')}
           </Text>
         )}
-        <Text style={styles.cartItemPrice}>{item.price} CFA</Text>
+        <Text style={[styles.cartItemPrice, { color: colors.secondary }]}>{item.price} CFA</Text>
       </View>
       <View style={styles.quantityContainer}>
         <TouchableOpacity 
-          style={styles.quantityButton}
+          style={[styles.quantityButton, dynamicStyles.quantityButton]}
           onPress={() => updateQuantity(item.id, item.quantity - 1)}
         >
-          <Ionicons name="remove" size={18} color="#2C1810" />
+          <Ionicons name="remove" size={18} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.quantityText}>{item.quantity}</Text>
+        <Text style={[styles.quantityText, { color: colors.text.primary }]}>{item.quantity}</Text>
         <TouchableOpacity 
-          style={styles.quantityButton}
+          style={[styles.quantityButton, dynamicStyles.quantityButton]}
           onPress={() => updateQuantity(item.id, item.quantity + 1)}
         >
-          <Ionicons name="add" size={18} color="#2C1810" />
+          <Ionicons name="add" size={18} color={colors.text.primary} />
         </TouchableOpacity>
       </View>
     </View>
   );
 
   const renderRecommendedItem = ({ item }: { item: RecommendedItem }) => (
-    <TouchableOpacity style={styles.recommendedItem}>
+    <TouchableOpacity style={[styles.recommendedItem, dynamicStyles.recommendedItem]}>
       <Image source={item.image} style={styles.recommendedItemImage} />
       <View style={styles.recommendedItemInfo}>
-        <Text style={styles.recommendedItemName}>{item.name}</Text>
-        <Text style={styles.recommendedItemRestaurant}>{item.restaurant}</Text>
+        <Text style={[styles.recommendedItemName, { color: colors.text.primary }]}>{item.name}</Text>
+        <Text style={[styles.recommendedItemRestaurant, { color: colors.text.secondary }]}>{item.restaurant}</Text>
         <View style={styles.recommendedItemRating}>
           <Ionicons name="star" size={14} color="#FFA500" />
-          <Text style={styles.recommendedItemRatingText}>{item.rating}</Text>
+          <Text style={[styles.recommendedItemRatingText, { color: colors.text.secondary }]}>{item.rating}</Text>
         </View>
-        <Text style={styles.recommendedItemPrice}>{item.price} CFA</Text>
+        <Text style={[styles.recommendedItemPrice, { color: colors.secondary }]}>{item.price} CFA</Text>
       </View>
-      <TouchableOpacity style={styles.addRecommendedButton}>
+      <TouchableOpacity style={[styles.addRecommendedButton, { backgroundColor: colors.primary }]}>
         <Ionicons name="add" size={20} color="#FFFFFF" />
       </TouchableOpacity>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="arrow-back" size={24} color="#2C1810" />
+          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Panier</Text>
+        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Panier</Text>
         <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="trash-outline" size={24} color="#2C1810" />
+          <Ionicons name="trash-outline" size={24} color={colors.text.primary} />
         </TouchableOpacity>
       </View>
 

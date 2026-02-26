@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, TextProps, View, ViewProps } from "react-native";
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Theme } from '@/constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface CardProps extends ViewProps {
   variant?: 'default' | 'elevated' | 'outlined';
@@ -9,26 +8,30 @@ interface CardProps extends ViewProps {
 interface CardTextProps extends TextProps {}
 
 export function Card({ style, variant = 'default', ...props }: CardProps) {
-  const colorScheme = useColorScheme();
-  const theme = Theme.colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { colors } = useTheme();
   
   const getVariantStyles = () => {
-    const backgroundColor = typeof theme.background === 'string' ? theme.background : theme.background.primary;
-    
     switch (variant) {
       case 'elevated':
-        return [Theme.shadow.md, { backgroundColor }];
+        return [{ 
+          backgroundColor: colors.surface,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3
+        }];
       case 'outlined':
         return [{ 
-          backgroundColor,
+          backgroundColor: colors.surface,
           borderWidth: 1,
-          borderColor: theme.border.medium
+          borderColor: colors.border.medium
         }];
       default:
         return [{ 
-          backgroundColor,
+          backgroundColor: colors.surface,
           borderWidth: 1,
-          borderColor: theme.border.light
+          borderColor: colors.border.light
         }];
     }
   };
@@ -41,17 +44,15 @@ export function CardHeader({ style, ...props }: CardProps) {
 }
 
 export function CardTitle({ style, ...props }: CardTextProps) {
-  const colorScheme = useColorScheme();
-  const theme = Theme.colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { colors } = useTheme();
   
-  return <Text style={[styles.cardTitle, { color: theme.text.primary }, style]} {...props} />;
+  return <Text style={[styles.cardTitle, { color: colors.text.primary }, style]} {...props} />;
 }
 
 export function CardDescription({ style, ...props }: CardTextProps) {
-  const colorScheme = useColorScheme();
-  const theme = Theme.colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const { colors } = useTheme();
   
-  return <Text style={[styles.cardDescription, { color: theme.text.secondary }, style]} {...props} />;
+  return <Text style={[styles.cardDescription, { color: colors.text.secondary }, style]} {...props} />;
 }
 
 export function CardAction({ style, ...props }: CardProps) {
@@ -68,40 +69,41 @@ export function CardFooter({ style, ...props }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Theme.borderRadius.lg,
+    borderRadius: 12,
     flexDirection: "column",
-    gap: Theme.spacing.component.md,
-    paddingVertical: Theme.spacing.xs,
+    paddingVertical: 8,
   },
   cardHeader: {
-    paddingHorizontal: Theme.spacing.card.padding,
-    paddingTop: Theme.spacing.card.padding,
-    gap: Theme.spacing.xs,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    gap: 4,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
   cardTitle: {
-    ...Theme.typography.styles.h4,
+    fontSize: 18,
+    fontWeight: '600',
   },
   cardDescription: {
-    ...Theme.typography.styles.body2,
+    fontSize: 14,
+    lineHeight: 20,
   },
   cardAction: {
     alignSelf: "flex-end",
     position: "absolute",
-    top: Theme.spacing.card.padding,
-    right: Theme.spacing.card.padding,
+    top: 16,
+    right: 16,
   },
   cardContent: {
-    paddingHorizontal: Theme.spacing.card.padding,
-    paddingBottom: Theme.spacing.card.padding,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   cardFooter: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: Theme.spacing.card.padding,
-    paddingVertical: Theme.spacing.card.padding,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     justifyContent: "flex-start",
   },
 });

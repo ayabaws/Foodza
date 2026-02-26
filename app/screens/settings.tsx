@@ -1,327 +1,155 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Switch, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { isDarkMode, toggleTheme, colors } = useTheme();
-  const [notifications, setNotifications] = useState(true);
-  const [location, setLocation] = useState(true);
-  const [autoOrder, setAutoOrder] = useState(false);
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Déconnexion',
-      'Êtes-vous sûr de vouloir vous déconnecter ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { 
-          text: 'Déconnexion', 
-          style: 'destructive',
-          onPress: () => {
-            router.replace('/onboarding/FlashScreen');
-          }
-        },
-      ]
-    );
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      {/* Header avec Titre en Gras et centré */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backIcon}>
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Paramètres</Text>
-        <View style={styles.placeholder} />
+        <View style={{ width: 40 }} /> 
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-        {/* General Section */}
-        <View style={[styles.section, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text.primary, borderBottomColor: colors.border.light }]}>General</Text>
-          
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border.light }]}>
-            <View style={[styles.menuIcon, { backgroundColor: colors.border.medium }]}>
-              <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={[styles.menuText, { color: colors.text.primary }]}>Notifications</Text>
-              <Text style={[styles.menuDescription, { color: colors.text.secondary }]}>Receive alerts about your orders</Text>
-            </View>
-            <Switch
-              value={notifications}
-              onValueChange={setNotifications}
-              trackColor={{ false: '#333333', true: '#4CAF50' }}
-              thumbColor={notifications ? '#FFFFFF' : '#FFFFFF'}
-            />
-          </TouchableOpacity>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        
+        {/* SECTION GENERALE */}
+        <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Generale</Text>
+        
+        <SettingButton icon={<Feather name="repeat" size={20} color={colors.text.secondary} />} label="Changer de compte" />
+        
+        <SettingButton 
+          icon={<Ionicons name="language-outline" size={20} color={colors.text.secondary} />} 
+          label="Langue" 
+          rightText="Français" 
+        />
 
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border.light }]}>
-            <View style={[styles.menuIcon, { backgroundColor: colors.border.medium }]}>
-              <Ionicons name="mail-outline" size={24} color={colors.text.primary} />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={[styles.menuText, { color: colors.text.primary }]}>Email</Text>
-              <Text style={[styles.menuDescription, { color: colors.text.secondary }]}>Receive offers by email</Text>
-            </View>
-            <Switch
-              value={notifications}
-              onValueChange={setNotifications}
-              trackColor={{ false: '#333333', true: '#4CAF50' }}
-              thumbColor={notifications ? '#FFFFFF' : '#FFFFFF'}
-            />
-          </TouchableOpacity>
+        <View style={[styles.settingItem, { backgroundColor: colors.surface }]}>
+          <View style={styles.leftSide}>
+            <Feather name="moon" size={20} color={colors.text.secondary} style={styles.iconMargin} />
+            <Text style={[styles.itemLabel, { color: colors.text.primary }]}>Mode sombre</Text>
+          </View>
+          <Switch 
+            value={isDarkMode} 
+            onValueChange={toggleTheme}
+            trackColor={{ false: colors.border.medium, true: colors.secondary }}
+            thumbColor="#FFF"
+            ios_backgroundColor={colors.border.medium}
+            style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+          />
         </View>
 
-        {/* Privacy Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Privacy</Text>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="location-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Location</Text>
-              <Text style={styles.menuDescription}>Share your location for fast delivery</Text>
-            </View>
-            <Switch
-              value={location}
-              onValueChange={setLocation}
-              trackColor={{ false: '#333333', true: '#4CAF50' }}
-              thumbColor={location ? '#FFFFFF' : '#FFFFFF'}
-            />
-          </TouchableOpacity>
+        {/* SECTION AUTRES */}
+        <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Autres</Text>
+        <SettingButton icon={<Feather name="lock" size={20} color={colors.text.secondary} />} label="politique de confidentialité" />
+        <SettingButton icon={<Feather name="message-circle" size={20} color={colors.text.secondary} />} label="Assistance client" />
+        <SettingButton icon={<Feather name="file-text" size={20} color={colors.text.secondary} />} label="Conditions générales" />
 
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="finger-print-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Biometric</Text>
-              <Text style={styles.menuDescription}>Use your fingerprint</Text>
-            </View>
-            <Switch
-              value={false}
-              onValueChange={() => {}}
-              trackColor={{ false: '#333333', true: '#4CAF50' }}
-              thumbColor="#FFFFFF"
-            />
-          </TouchableOpacity>
-        </View>
+        {/* SECTION ACTIONS DANGEREUSES */}
+        <Text style={[styles.sectionLabel, { color: '#FF3B30', marginTop: 30 }]}>Actions dangereuses</Text>
+        <SettingButton 
+          icon={<Feather name="trash-2" size={20} color="#FF3B30" />} 
+          label="Supprimer mon compte" 
+          isDangerous={true}
+          onPress={() => console.log('Supprimer le compte')}
+        />
+        <SettingButton 
+          icon={<Feather name="log-out" size={20} color="#FF3B30" />} 
+          label="Se déconnecter" 
+          isDangerous={true}
+          onPress={() => console.log('Se déconnecter')}
+        />
 
-        {/* App Settings Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>App Settings</Text>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="moon-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Dark Mode</Text>
-              <Text style={styles.menuDescription}>Use dark theme for the app</Text>
-            </View>
-            <Switch
-              value={isDarkMode}
-              onValueChange={toggleTheme}
-              trackColor={{ false: '#333333', true: '#4CAF50' }}
-              thumbColor={isDarkMode ? '#FFFFFF' : '#FFFFFF'}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="language-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Language</Text>
-              <Text style={styles.menuDescription}>French</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#666666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="sync-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Auto Order</Text>
-              <Text style={styles.menuDescription}>Recommend orders based on your preferences</Text>
-            </View>
-            <Switch
-              value={autoOrder}
-              onValueChange={setAutoOrder}
-              trackColor={{ false: '#333333', true: '#4CAF50' }}
-              thumbColor={autoOrder ? '#FFFFFF' : '#FFFFFF'}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Support Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="help-circle-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Help</Text>
-              <Text style={styles.menuDescription}>Help center and FAQ</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#666666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="chatbubble-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Contact Us</Text>
-              <Text style={styles.menuDescription}>Send message to support</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#666666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="document-text-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Terms of Service</Text>
-              <Text style={styles.menuDescription}>Read our terms of use</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#666666" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="shield-outline" size={24} color="#FFFFFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Privacy Policy</Text>
-              <Text style={styles.menuDescription}>How we protect your data</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#666666" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Logout Button */}
-        <TouchableOpacity style={[styles.logoutButton, { backgroundColor: colors.surface }]} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="#FF4444" />
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-
-        {/* App Version */}
-        <View style={styles.versionSection}>
-          <Text style={[styles.versionText, { color: colors.text.secondary }]}>Foodza v1.0.0</Text>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+// Composant pour les boutons individuels (Un bloc par option)
+const SettingButton = ({ icon, label, rightText, onPress, isDangerous = false }: any) => {
+  const { colors } = useTheme();
+  
+  return (
+    <TouchableOpacity style={[styles.settingItem, { backgroundColor: colors.surface }]} onPress={onPress} activeOpacity={0.7}>
+      <View style={styles.leftSide}>
+        <View style={styles.iconMargin}>{icon}</View>
+        <Text style={[styles.itemLabel, { color: isDangerous ? '#FF3B30' : colors.text.primary }]}>{label}</Text>
+      </View>
+      <View style={styles.rightSide}>
+        {rightText && <Text style={[styles.rightText, { color: colors.text.secondary }]}>{rightText}</Text>}
+        <Feather name="chevron-right" size={18} color={isDangerous ? "#FF3B30" : colors.text.tertiary} />
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { 
+    flex: 1
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  placeholder: {
-    width: 40,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  section: {
-    backgroundColor: '#1A1A1A',
-    marginHorizontal: 20,
-    marginVertical: 10,
-    borderRadius: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
     paddingVertical: 10,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333333',
+  backIcon: { padding: 5 },
+  headerTitle: { 
+    fontSize: 17, 
+    fontWeight: '700', 
+    textAlign: 'center'
   },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333333',
+  scrollContent: { 
+    paddingHorizontal: 16, 
+    paddingBottom: 40 
   },
-  menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#333333',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  menuContent: {
-    flex: 1,
-  },
-  menuText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    marginBottom: 2,
-  },
-  menuDescription: {
-    fontSize: 14,
-    color: '#CCCCCC',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1A1A1A',
-    marginHorizontal: 20,
-    marginVertical: 20,
-    paddingVertical: 15,
-    borderRadius: 12,
-  },
-  logoutText: {
-    fontSize: 16,
-    color: '#FF4444',
-    marginLeft: 10,
-    fontWeight: '600',
-  },
-  versionSection: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  versionText: {
+  sectionLabel: {
     fontSize: 12,
-    color: '#666666',
+    marginBottom: 8,
+    marginTop: 20,
+    marginLeft: 4,
+    fontWeight: '500'
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8, // L'espace entre chaque bouton
+  },
+  leftSide: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  iconMargin: { 
+    marginRight: 12,
+    width: 24,
+    alignItems: 'center'
+  },
+  itemLabel: { 
+    fontSize: 15, 
+    fontWeight: '400' 
+  },
+  rightSide: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  rightText: { 
+    marginRight: 6, 
+    fontSize: 15 
   },
 });

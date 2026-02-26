@@ -1,15 +1,15 @@
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { useTheme } from '@/contexts/ThemeContext';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
+function RootLayoutNav() {
+  const { isDarkMode } = useTheme();
+  
   return (
-    <ThemeProvider>
+    <>
       <Stack screenOptions={{ headerShown: false,
         animation: 'slide_from_right',
         animationDuration: 400, }}>
@@ -24,13 +24,31 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding/LocationPermissionScreen" options={{ headerShown: false }} />
         <Stack.Screen name="restaurant" options={{ headerShown: false }} />
         <Stack.Screen name="order" options={{ headerShown: false }} />
+        <Stack.Screen name="cart" options={{ headerShown: false }} />
         <Stack.Screen name="screens/assistant" options={{ headerShown: false }} />
         <Stack.Screen name="screens/settings" options={{ headerShown: false }} />
         <Stack.Screen name="screens/profile" options={{ headerShown: false }} />
         <Stack.Screen name="screens/review" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/favorites" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/search" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/filters" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/explore" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/order-details" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/order-track" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/dish-detail" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <FavoritesProvider>
+        <RootLayoutNav />
+      </FavoritesProvider>
     </ThemeProvider>
   );
 }

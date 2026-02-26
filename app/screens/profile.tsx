@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Image, Switch, Alert, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar } from 'react-native';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -8,231 +8,144 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { isDarkMode, toggleTheme, colors } = useTheme();
 
-  const handleEditProfile = () => {
-    Alert.alert(
-      'Modifier le profil',
-      'Fonctionnalité de modification du profil',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Modifier', onPress: () => {
-          console.log('Modification du profil');
-        }}
-      ]
-    );
-  };
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Déconnexion',
-      'Êtes-vous sûr de vouloir vous déconnecter ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { 
-          text: 'Déconnexion', 
-          style: 'destructive',
-          onPress: () => {
-            router.replace('/onboarding/FlashScreen');
-          }
-        },
-      ]
-    );
+  const userProfile = {
+    name: "Fanta Diakité",
+    email: "fanta2013@gmail.com",
+    phone: "+223 90 04 91 59",
+    avatarUrl: null, 
+    initials: "FD"
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.iconPadding}>
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Profile</Text>
-        <TouchableOpacity style={styles.settingsButton} onPress={handleEditProfile}>
-          <Ionicons name="create-outline" size={24} color={colors.text.primary} />
+        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Mon Compte</Text>
+        <TouchableOpacity onPress={() => console.log('Modifier le profil')}>
+          <Text style={[styles.modifierText, { color: colors.primary }]}>Modifier</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-        {/* Profile Section */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        
+        {/* Profile Info avec Logique de Fallback pour l'image */}
         <View style={styles.profileSection}>
-          <View style={styles.profileImageContainer}>
-            <View style={[styles.profileImage, { backgroundColor: colors.primary }]}>
-              <Text style={styles.profileInitial}>F</Text>
+          {userProfile.avatarUrl ? (
+            <Image source={{ uri: userProfile.avatarUrl }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatarFallback, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.avatarFallbackText, { color: colors.text.primary }]}>{userProfile.initials}</Text>
             </View>
+          )}
+          
+          <Text style={[styles.userName, { color: colors.text.primary }]}>{userProfile.name}</Text>
+          <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.email}</Text>
+          <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.phone}</Text>
+        </View>
+
+        {/* SECTION GENERALE */}
+        <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Generale</Text>
+        <ProfileItem icon={<Feather name="list" size={20} color={colors.text.secondary} />} label="Mes Commandes" onPress={() => console.log('Mes commandes')} />
+        <ProfileItem icon={<Feather name="credit-card" size={20} color={colors.text.secondary} />} label="Payment" onPress={() => console.log('Payment')} />
+        <ProfileItem icon={<Feather name="map-pin" size={20} color={colors.text.secondary} />} label="Addresses" onPress={() => console.log('Addresses')} />
+        <ProfileItem 
+          icon={<Feather name="settings" size={20} color={colors.text.secondary} />} 
+          label="Paramètres" 
+          onPress={() => router.push('/screens/settings')} 
+        />
+        <ProfileItem 
+          icon={<Feather name="log-out" size={20} color="#FF3B30" />} 
+          label="Se déconnecter" 
+          isDangerous={true}
+          onPress={() => console.log('Se déconnecter')} 
+        />
+
+        {/* SECTION THEME */}
+        <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Theme</Text>
+        <View style={[styles.menuItem, { backgroundColor: colors.surface }]}>
+          <View style={styles.leftSide}>
+            <Feather name="moon" size={20} color={colors.text.secondary} style={styles.iconMargin} />
+            <Text style={[styles.itemLabel, { color: colors.text.primary }]}>Mode sombre</Text>
           </View>
-          <Text style={[styles.profileName, { color: colors.text.primary }]}>Fanta Coulibaly</Text>
-          <Text style={[styles.profileEmail, { color: colors.text.secondary }]}>fanta2013@gmail.com</Text>
-          <Text style={[styles.profilePhone, { color: colors.text.secondary }]}>+223 9004 91 59</Text>
+          <Switch 
+            value={isDarkMode} 
+            onValueChange={toggleTheme}
+            trackColor={{ false: colors.border.medium, true: colors.secondary }}
+            thumbColor="#FFF"
+            style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+          />
         </View>
 
-        {/* General Section */}
-        <View style={[styles.section, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text.primary, borderBottomColor: colors.border.light }]}>Generale</Text>
-          
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border.light }]}>
-            <View style={[styles.menuIcon, { backgroundColor: colors.border.medium }]}>
-              <Ionicons name="list-outline" size={24} color={colors.text.primary} />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text.primary }]}>Mes Commandes</Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border.light }]}>
-            <View style={[styles.menuIcon, { backgroundColor: colors.border.medium }]}>
-              <Ionicons name="card-outline" size={24} color={colors.text.primary} />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text.primary }]}>Payment</Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border.light }]}>
-            <View style={[styles.menuIcon, { backgroundColor: colors.border.medium }]}>
-              <Ionicons name="location-outline" size={24} color={colors.text.primary} />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text.primary }]}>Addresses</Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border.light }]} onPress={() => router.push('/screens/settings')}>
-            <View style={[styles.menuIcon, { backgroundColor: colors.border.medium }]}>
-              <Ionicons name="settings-outline" size={24} color={colors.text.primary} />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text.primary }]}>Paramètres</Text>
-            <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Theme Section */}
-        <View style={[styles.section, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text.primary, borderBottomColor: colors.border.light }]}>Theme</Text>
-          
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border.light }]}>
-            <View style={[styles.menuIcon, { backgroundColor: colors.border.medium }]}>
-              <Ionicons name="moon-outline" size={24} color={colors.text.primary} />
-            </View>
-            <Text style={[styles.menuText, { color: colors.text.primary }]}>Mode sombre</Text>
-            <Switch
-              value={isDarkMode}
-              onValueChange={toggleTheme}
-              trackColor={{ false: colors.border.medium, true: colors.secondary }}
-              thumbColor={colors.text.primary}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Logout Button */}
-        <TouchableOpacity style={[styles.logoutButton, { backgroundColor: colors.surface }]} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="#FF4444" />
-          <Text style={styles.logoutText}>Déconnexion</Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+const ProfileItem = ({ icon, label, onPress, isDangerous = false }: any) => {
+  const { colors } = useTheme();
+  
+  return (
+    <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.surface }]} onPress={onPress} activeOpacity={0.7}>
+      <View style={styles.leftSide}>
+        <View style={styles.iconMargin}>{icon}</View>
+        <Text style={[styles.itemLabel, { color: isDangerous ? '#FF3B30' : colors.text.primary }]}>{label}</Text>
+      </View>
+      <Feather name="chevron-right" size={18} color={isDangerous ? "#FF3B30" : colors.text.tertiary} />
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
+    paddingVertical: 10,
   },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  settingsButton: {
-    padding: 8,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  profileSection: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  profileImageContainer: {
-    marginBottom: 20,
-  },
-  profileImage: {
+  headerTitle: { fontSize: 17, fontWeight: '700' },
+  modifierText: { color: '#FFFFFF', fontWeight: '600', fontSize: 15 },
+  iconPadding: { padding: 5 },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 30 },
+  profileSection: { alignItems: 'center', marginTop: 20, marginBottom: 30 },
+  avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 15 },
+  // Style pour le cercle avec initiales
+  avatarFallback: {
     width: 100,
     height: 100,
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 15,
   },
-  profileInitial: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+  avatarFallbackText: {
+    fontSize: 32,
+    fontWeight: '700',
   },
-  profileName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  profileEmail: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  profilePhone: {
-    fontSize: 16,
-  },
-  section: {
-    marginHorizontal: 20,
-    marginVertical: 10,
-    borderRadius: 12,
-    paddingVertical: 10,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-  },
+  userName: { fontSize: 22, fontWeight: '700', marginBottom: 4 },
+  userSubText: { fontSize: 14, marginBottom: 2 },
+  sectionLabel: { fontSize: 12, marginBottom: 10, marginTop: 15, fontWeight: '500' },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-  },
-  menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  menuText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 20,
-    marginVertical: 20,
-    paddingVertical: 15,
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 12,
+    marginBottom: 10,
   },
-  logoutText: {
-    fontSize: 16,
-    color: '#FF4444',
-    marginLeft: 10,
-    fontWeight: '600',
+  leftSide: { flexDirection: 'row', alignItems: 'center' },
+  iconMargin: { marginRight: 12, width: 24, alignItems: 'center' },
+  itemLabel: { fontSize: 15, fontWeight: '400' },
+  modifierButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
 });

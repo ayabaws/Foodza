@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Alert, Switch, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface FilterOption {
   id: string;
@@ -20,6 +21,7 @@ interface PriceRange {
 
 export default function FiltersScreen() {
   const router = useRouter();
+  const { colors, isDarkMode } = useTheme();
   
   const [filters, setFilters] = useState({
     freeDelivery: false,

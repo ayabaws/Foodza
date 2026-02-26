@@ -2,20 +2,23 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, StatusBar, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function OrderDetailsScreen() {
+  const { colors, isDarkMode } = useTheme();
+  
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
         <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="arrow-back" size={24} color="#2C1810" />
+          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Détails de la commande</Text>
+        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Détails de la commande</Text>
         <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="share-outline" size={24} color="#2C1810" />
+          <Ionicons name="share-outline" size={24} color={colors.text.primary} />
         </TouchableOpacity>
       </View>
 

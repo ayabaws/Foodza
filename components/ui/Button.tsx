@@ -7,9 +7,7 @@ import {
     TouchableOpacity,
     ViewStyle,
 } from 'react-native';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Theme } from '@/constants/theme';
-import { Colors } from '@/constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
@@ -35,12 +33,11 @@ export function Button({
   textStyle,
   loading = false,
 }: ButtonProps) {
-  const colorScheme = useColorScheme();
-  const theme = Theme.colors[colorScheme as keyof typeof Theme.colors];
+  const { colors } = useTheme();
   
-  const variantStyles = getVariantStyles(variant, theme);
+  const variantStyles = getVariantStyles(variant, colors);
   const sizeStyles = getSizeStyles(size);
-  const textVariantStyles = getTextVariantStyles(variant, theme);
+  const textVariantStyles = getTextVariantStyles(variant, colors);
 
   return (
     <TouchableOpacity
@@ -61,45 +58,45 @@ export function Button({
   );
 }
 
-const getVariantStyles = (variant: ButtonVariant, theme: any): ViewStyle => {
+const getVariantStyles = (variant: ButtonVariant, colors: any): ViewStyle => {
   switch (variant) {
     case 'default':
-      return { backgroundColor: theme.brand.primary };
+      return { backgroundColor: colors.primary };
     case 'destructive':
-      return { backgroundColor: Colors.error };
+      return { backgroundColor: '#FF4444' };
     case 'outline':
       return { 
         borderWidth: 1, 
-        borderColor: theme.brand.primary, 
+        borderColor: colors.primary, 
         backgroundColor: 'transparent' 
       };
     case 'secondary':
-      return { backgroundColor: theme.background.secondary };
+      return { backgroundColor: colors.surface };
     case 'ghost':
       return { backgroundColor: 'transparent' };
     case 'link':
       return { backgroundColor: 'transparent' };
     default:
-      return { backgroundColor: theme.brand.primary };
+      return { backgroundColor: colors.primary };
   }
 };
 
-const getTextVariantStyles = (variant: ButtonVariant, theme: any): TextStyle => {
+const getTextVariantStyles = (variant: ButtonVariant, colors: any): TextStyle => {
   switch (variant) {
     case 'default':
-      return { color: theme.text.inverse };
+      return { color: colors.text.inverse };
     case 'destructive':
-      return { color: theme.text.inverse };
+      return { color: colors.text.inverse };
     case 'outline':
-      return { color: theme.brand.primary };
+      return { color: colors.primary };
     case 'secondary':
-      return { color: theme.text.primary };
+      return { color: colors.text.primary };
     case 'ghost':
-      return { color: theme.text.primary };
+      return { color: colors.text.primary };
     case 'link':
-      return { color: theme.brand.primary, textDecorationLine: 'underline' };
+      return { color: colors.primary, textDecorationLine: 'underline' };
     default:
-      return { color: theme.text.inverse };
+      return { color: colors.text.inverse };
   }
 };
 
@@ -107,21 +104,21 @@ const getSizeStyles = (size: ButtonSize): ViewStyle => {
   switch (size) {
     case 'default':
       return { 
-        paddingVertical: Theme.spacing.button.padding.md.vertical, 
-        paddingHorizontal: Theme.spacing.button.padding.md.horizontal, 
-        borderRadius: Theme.spacing.button.borderRadius.md 
+        paddingVertical: 12, 
+        paddingHorizontal: 24, 
+        borderRadius: 8 
       };
     case 'sm':
       return { 
-        paddingVertical: Theme.spacing.button.padding.sm.vertical, 
-        paddingHorizontal: Theme.spacing.button.padding.sm.horizontal, 
-        borderRadius: Theme.spacing.button.borderRadius.sm 
+        paddingVertical: 8, 
+        paddingHorizontal: 16, 
+        borderRadius: 6 
       };
     case 'lg':
       return { 
-        paddingVertical: Theme.spacing.button.padding.lg.vertical, 
-        paddingHorizontal: Theme.spacing.button.padding.lg.horizontal, 
-        borderRadius: Theme.spacing.button.borderRadius.lg 
+        paddingVertical: 16, 
+        paddingHorizontal: 32, 
+        borderRadius: 12 
       };
     case 'icon':
       return { 
@@ -129,13 +126,13 @@ const getSizeStyles = (size: ButtonSize): ViewStyle => {
         height: 36, 
         justifyContent: 'center', 
         alignItems: 'center', 
-        borderRadius: Theme.spacing.button.borderRadius.sm 
+        borderRadius: 18 
       };
     default:
       return { 
-        paddingVertical: Theme.spacing.button.padding.md.vertical, 
-        paddingHorizontal: Theme.spacing.button.padding.md.horizontal, 
-        borderRadius: Theme.spacing.button.borderRadius.md 
+        paddingVertical: 12, 
+        paddingHorizontal: 24, 
+        borderRadius: 8 
       };
   }
 };
@@ -145,10 +142,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    ...Theme.shadow.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   text: {
-    ...Theme.typography.styles.button,
+    fontSize: 16,
+    fontWeight: '600',
   },
   disabled: {
     opacity: 0.5,

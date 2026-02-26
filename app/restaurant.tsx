@@ -1,297 +1,540 @@
-import React, { useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
-  Image, 
-  Dimensions, 
-  FlatList, 
-  NativeSyntheticEvent, 
-  NativeScrollEvent 
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  Image, Dimensions, FlatList, Animated, Easing, StatusBar
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import Svg, { Path } from 'react-native-svg';
+import { useRouter } from 'expo-router';
+import MenuModal from '@/components/MenuModal';
+import PopularDishCard from '@/components/PopularDishCard';
+import DishPreviewModal from '@/components/DishPreviewModal';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Données fictives pour le rendu
+interface CartItem {
+  id: string;
+  name: string;
+  price: string;
+  desc: string;
+  cat: string;
+  img: string;
+  quantity: number;
+}
+
+// --- DATA ---const 
 const HERO_IMAGES = [
-  { id: '1', source: require('@/assets/food/food1.jpg') },
-  { id: '2', source: require('@/assets/food/food2.jpeg') },
-  { id: '3', source: require('@/assets/food/food3.jpeg') },
+  { id: '1', url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800' }, // Pizza Royale
+  { id: '2', url: 'https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?w=800' }, // Burger Gourmet
+  { id: '3', url: 'https://images.unsplash.com/photo-1550966842-28a1a2f4b45e?w=800' }, // Ambiance Table
+  { id: '4', url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800' }, // Petit Déjeuner / Café
+  { id: '5', url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800' }, // Dessert Fraises
+  { id: '6', url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800' }, // Grillades BBQ
+  { id: '7', url: 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?w=800' }, // Fast Food varié
+  { id: '8', url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800' }, // Plat cuisiné healthy
+  { id: '9', url: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800' }, // Donuts / Sucré
+  { id: '10', url: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800' }, // Salade fraîche
 ];
 
-const POPULAR_ITEMS = [
-  { 
-    id: '1', 
-    name: 'Poulet Yassa', 
-    price: '2000- 5000 FCFA', 
-    rating: '4.3', 
-    discount: '70% OFF',
-    image: require('@/assets/home/pizza.png') 
+const CATEGORIES = [
+  { id: '1', name: 'Tous', image: require('@/assets/home/all.png') },
+  { id: '2', name: 'Pizza', image: require('@/assets/home/pizza.png') },
+  { id: '3', name: 'Boisson', image: require('@/assets/home/jus.webp') },
+  { id: '4', name: 'Local', image: require('@/assets/home/local.png') },
+  { id: '5', name: 'Grill', image: require('@/assets/home/grill.png') },
+];
+
+const FOOD_ITEMS = [
+  // --- PIZZAS ---
+  {
+    id: '1',
+    name: 'Pizza Margherita',
+    price: '4500 CFA',
+    desc: 'La classique : sauce tomate San Marzano, mozzarella di bufala et basilic frais.',
+    cat: 'Pizza',
+    img: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?q=80&w=500'
   },
-  { 
-    id: '2', 
-    name: 'Croissant', 
-    price: '2000- 5000 FCFA', 
-    rating: '4.3', 
-    discount: '70% OFF',
-    image: require('@/assets/home/grill.png') 
+  {
+    id: '2',
+    name: 'Pizza Pepperoni',
+    price: '5500 CFA',
+    desc: 'Double dose de pepperoni grillé sur un lit de fromage fondant.',
+    cat: 'Pizza',
+    img: 'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?q=80&w=500'
   },
+
+  // --- LOCAL (AFRICAIN) ---
+  {
+    id: '3',
+    name: 'Poulet Yassa',
+    price: '4000 CFA',
+    desc: 'Poulet mariné au citron et oignons caramélisés, servi avec son riz parfumé.',
+    cat: 'Local',
+    img: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?q=80&w=500'
+  },
+  {
+    id: '4',
+    name: 'Thieboudienne Rouge',
+    price: '4500 CFA',
+    desc: 'Le plat national : riz rouge au poisson, légumes du marché et saveurs authentiques.',
+    cat: 'Local',
+    img: 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=500'
+  },
+  {
+    id: '5',
+    name: 'Attiéké Poisson',
+    price: '3500 CFA',
+    desc: 'Semoule de manioc fondante accompagnée d\'un poisson braisé et piment frais.',
+    cat: 'Local',
+    img: 'https://images.unsplash.com/photo-1628106230204-ba367c30e764?q=80&w=500'
+  },
+
+  // --- GRILL ---
+  {
+    id: '6',
+    name: 'Burger Gourmet XXL',
+    price: '3500 CFA',
+    desc: 'Pain brioché, steak de boeuf pur, cheddar fondant et frites maison.',
+    cat: 'Grill',
+    img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=500'
+  },
+  {
+    id: '7',
+    name: 'Poulet Braisé',
+    price: '5000 CFA',
+    desc: 'Demi-poulet braisé au feu de bois avec sa marinade épicée.',
+    cat: 'Grill',
+    img: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?q=80&w=500'
+  },
+
+  // --- BOISSONS ---
+  {
+    id: '8',
+    name: 'Cocktail Bissap',
+    price: '1000 CFA',
+    desc: 'Infusion fraîche de fleurs d\'hibiscus, menthe et arôme vanille.',
+    cat: 'Boisson',
+    img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=500'
+  },
+  {
+    id: '9',
+    name: 'Jus de Gingembre',
+    price: '1000 CFA',
+    desc: 'Énergie pure : jus de gingembre frais pressé avec une pointe de citron.',
+    cat: 'Boisson',
+    img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=500'
+  }
 ];
 
 export default function RestaurantScreen() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const router = useRouter();
+  const { colors, isDarkMode } = useTheme();
+  const [selectedCat, setSelectedCat] = useState('Tous');
+  const [cartVisible, setCartVisible] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [showDishModal, setShowDishModal] = useState(false);
+  const [selectedDish, setSelectedDish] = useState<any>(null);
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const scrollPosition = event.nativeEvent.contentOffset.x;
-    const index = Math.round(scrollPosition / SCREEN_WIDTH);
-    setActiveIndex(index);
+  const menuAnim = useRef(new Animated.Value(30)).current;
+  const flatListRef = useRef<FlatList>(null);
+
+  // --- AUTO-PLAY CAROUSEL (5 secondes) ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      let nextIndex = activeSlide + 1;
+      if (nextIndex >= HERO_IMAGES.length) nextIndex = 0;
+
+      flatListRef.current?.scrollToIndex({
+        index: nextIndex,
+        animated: true,
+      });
+      setActiveSlide(nextIndex);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [activeSlide]);
+
+  const handleAddToCart = (item: typeof FOOD_ITEMS[0]) => {
+    // Ajouter l'article au panier
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(cartItem => cartItem.id === item.id);
+      if (existingItem) {
+        return prevItems.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevItems, { ...item, quantity: 1 }];
+      }
+    });
+
+    setCartVisible(true);
+    Animated.spring(menuAnim, { toValue: 110, useNativeDriver: false }).start();
+
+    setTimeout(() => {
+      setCartVisible(false);
+      Animated.spring(menuAnim, { toValue: 30, useNativeDriver: false }).start();
+    }, 4000);
+  };
+
+  const handleMenuToggle = () => {
+    setMenuVisible(!menuVisible);
+    Animated.spring(menuAnim, {
+      toValue: menuVisible ? 30 : 110,
+      useNativeDriver: false
+    }).start();
+  };
+
+  const handleDishPress = (item: typeof FOOD_ITEMS[0]) => {
+    const dish = {
+      id: item.id,
+      name: item.name,
+      image: { uri: item.img },
+      price: parseInt(item.price),
+      description: item.desc
+    };
+    setSelectedDish(dish);
+    setShowDishModal(true);
+  };
+
+  const filteredData = selectedCat === 'Tous'
+    ? FOOD_ITEMS
+    : FOOD_ITEMS.filter(item => item.cat === selectedCat);
+
+  const handleBackPress = () => {
+    router.back();
+  };
+
+  const handleSearchPress = () => {
+    router.push('/screens/search');
+  };
+
+  const handleSharePress = () => {
+    // Logique de partage - pour l'instant juste un console.log
+    console.log('Partager le restaurant');
+  };
+
+  const handleFavoritePress = () => {
+    // Logique de favoris - pour l'instant juste un console.log
+    console.log('Ajouter aux favoris');
+  };
+
+  // Styles dynamiques qui dépendent du thème
+  const dynamicStyles = {
+    filterSection: { marginTop: 30, borderBottomWidth: 1, borderBottomColor: colors.border.light, paddingBottom: 5 },
+    catActive: { color: colors.text.primary, fontWeight: 'bold' },
+    catIndicator: { height: 3, width: '100%', backgroundColor: colors.primary, marginTop: 10, borderRadius: 2 },
+    recommendCard: { 
+      flexDirection: 'row' as const, 
+      backgroundColor: colors.surface, 
+      borderRadius: 30, 
+      padding: 10, 
+      marginBottom: 15, 
+      elevation: 3, 
+      shadowColor: colors.shadow.dark, 
+      shadowOffset: { width: 0, height: 2 }, 
+      shadowOpacity: 0.1, 
+      shadowRadius: 10 
+    },
+    addButton: { 
+      backgroundColor: colors.primary, 
+      width: 40, 
+      height: 40, 
+      borderRadius: 20, 
+      justifyContent: 'center' as const, 
+      alignItems: 'center' as const 
+    },
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'light-content'} />
+
       <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-        
-        {/* --- SECTION HERO (CAROUSEL) --- */}
-        <View style={styles.heroContainer}>
+
+        {/* --- HEADER CAROUSEL --- */}
+        <View style={styles.heroSection}>
           <FlatList
+            ref={flatListRef}
             data={HERO_IMAGES}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={handleScroll}
-            renderItem={({ item }) => (
-              <Image source={item.source} style={styles.heroImage} />
-            )}
+            onMomentumScrollEnd={(e) => {
+              const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+              setActiveSlide(index);
+            }}
             keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <Image source={{ uri: item.url }} style={styles.heroImg} />
+            )}
           />
 
-          {/* Header Buttons */}
-          <SafeAreaView style={styles.headerNav} edges={['top']}>
-            <TouchableOpacity style={styles.blurBtn}>
+          <SafeAreaView style={styles.navIcons} edges={['top']}>
+            <TouchableOpacity style={styles.blurBtn} onPress={handleBackPress}>
               <Ionicons name="chevron-back" size={24} color="white" />
             </TouchableOpacity>
-            <View style={styles.headerRight}>
-              <TouchableOpacity style={styles.blurBtn}><Ionicons name="search" size={20} color="white" /></TouchableOpacity>
-              <TouchableOpacity style={styles.blurBtn}><Ionicons name="share-outline" size={20} color="white" /></TouchableOpacity>
-              <TouchableOpacity style={styles.blurBtn}><Ionicons name="heart-outline" size={20} color="white" /></TouchableOpacity>
+            <View style={styles.navRight}>
+              <TouchableOpacity style={styles.blurBtn} onPress={handleSearchPress}>
+                <Ionicons name="search" size={20} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.blurBtn} onPress={handleSharePress}>
+                <Ionicons name="share-outline" size={20} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.blurBtn} onPress={handleFavoritePress}>
+                <Ionicons name="heart-outline" size={20} color="white" />
+              </TouchableOpacity>
             </View>
           </SafeAreaView>
 
-          {/* LA WAVE (COURBE BLANCHE) */}
-          <View style={styles.waveWrapper}>
-            <Svg height="100" width={SCREEN_WIDTH} viewBox={`0 0 ${SCREEN_WIDTH} 100`}>
+          {/* Pagination dots dynamiques (Design pilule comme sur l'image) */}
+          <View style={styles.pagination}>
+            {HERO_IMAGES.map((_, i) => (
+              <View key={i} style={[styles.dot, i === activeSlide && styles.dotActive]} />
+            ))}
+          </View>
+
+          {/* --- WAVE SVG --- */}
+          <View style={styles.waveOverlay}>
+
+            <Svg height="300" width={SCREEN_WIDTH} viewBox={`0 0 ${SCREEN_WIDTH} 120`} preserveAspectRatio="none">
               <Path
-                d={`M0 100 Q${SCREEN_WIDTH * 0.75} 100 ${SCREEN_WIDTH} 0 L${SCREEN_WIDTH} 100 Z`}
+                d={`M0,120 L${SCREEN_WIDTH},120 L${SCREEN_WIDTH},60 C${SCREEN_WIDTH * 0.7},110 ${SCREEN_WIDTH * 0.2},0 0,60 Z`}
                 fill="white"
               />
             </Svg>
           </View>
 
-          {/* Pagination Dots */}
-          <View style={styles.paginationRow}>
-            {HERO_IMAGES.map((_, i) => (
-              <View key={i} style={[styles.dot, i === activeIndex && styles.activeDot]} />
-            ))}
+          {/* LOGO positionné avec précision */}
+          <View style={styles.logoBadge}>
+            <View style={styles.logoRow}>
+              <Text style={styles.logoVert}>cafe</Text>
+              <View><Text style={styles.logoMain}>NO</Text><Text style={[styles.logoMain, { marginTop: -18 }]}>IR</Text></View>
+            </View>
           </View>
         </View>
 
-        {/* --- SECTION CONTENU --- */}
-        <View style={styles.contentSection}>
-          
-          {/* Logo Restaurant */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logoCircle}>
-              <Image 
-                source={require('@/assets/home/all.png')} 
-                style={styles.logoImg} 
-                resizeMode="contain" 
-              />
-            </View>
-          </View>
-
-          {/* Note & Pour toi */}
+        {/* --- CONTENU --- */}
+        <View style={styles.mainContent}>
           <View style={styles.ratingBox}>
-            <View style={styles.blackBadge}>
-              <Text style={styles.ratingText}>4.3</Text>
-              <Ionicons name="star" size={12} color="gold" />
+            <View style={styles.blackTag}>
+              <Text style={styles.rText}>4.3</Text>
+              <Ionicons name="star" size={10} color="gold" />
             </View>
-            <Text style={styles.subText}>Pour toi</Text>
+            <Text style={styles.pourToi}>Pour toi</Text>
           </View>
 
-          <Text style={styles.mainTitle}>La Brioche Dorée</Text>
+          <Text style={[styles.title, { color: colors.text.primary }]}>La Brioche Dorée</Text>
 
-          {/* Info Pills */}
-          <View style={styles.pillsRow}>
-            <View style={styles.pill}>
-              <Ionicons name="location" size={14} color="#555" />
-              <Text style={styles.pillText}>Badalabougou, Bamako</Text>
-            </View>
-            <View style={styles.pill}>
-              <MaterialCommunityIcons name="moped" size={16} color="#555" />
-              <Text style={styles.pillText}>25 - 30 mins • 5 km</Text>
-            </View>
+          <View style={styles.pills}>
+            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}><Ionicons name="location" size={14} color={colors.text.secondary} /><Text style={[styles.pText, { color: colors.text.secondary }]}>Badalabougou, Bamako</Text></View>
+            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}><Ionicons name="bicycle" size={16} color={colors.text.secondary} /><Text style={[styles.pText, { color: colors.text.secondary }]}>25-30 mins • 5 km</Text></View>
           </View>
 
-          {/* PROMO BOX */}
-          <View style={styles.promoContainer}>
-            <View style={styles.promoIconCircle}>
-               <MaterialCommunityIcons name="brightness-percent" size={24} color="#5D2E17" />
-            </View>
-            <View>
-              <Text style={styles.promoTitle}>-30% sur tout</Text>
-              <Text style={styles.promoSubtitle}>Utilisez le code <Text style={{fontWeight: 'bold'}}>FOOD20</Text></Text>
-            </View>
-          </View>
-
-          {/* Section Populaires */}
-          <Text style={styles.sectionHeader}>Les Plus Populaires</Text>
-          
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.popularScroll}>
-            {POPULAR_ITEMS.map((item) => (
-              <View key={item.id} style={styles.foodCard}>
-                <View style={styles.imageWrapper}>
-                  <Image source={item.image} style={styles.foodImage} />
-                  <View style={styles.discountTag}>
-                    <MaterialCommunityIcons name="brightness-percent" size={12} color="white" />
-                    <Text style={styles.discountText}>{item.discount}</Text>
-                  </View>
-                  <TouchableOpacity style={styles.favBtn}>
-                    <Ionicons name="heart-outline" size={20} color="white" />
-                  </TouchableOpacity>
-                </View>
-                
-                <View style={styles.cardInfo}>
-                  <View style={styles.miniRating}>
-                    <Text style={styles.miniRatingText}>{item.rating} ★</Text>
-                  </View>
-                  <Text style={styles.foodName}>{item.name}</Text>
-                  <Text style={styles.foodPrice}>Prix: {item.price}</Text>
-                </View>
+          {/* BANDEAU PROMO */}
+          <View style={styles.promo}>
+            <LinearGradient
+              colors={['#5D2E17', '#8B4513']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.promo}
+            >
+              <View style={styles.promoCircle}><MaterialCommunityIcons name="brightness-percent" size={22} color="#5D2E17" /></View>
+              <View>
+                <Text style={styles.promoT}>-30% sur tout</Text>
+                <Text style={styles.promoC}>Utilisez le code <Text style={{ fontWeight: '900' }}>FOOD20</Text></Text>
               </View>
+              {/* Ton contenu (icône, texte, etc.) */}
+            </LinearGradient>
+          </View>
+
+          <Text style={styles.secTitle}>Les Plus Populaires</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 15 }}>
+            {FOOD_ITEMS.filter(item => item.cat === 'Pizza' || item.cat === 'Grill').slice(0, 4).map((item) => (
+              <PopularDishCard
+                key={item.id}
+                item={{
+                  id: item.id,
+                  name: item.name,
+                  image: item.img,
+                  rating: 4.5,
+                  priceRange: item.price,
+                  discount: '70% OFF'
+                }}
+                onPress={() => handleDishPress(item)}
+              />
             ))}
           </ScrollView>
+
+          {/* LISTE RECOMMENDER (IMAGE 7EB814) */}
+          <Text style={styles.secTitle}>Recommender</Text>
+          <View style={styles.recommenderList}>
+            {filteredData.map(item => (
+              <TouchableOpacity key={item.id} style={[styles.recommendCard, dynamicStyles.recommendCard]} activeOpacity={0.9} onPress={() => handleDishPress(item)}>
+                <Image source={{ uri: item.img }} style={styles.recommendImg} />
+                <View style={styles.recommendInfo}>
+                  <View style={styles.recommendHeader}>
+                    <Text style={[styles.recommendName, { color: colors.text.primary }]} numberOfLines={1}>{item.name}</Text>
+                    <TouchableOpacity onPress={() => console.log(`Ajouter ${item.name} aux favoris`)}>
+                      <Ionicons name="heart-outline" size={20} color={colors.text.secondary} />
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={[styles.recommendDesc, { color: colors.text.tertiary }]} numberOfLines={2}>{item.desc}</Text>
+                  <View style={styles.recommendFooter}>
+                    <Text style={styles.recommendPrice}>{item.price}</Text>
+                    <TouchableOpacity style={[styles.addButton, dynamicStyles.addButton]} onPress={() => handleAddToCart(item)}>
+                      <Ionicons name="add" size={24} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
+        <View style={{ height: 150 }} />
       </ScrollView>
 
-      {/* BOUTON FLOTTANT MENUS */}
-      <TouchableOpacity style={styles.menuFloatingBtn}>
-        <MaterialCommunityIcons name="silverware-fork-knife" size={20} color="white" />
-        <Text style={styles.menuBtnText}>Menus</Text>
-      </TouchableOpacity>
+      {/* BOUTON MENUS DYNAMIQUE */}
+      <Animated.View style={[styles.menuFloating, { bottom: menuAnim }]}>
+        <TouchableOpacity style={styles.menuInner} onPress={handleMenuToggle}>
+          <MaterialCommunityIcons name="silverware-fork-knife" size={18} color="white" />
+          <Text style={styles.menuText}>Menus</Text>
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* OVERLAY MENU COMPLET */}
+      <MenuModal
+        visible={menuVisible}
+        onClose={handleMenuToggle}
+        onAddToCart={handleAddToCart}
+        selectedCategory={selectedCat}
+        onCategoryChange={setSelectedCat}
+      />
+
+      {/* Modal de détail du plat */}
+      <DishPreviewModal
+        visible={showDishModal}
+        dish={selectedDish}
+        onClose={() => {
+          setShowDishModal(false);
+          setSelectedDish(null);
+        }}
+      />
+
+      {/* PANIER (DANS LE BLOC NOIR EN BAS) */}
+      {cartVisible && cartItems.length > 0 && (
+        <View style={styles.cartBarContainer}>
+          <TouchableOpacity style={styles.cartBarInner}>
+            <View style={styles.cartLeft}>
+              <Image source={{ uri: cartItems[0].img }} style={styles.cartThumb} />
+              <View>
+                <Text style={styles.cartStatus}>
+                  {cartItems.length} article{cartItems.length > 1 ? 's' : ''} ajouté{cartItems.length > 1 ? 's' : ''}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.cartRight}>
+              <TouchableOpacity onPress={() => router.push('/cart')}>
+                <Text style={styles.cartLink}>voir le panier</Text>
+                <Ionicons name="chevron-forward" size={16} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
-  
-  // Hero
-  heroContainer: { height: 360, width: '100%' },
-  heroImage: { width: SCREEN_WIDTH, height: 360 },
-  headerNav: {
-    position: 'absolute', top: 0, left: 0, right: 0,
-    flexDirection: 'row', justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  blurBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center', alignItems: 'center',
-  },
-  headerRight: { flexDirection: 'row', gap: 10 },
-  
-  // Wave & Pagination
-  waveWrapper: { position: 'absolute', bottom: -1, width: '100%' },
-  paginationRow: {
-    flexDirection: 'row', position: 'absolute',
-    bottom: 50, alignSelf: 'center', gap: 6
-  },
+  heroSection: { height: 380 },
+  heroImg: { width: SCREEN_WIDTH, height: 380 },
+  navIcons: { position: 'absolute', top: 0, width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, zIndex: 10 },
+  navRight: { flexDirection: 'row' as const, gap: 10 },
+  blurBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center' as const, alignItems: 'center' as const },
+  pagination: { position: 'absolute', bottom: 105, alignSelf: 'center', flexDirection: 'row', gap: 6, zIndex: 10 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.4)' },
-  activeDot: { width: 22, backgroundColor: 'white' },
+  dotActive: { width: 25, backgroundColor: 'white' },
 
-  // Content
-  contentSection: { paddingHorizontal: 20, paddingTop: 10 },
-  logoContainer: { position: 'absolute', top: -55, left: 20, zIndex: 10 },
-  logoCircle: {
-    width: 100, height: 100, borderRadius: 50,
-    backgroundColor: '#111', borderWidth: 4, borderColor: 'white',
-    justifyContent: 'center', alignItems: 'center',
-    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, elevation: 5,
-  },
-  logoImg: { width: 65, height: 65 },
+  // Wave précise qui remonte sur la droite
+  waveOverlay: { position: 'absolute', bottom: -110, width: '100%' },
 
-  ratingBox: { alignItems: 'flex-end', marginTop: 10 },
-  blackBadge: {
-    backgroundColor: 'black', flexDirection: 'row',
-    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, gap: 5, alignItems: 'center'
-  },
-  ratingText: { color: 'white', fontWeight: 'bold' },
-  subText: { fontSize: 11, color: '#999', marginTop: 2 },
+  // Logo Badge - Positionné exactement comme sur image_8cc7d7.png
+  logoBadge: { position: 'absolute', bottom: 10, left: 25, width: 115, height: 115, borderRadius: 60, backgroundColor: '#1A1A1A', borderWidth: 4, borderColor: 'white', justifyContent: 'center' as const, alignItems: 'center' as const, elevation: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.3, shadowRadius: 6 },
+  logoRow: { flexDirection: 'row' as const, alignItems: 'center' as const },
+  logoVert: { color: 'white', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', transform: [{ rotate: '-90deg' }], marginRight: -6 },
+  logoMain: { color: 'white', fontSize: 36, fontWeight: '900', letterSpacing: -2 },
 
-  mainTitle: { fontSize: 26, fontWeight: 'bold', color: '#1A1A1A', marginTop: 8 },
-  
-  pillsRow: { flexDirection: 'row', gap: 8, marginTop: 15 },
-  pill: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 25, borderWidth: 1, borderColor: '#F2F2F2'
-  },
-  pillText: { fontSize: 12, color: '#555' },
+  mainContent: { paddingHorizontal: 20, marginTop: -10 },
+  ratingBox: { alignItems: 'flex-end' as const, marginTop: 10 },
+  blackTag: { backgroundColor: 'black', flexDirection: 'row' as const, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, alignItems: 'center' as const, gap: 4 },
+  rText: { color: 'white', fontWeight: 'bold', fontSize: 13 },
+  pourToi: { fontSize: 11, color: '#888', marginTop: 4 },
+  title: { fontSize: 26, fontWeight: '900', marginTop: -40 },
+  pills: { flexDirection: 'row' as const, gap: 10, marginTop: 15 },
+  pill: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, padding: 10, borderRadius: 25, borderWidth: 1 },
+  pText: { fontSize: 12 },
 
-  // Promo Box
-  promoContainer: {
-    backgroundColor: '#5D2E17',
-    borderRadius: 50,
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 25,
-  },
-  promoIconCircle: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center', alignItems: 'center', marginRight: 15
-  },
-  promoTitle: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-  promoSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 13 },
+  promo: { borderRadius: 25, margin :-10,top:-20, padding: 20, width: 360, flexDirection: 'row', alignItems: 'center', marginTop: 25, gap: 15 },
+  promoCircle: { width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
+  promoT: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  promoC: { color: 'rgba(255,255,255,0.8)', fontSize: 13 },
 
-  // Populaires
-  sectionHeader: { fontSize: 20, fontWeight: 'bold', marginTop: 30 },
-  popularScroll: { marginTop: 15, marginBottom: 100 },
-  foodCard: { width: 240, marginRight: 15, borderRadius: 20, overflow: 'hidden', backgroundColor: 'white' },
-  imageWrapper: { width: '100%', height: 150 },
-  foodImage: { width: '100%', height: '100%', borderRadius: 20 },
-  discountTag: {
-    position: 'absolute', top: 10, left: 10,
-    backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 8, paddingVertical: 4,
-    borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 4
-  },
-  discountText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
-  favBtn: { position: 'absolute', top: 10, right: 10 },
-  
-  cardInfo: { paddingVertical: 10 },
-  miniRating: {
-    backgroundColor: 'black', width: 45, borderRadius: 5,
-    paddingVertical: 2, alignItems: 'center', marginBottom: 6
-  },
-  miniRatingText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
-  foodName: { fontSize: 16, fontWeight: 'bold' },
-  foodPrice: { fontSize: 12, color: '#777', marginTop: 2 },
+  secTitle: { fontSize: 19, fontWeight: 'bold', },
 
-  // Floating Btn
-  menuFloatingBtn: {
-    position: 'absolute', bottom: 30, alignSelf: 'center',
-    backgroundColor: 'black', flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 25, paddingVertical: 15, borderRadius: 30, gap: 10,
-    shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 10, elevation: 8
+  filterSection: { marginTop: 30, borderBottomWidth: 1, paddingBottom: 5 },
+  catBtn: { alignItems: 'center', marginRight: 30, minWidth: 65 },
+  catIcon: { width: 55, height: 55 },
+  catName: { fontSize: 13, marginTop: 5 },
+  catActive: { fontWeight: 'bold' },
+  catIndicator: { height: 3, width: '100%', marginTop: 10, borderRadius: 2 },
+
+  recommenderList: { marginTop: 20 },
+  recommendCard: { 
+    flexDirection: 'row' as const, 
+    borderRadius: 30, 
+    padding: 10, 
+    marginBottom: 15, 
+    elevation: 3, 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 10 
   },
-  menuBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
+  recommendImg: {
+    width: 130, height: 130,
+    borderTopLeftRadius: 50, borderTopRightRadius: 10,
+    borderBottomLeftRadius: 30, borderBottomRightRadius: 50
+  },
+  recommendInfo: { flex: 1, marginLeft: 15, justifyContent: 'space-between', paddingVertical: 5 },
+  recommendHeader: { flexDirection: 'row' as const, justifyContent: 'space-between', alignItems: 'center' as const },
+  recommendName: { fontSize: 16, fontWeight: 'bold', flex: 1 },
+  recommendDesc: { fontSize: 10, marginTop: 4, width: '80%' },
+  recommendFooter: { flexDirection: 'row' as const, justifyContent: 'space-between', alignItems: 'center' as const, marginTop: 8 },
+  recommendPrice: { fontSize: 14, fontWeight: 'bold' },
+  addButton: { 
+    width: 40, 
+    height: 40, 
+    borderRadius: 20, 
+    justifyContent: 'center' as const, 
+    alignItems: 'center' as const 
+  },
+  menuFloating: { position: 'absolute', alignSelf: 'center', zIndex: 10 },
+  menuInner: { backgroundColor: 'black', flexDirection: 'row' as const, paddingHorizontal: 28, paddingVertical: 15, borderRadius: 35, gap: 10, alignItems: 'center' as const, elevation: 10 },
+  menuText: { color: 'white', fontWeight: 'bold' },
+
+  // Style Panier avec le fond noir arrondi (Image 8cc7d7)
+  cartBarContainer: { position: 'absolute', bottom: 0, width: '100%', height: 120, backgroundColor: 'black', borderTopLeftRadius: 40, borderTopRightRadius: 40, paddingHorizontal: 20, paddingTop: 20 },
+  cartBarInner: { backgroundColor: '#5D2E17', height: 75, borderRadius: 40, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between', paddingHorizontal: 10 },
+  cartLeft: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 15 },
+  cartThumb: { width: 55, height: 55, borderRadius: 28, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' },
+  cartStatus: { color: 'white', fontSize: 12, fontWeight: '500' },
+  cartLink: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
+  cartRight: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, paddingRight: 15 }
 });
