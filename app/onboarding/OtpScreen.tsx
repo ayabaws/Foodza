@@ -70,12 +70,11 @@ export default function OtpScreen() {
                 style={[
                   styles.otpInput,
                   { 
-                    backgroundColor: colors.surface,
                     borderColor: colors.border.light,
                     color: colors.text.primary 
                   },
                   isFocused && [styles.otpFocused, { borderColor: colors.primary }],
-                  isFilled && [styles.otpFilled, { backgroundColor: colors.primary }],
+                  isFilled && [styles.otpFilled],
                 ]}
                 value={digit}
                 onChangeText={(value) => handleOtpChange(value, index)}
@@ -91,7 +90,7 @@ export default function OtpScreen() {
         </View>
 
         {/* Button */}
-        <TouchableOpacity style={[styles.continueButton, { backgroundColor: colors.primary }]} onPress={handleContinue}>
+        <TouchableOpacity style={[styles.continueButton, { backgroundColor: colors.background2 }]} onPress={handleContinue}>
           <Text style={[styles.continueText, { color: '#FFFFFF' }]}>CONTINUE</Text>
         </TouchableOpacity>
 
@@ -115,7 +114,6 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1,
-    alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 20,
   },
@@ -129,7 +127,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#888',
-    textAlign: 'center',
     marginBottom: 40,
   },
 
@@ -180,6 +177,7 @@ const styles = StyleSheet.create({
   resendText: {
     color: '#999',
     fontSize: 13,
+    textAlign: 'center',
   },
 
   resendLink: {

@@ -74,7 +74,7 @@ export default function OtpVerificationScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={[styles.buttonMain, { backgroundColor: colors.primary }]} onPress={() => router.push('/onboarding/otp')}>
+          <TouchableOpacity style={[styles.buttonMain, { backgroundColor: colors.background2 }]} onPress={() => router.push('/onboarding/otp')}>
             <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>ENVOIE OTP</Text>
           </TouchableOpacity>
 
@@ -90,7 +90,7 @@ export default function OtpVerificationScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.iconCircle}>
-              <Image source={require('@/assets/onboarding/email-icon.png')} style={styles.socialIcon} />
+              <Image source={require('@/assets/onboarding/email-icon.png')} style={styles.socialIcon2} />
             </TouchableOpacity>
           </View>
 
@@ -247,8 +247,13 @@ const styles = StyleSheet.create({
   },
 
   socialIcon: {
-    width: 22,
-    height: 22,
+    width: 35,
+    height: 35,
+  },
+
+  socialIcon2: {
+    width: 55,
+    height: 55,
   },
 
   footerContainer: {

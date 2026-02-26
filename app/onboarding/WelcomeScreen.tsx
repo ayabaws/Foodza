@@ -6,6 +6,7 @@ import {
   ImageBackground,
   StatusBar,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,19 +20,19 @@ const welcomeData = [
   {
     title: "Savourez chaque instant, sans quitter votre confort.",
     description:
-      "Commandez vos plats préférés et faites-les livrer directement chez vous en quelques clics.",
+      "Foodza vous connecte aux meilleurs restaurants de votre ville pour vous offrir des plats frais et authentiques. En quelques clics, votre repas est déjà en route.",
     image: require('@/assets/onboarding/food1.jpeg'),
   },
   {
     title: "Une livraison rapide, suivie en temps réel.",
     description:
-      "Suivez votre commande en temps réel et recevez vos plats frais et chauds.",
+      "Nos livreurs prennent votre commande en charge avec soin. Suivez votre repas sur la carte et sachez exactement quand il arrive.",
     image: require('@/assets/onboarding/delivery.png'),
   },
   {
     title: "Votre faim n'attend pas. Nous non plus.",
     description:
-      "Livraison express garantie ou votre argent remboursé.",
+      "Déjeuner, dîner ou envie soudaine, Foodza transforme chaque commande en un moment simple, rapide et délicieux.",
     image: require('@/assets/onboarding/happy.png'),
   },
 ];
@@ -39,6 +40,10 @@ const welcomeData = [
 export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
   const router = useRouter();
   const currentScreen = welcomeData[screenNumber - 1];
+
+  const { width, height } = Dimensions.get('window');
+  const isSmallScreen = width < 375;
+  const isTablet = width > 768;
 
   const maliColors = ['#14B53A', '#FCD116', '#CE1126'];
 
@@ -51,7 +56,7 @@ export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
   };
 
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+    <View style={styles.root}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
       <ImageBackground
@@ -60,7 +65,10 @@ export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
         resizeMode="cover"
       >
         {/* Progress bar */}
-        <View style={styles.progressContainer}>
+        <View style={[
+          styles.progressContainer,
+          { paddingTop: isSmallScreen ? 50 : 70 }
+        ]}>
           {[1, 2, 3].map((item, index) => (
             <View
               key={item}
@@ -77,24 +85,53 @@ export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
         {/* Gradient Bottom */}
         <LinearGradient
           colors={['transparent', 'rgba(0, 0, 0, 1)']}
-          style={styles.bottomContent}
+          style={[
+            styles.bottomContent,
+            { paddingHorizontal: isSmallScreen ? 15 : 20 }
+          ]}
         >
-          <Text style={styles.title}>{currentScreen.title}</Text>
+          <Text style={[
+            styles.title,
+            { 
+              fontSize: isSmallScreen ? 24 : isTablet ? 34 : 28,
+              lineHeight: isSmallScreen ? 28 : isTablet ? 36 : 32
+            }
+          ]}>
+            {currentScreen.title}
+          </Text>
 
-          <Text style={styles.description}>
+          <Text style={[
+            styles.description,
+            { 
+              fontSize: isSmallScreen ? 11 : isTablet ? 15 : 13,
+              lineHeight: isSmallScreen ? 16 : isTablet ? 20 : 18
+            }
+          ]}>
             {currentScreen.description}
           </Text>
 
           <TouchableOpacity
-            style={styles.button}
+            style={[
+              styles.button,
+              { 
+                paddingVertical: isSmallScreen ? 12 : 14,
+                maxWidth: isTablet ? 300 : '100%',
+                alignSelf: isTablet ? 'center' : 'stretch'
+              }
+            ]}
             onPress={handleNext}
             activeOpacity={0.85}
           >
-            <Text style={styles.buttonText}>Commencer</Text>
+            <Text style={[
+              styles.buttonText,
+              { fontSize: isSmallScreen ? 14 : 16 }
+            ]}>
+              Commencer
+            </Text>
           </TouchableOpacity>
         </LinearGradient>
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -111,9 +148,10 @@ const styles = StyleSheet.create({
   progressContainer: {
     flexDirection: 'row',
     paddingLeft: 30,
-    paddingTop: 10,
+    paddingTop: 70,
     gap: 6,
     width: '80%',
+    alignSelf: 'flex-start',
   },
 
   progressBar: {
@@ -126,14 +164,16 @@ const styles = StyleSheet.create({
   bottomContent: {
     paddingHorizontal: 20,
     paddingBottom: 30,
+    paddingTop: 20,
   },
 
   title: {
     color: '#fff',
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 10,
+    fontSize: 26,
+    fontWeight: '500',
+    marginBottom: 15,
     lineHeight: 28,
+    width: '80%',
   },
 
   description: {
@@ -148,6 +188,15 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 25,
     alignItems: 'center',
+    marginTop: 10,
+    shadowColor: '#fff',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
 
   buttonText: {
