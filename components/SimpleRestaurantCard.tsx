@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     backgroundColor: '#FFF',
-    borderTopRightRadius: isSmallScreen ? 4 : 5,
+    borderTopRightRadius: isSmallScreen ? 8 : 10,
     paddingHorizontal: isSmallScreen ? 16 : 20,
     paddingVertical: isSmallScreen ? 6 : 8,
     flexDirection: 'row',

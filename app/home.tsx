@@ -294,14 +294,6 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.headerButtons}>
-            <TouchableOpacity style={styles.favoritesButton} onPress={() => router.push('/screens/favorites')}>
-              <Ionicons name="heart" size={20} color="#FFFFFF" />
-              {favorites.length > 0 && (
-                <View style={styles.favoritesBadge}>
-                  <Text style={styles.favoritesBadgeText}>{favorites.length}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
             <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/cart')}>
               <Ionicons name="cart-outline" size={20} color="#FFFFFF" />
               {cartItems.length > 0 && (
@@ -497,11 +489,6 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Sur place')}>
             <Ionicons name="restaurant-outline" size={22} color="#FFF" />
             <Text style={styles.navText}>Sur place</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cart')}>
-            <Ionicons name="cart-outline" size={22} color="#FFF" />
-            <Text style={styles.navText}>Panier</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.explorerFab} onPress={handleExplore}>

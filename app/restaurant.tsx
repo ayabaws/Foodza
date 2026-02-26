@@ -278,7 +278,7 @@ export default function RestaurantScreen() {
 
           <SafeAreaView style={styles.navIcons} edges={['top']}>
             <TouchableOpacity style={styles.blurBtn} onPress={handleBackPress}>
-              <Ionicons name="chevron-back" size={24} color="white" />
+              <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <View style={styles.navRight}>
               <TouchableOpacity style={styles.blurBtn} onPress={handleSearchPress}>
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   heroImg: { width: SCREEN_WIDTH, height: 380 },
   navIcons: { position: 'absolute', top: 0, width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, zIndex: 10 },
   navRight: { flexDirection: 'row' as const, gap: 10 },
-  blurBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center' as const, alignItems: 'center' as const },
+  blurBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center' as const, alignItems: 'center' as const },
   pagination: { position: 'absolute', bottom: 105, alignSelf: 'center', flexDirection: 'row', gap: 6, zIndex: 10 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.4)' },
   dotActive: { width: 25, backgroundColor: 'white' },

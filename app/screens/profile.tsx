@@ -50,6 +50,7 @@ export default function ProfileScreen() {
 
         {/* SECTION GENERALE */}
         <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Generale</Text>
+        <ProfileItem icon={<Ionicons name="heart" size={20} color={colors.text.secondary} />} label="Favoris" onPress={() => router.push('/screens/favorites')} />
         <ProfileItem icon={<Feather name="list" size={20} color={colors.text.secondary} />} label="Mes Commandes" onPress={() => console.log('Mes commandes')} />
         <ProfileItem icon={<Feather name="credit-card" size={20} color={colors.text.secondary} />} label="Payment" onPress={() => console.log('Payment')} />
         <ProfileItem icon={<Feather name="map-pin" size={20} color={colors.text.secondary} />} label="Addresses" onPress={() => console.log('Addresses')} />

@@ -17,11 +17,69 @@ export default function CartScreen() {
     { id: '2', name: 'Pizza Margherita', price: 4500, quantity: 1, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=200' },
   ]);
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showTrackingOverlay, setShowTrackingOverlay] = useState(false);
+
+  const handleOrder = () => {
+    setShowConfirmModal(true);
+  };
+
+  const confirmOrder = () => {
+    setShowConfirmModal(false);
+    // Vider le panier
+    setCartItems([]);
+    // Rediriger vers la page d'accueil
+    router.push('/home');
+    // Afficher l'overlay de suivi après un court délai
+    setTimeout(() => {
+      setShowTrackingOverlay(true);
+    }, 500);
+  };
+
+  const cancelOrder = () => {
+    setShowConfirmModal(false);
+  };
+
+  const closeTrackingOverlay = () => {
+    setShowTrackingOverlay(false);
+  };
+
   const recommendedItems = [
     { id: '1', name: 'Poulet Yassa', price: 5000, image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=200' },
     { id: '2', name: 'Poulet Yassa', price: 5000, image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=200' },
     { id: '3', name: 'Poulet Yassa', price: 5000, image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=200' },
   ];
+
+  const addToCart = (item: any) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(cartItem => cartItem.id === item.id);
+      if (existingItem) {
+        return prevItems.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevItems, { ...item, quantity: 1 }];
+      }
+    });
+  };
+
+  const updateQuantity = (itemId: string, change: number) => {
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item => {
+        if (item.id === itemId) {
+          const newQuantity = item.quantity + change;
+          if (newQuantity <= 0) {
+            return null;
+          }
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      });
+      return updatedItems.filter((item): item is typeof prevItems[0] => item !== null);
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,9 +112,9 @@ export default function CartScreen() {
                 <Text style={styles.itemPriceText}>{item.price} CFA</Text>
               </View>
               <View style={styles.quantityControl}>
-                <TouchableOpacity style={styles.qtyBtn}><Text style={styles.qtyBtnText}>-</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQuantity(item.id, -1)}><Text style={styles.qtyBtnText}>-</Text></TouchableOpacity>
                 <Text style={styles.qtyText}>{item.quantity}</Text>
-                <TouchableOpacity style={styles.qtyBtn}><Text style={styles.qtyBtnText}>+</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQuantity(item.id, 1)}><Text style={styles.qtyBtnText}>+</Text></TouchableOpacity>
               </View>
             </View>
           ))}
@@ -68,7 +126,7 @@ export default function CartScreen() {
             <View key={item.id} style={styles.recomCard}>
               <View style={styles.recomImageContainer}>
                 <Image source={{ uri: item.image }} style={styles.recomImage} />
-                <TouchableOpacity style={styles.addButton}>
+                <TouchableOpacity style={styles.addButton} onPress={() => addToCart(item)}>
                   <Ionicons name="add" size={20} color="#8B4513" />
                 </TouchableOpacity>
               </View>
@@ -111,7 +169,7 @@ export default function CartScreen() {
           end={{ x: 1, y: 0 }}
           style={styles.orderButton}
         >
-          <TouchableOpacity style={styles.orderButtonInside} onPress={() => { }}>
+          <TouchableOpacity style={styles.orderButtonInside} onPress={handleOrder}>
             <View>
               <Text style={styles.totalAmount}>9500 CFA</Text>
               <Text style={styles.totalLabel}>Total</Text>
@@ -201,7 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 25,
   },
-  couponText: { flex: 1, marginLeft: 12, color: '#8E8E93', fontSize: 15 },
+  couponText: { flex: 1, marginLeft: 12, color: '#8E8E93', fontSize: 14 },
   addressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -248,4 +306,175 @@ const styles = StyleSheet.create({
   totalLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
   commanderContainer: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   commanderText: { color: '#FFF', fontSize: 11, fontWeight: '400' },
+
+  // Styles pour la modale de confirmation
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  confirmModal: {
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 25,
+    width: '85%',
+    maxWidth: 350,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  closeButton: {
+    padding: 5,
+  },
+  modalContent: {
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  modalTotal: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#F0F0F0',
+    marginRight: 10,
+  },
+  confirmButton: {
+    backgroundColor: '#4CAF50',
+    marginLeft: 10,
+  },
+  cancelButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  confirmButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+
+  // Styles pour l'overlay de suivi
+  trackingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  trackingCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 25,
+    width: '90%',
+    maxWidth: 400,
+  },
+  trackingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  trackingIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#E8F5E8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  trackingTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  trackingInfo: {
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  trackingMessage: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  trackingTime: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+  trackingProgress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '80%',
+    marginBottom: 25,
+  },
+  progressStep: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeStep: {
+    backgroundColor: '#4CAF50',
+  },
+  progressLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 5,
+  },
+  stepNumber: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#666',
+  },
+  closeTrackingButton: {
+    backgroundColor: '#F0F0F0',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    alignSelf: 'center',
+  },
+  closeTrackingText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '500',
+  },
 });
