@@ -15,6 +15,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useOrder } from '@/contexts/OrderContext';
 
 const { width } = Dimensions.get('window');
 
@@ -36,6 +37,7 @@ const orderData = {
 
 export default function OrderSuccessScreen() {
   const router = useRouter();
+  const { completeOrder } = useOrder();
   
   // États pour la gestion des interactions
   const [selectedTip, setSelectedTip] = useState<string | null>(null);
@@ -57,6 +59,10 @@ export default function OrderSuccessScreen() {
       packaging: packagingStatus,
       pourboire: selectedTip
     });
+    
+    // Terminer la commande active
+    completeOrder();
+    
     router.replace('/home'); 
   };
 

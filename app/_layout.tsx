@@ -1,9 +1,11 @@
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
+import { OrderProvider } from '@/contexts/OrderContext';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useTheme } from '@/contexts/ThemeContext';
+import OrderTrackingModal from '@/components/OrderTrackingModal';
 
 function RootLayoutNav() {
   const { isDarkMode } = useTheme();
@@ -39,6 +41,7 @@ function RootLayoutNav() {
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <OrderTrackingModal />
     </>
   );
 }
@@ -47,7 +50,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <FavoritesProvider>
-        <RootLayoutNav />
+        <OrderProvider>
+          <RootLayoutNav />
+        </OrderProvider>
       </FavoritesProvider>
     </ThemeProvider>
   );

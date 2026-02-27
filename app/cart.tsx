@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useOrder } from '@/contexts/OrderContext';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -11,6 +12,7 @@ const { width } = Dimensions.get('window');
 export default function CartScreen() {
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
+  const { startOrder } = useOrder();
 
   const [cartItems, setCartItems] = useState([
     { id: '1', name: 'Pizza Margherita', price: 4500, quantity: 1, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=200' },
@@ -26,6 +28,18 @@ export default function CartScreen() {
 
   const confirmOrder = () => {
     setShowConfirmModal(false);
+    
+    // Démarrer la commande avec les données du panier
+    startOrder({
+      restaurantName: 'La brioche dorée',
+      estimatedTime: '12 mins...',
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        image: item.image
+      }))
+    });
+    
     // Vider le panier
     setCartItems([]);
     // Rediriger vers la page de suivi de commande
