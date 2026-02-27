@@ -35,7 +35,6 @@ function RootLayoutNav() {
         <Stack.Screen name="screens/explore" options={{ headerShown: false }} />
         <Stack.Screen name="screens/order-details" options={{ headerShown: false }} />
         <Stack.Screen name="screens/order-track" options={{ headerShown: false }} />
-        <Stack.Screen name="screens/dish-detail" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />

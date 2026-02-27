@@ -28,12 +28,8 @@ export default function CartScreen() {
     setShowConfirmModal(false);
     // Vider le panier
     setCartItems([]);
-    // Rediriger vers la page d'accueil
-    router.push('/home');
-    // Afficher l'overlay de suivi après un court délai
-    setTimeout(() => {
-      setShowTrackingOverlay(true);
-    }, 500);
+    // Rediriger vers la page de suivi de commande
+    router.push('/screens/order-track');
   };
 
   const cancelOrder = () => {
@@ -182,6 +178,47 @@ export default function CartScreen() {
         </LinearGradient>
       </View>
 
+      {/* Modale de confirmation */}
+      {showConfirmModal && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmModal}>
+            {/* Icône de confirmation */}
+            <View style={styles.modalIconContainer}>
+              <Ionicons name="cart-outline" size={40} color="#8B4513" />
+            </View>
+            
+            <Text style={styles.modalTitle}>Confirmer la commande</Text>
+            <Text style={styles.modalMessage}>Êtes-vous sûr de vouloir passer cette commande ?</Text>
+            
+            {/* Détails de la commande */}
+            <View style={styles.orderSummary}>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Sous-total</Text>
+                <Text style={styles.summaryValue}>9500 CFA</Text>
+              </View>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Livraison</Text>
+                <Text style={styles.summaryValue}>Gratuite</Text>
+              </View>
+              <View style={[styles.summaryRow, styles.totalRow]}>
+                <Text style={styles.totalSummaryLabel}>Total</Text>
+                <Text style={styles.totalValue}>9500 CFA</Text>
+              </View>
+            </View>
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={cancelOrder}>
+                <Text style={styles.cancelButtonText}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalButton, styles.confirmButton]} onPress={confirmOrder}>
+                <Ionicons name="checkmark" size={18} color="#FFF" style={{ marginRight: 5 }} />
+                <Text style={styles.confirmButtonText}>Confirmer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
     </SafeAreaView>
   );
 }
@@ -314,74 +351,123 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   confirmModal: {
     backgroundColor: '#FFF',
-    borderRadius: 20,
-    padding: 25,
-    width: '85%',
-    maxWidth: 350,
+    borderRadius: 24,
+    padding: 30,
+    width: '90%',
+    maxWidth: 380,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  modalIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFF8F0',
+    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#8B4513',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  closeButton: {
-    padding: 5,
-  },
-  modalContent: {
-    alignItems: 'center',
-    marginBottom: 25,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#2C1810',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   modalMessage: {
     fontSize: 16,
-    color: '#333',
+    color: '#666',
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 25,
+    lineHeight: 22,
   },
-  modalTotal: {
+  orderSummary: {
+    width: '100%',
+    backgroundColor: '#F9F9F9',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 25,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  totalRow: {
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+    paddingTop: 12,
+    marginTop: 4,
+  },
+  summaryLabel: {
+    fontSize: 15,
+    color: '#666',
+    fontWeight: '500',
+  },
+  summaryValue: {
+    fontSize: 15,
+    color: '#333',
+    fontWeight: '600',
+  },
+  totalSummaryLabel: {
+    fontSize: 16,
+    color: '#2C1810',
+    fontWeight: '700',
+  },
+  totalValue: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
+    color: '#8B4513',
+    fontWeight: '800',
   },
   modalActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
+    gap: 12,
   },
   modalButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   cancelButton: {
     backgroundColor: '#F0F0F0',
-    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
   confirmButton: {
-    backgroundColor: '#4CAF50',
-    marginLeft: 10,
+    backgroundColor: '#8B4513',
+    shadowColor: '#8B4513',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   cancelButtonText: {
     color: '#666',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   confirmButtonText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '700',
   },
 
   // Styles pour l'overlay de suivi

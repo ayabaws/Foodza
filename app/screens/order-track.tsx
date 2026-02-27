@@ -1,147 +1,223 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useRouter } from 'expo-router';
-import Svg, { Path } from 'react-native-svg';
-import { useTheme } from '@/contexts/ThemeContext';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+const BRAND_BROWN = '#6D3119';
 
 export default function OrderTrackScreen() {
   const router = useRouter();
-  const { colors, isDarkMode } = useTheme();
+
+  // --- VARIABLES À CONNECTER AU BACKEND ---
+  const orderData = {
+    statusMessage: "Le livreur est en route vers ACI 2000",
+    estimatedTime: "12 mins",
+    distanceRemaining: "300m",
+    totalAmount: "9500 CFA",
+    deliveryAddress: "Villa 45, Rue 14 ACI 2000",
+    restaurantName: "Restaurant Le Loft",
+    coords: {
+      restaurant: { latitude: 12.6338, longitude: -8.0003 },
+      delivery: { latitude: 12.6395, longitude: -8.0065 },
+      destination: { latitude: 12.6285, longitude: -8.0210 },
+    }
+  };
+
+  const customMapStyle = [
+    { "elementType": "geometry", "stylers": [{ "color": "#fdfcf8" }] },
+    { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] }
+  ];
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
-      
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Order Track</Text>
-        <TouchableOpacity onPress={() => router.push('/screens/assistant')}>
-          <Ionicons name="call" size={24} color={colors.text.primary} />
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
+      {/* --- HEADER NOIR --- */}
+      <View style={styles.darkHeader}>
+        <SafeAreaView edges={['top']}>
+          <View style={styles.navBar}>
+            <TouchableOpacity style={styles.whiteCircleBtn} onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={22} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.navTitle}>Suivi de commande</Text>
+            <TouchableOpacity style={styles.whiteCircleBtn}>
+              <MaterialCommunityIcons name="target" size={22} color="black" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.statusBox}>
+            <Text style={styles.statusText}>{orderData.statusMessage}</Text>
+            <TouchableOpacity style={styles.timeBadge}>
+              <Text style={styles.timeText}>Arrive dans {orderData.estimatedTime}</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
       </View>
 
-      {/* Map Placeholder avec Wave */}
+      {/* --- SECTION CARTE --- */}
       <View style={styles.mapWrapper}>
-        <View style={[styles.mapPlaceholder, { backgroundColor: colors.border.light }]}>
-          <Ionicons name="map-outline" size={60} color={colors.text.tertiary} />
-          <Text style={[styles.mapPlaceholderText, { color: colors.text.primary }]}>Carte de suivi</Text>
-          <Text style={[styles.mapPlaceholderSubtext, { color: colors.text.secondary }]}>Votre commande est en route</Text>
-        </View>
-
-        {/* Wave SVG */}
-        <Svg
-          height={100}
-          width={width}
-          viewBox={`0 0 ${width} 100`}
-          style={styles.wave}
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          style={StyleSheet.absoluteFillObject}
+          customMapStyle={customMapStyle}
+          initialRegion={{
+            latitude: orderData.coords.delivery.latitude,
+            longitude: orderData.coords.delivery.longitude,
+            latitudeDelta: 0.025,
+            longitudeDelta: 0.025,
+          }}
         >
-          <Path
-            d={`M0 0 Q ${width / 2} 120 ${width} 0 L ${width} 100 L 0 100 Z`}
-            fill={colors.surface}
+          <Polyline
+            coordinates={[orderData.coords.delivery, orderData.coords.destination]}
+            strokeColor={BRAND_BROWN}
+            strokeWidth={4}
           />
-        </Svg>
-      </View>
 
-      {/* Delivery Card */}
-      <View style={[styles.deliveryCard, { backgroundColor: colors.surface }]}>
-        <Text style={[styles.deliveryStatus, { color: colors.text.primary }]}>Your order is already on the way!</Text>
-        <View style={styles.deliveryInfo}>
-          <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
-            <Ionicons name="person" size={24} color="#fff" />
-          </View>
-          <View style={{ marginLeft: 10 }}>
-            <Text style={[styles.driverName, { color: colors.text.primary }]}>Bambang Suryana</Text>
-            <Text style={[styles.driverId, { color: colors.text.secondary }]}>AB 1234 CDE</Text>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end' }}>
-            <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.border.light }]}>
-              <Ionicons name="call" size={20} color={colors.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.border.light }]}>
-              <Ionicons name="chatbubble" size={20} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
+          {/* DÉPART : Restaurant */}
+          <Marker coordinate={orderData.coords.restaurant} title={orderData.restaurantName}>
+            <View style={styles.markerCircleWhite}>
+              <Ionicons name="restaurant" size={14} color={BRAND_BROWN} />
+            </View>
+          </Marker>
+
+          {/* LIVREUR */}
+          <Marker coordinate={orderData.coords.delivery} anchor={{ x: 0.5, y: 0.5 }}>
+            <View style={styles.deliveryMarker}>
+              <MaterialCommunityIcons name="motorbike" size={22} color="white" />
+            </View>
+          </Marker>
+
+          {/* DESTINATION */}
+          <Marker coordinate={orderData.coords.destination} title="Votre domicile">
+            <View style={styles.destinationMarkerContainer}>
+              <View style={styles.etaBubble}>
+                <Text style={styles.etaText}>{orderData.distanceRemaining}</Text>
+              </View>
+              <View style={styles.markerDestinationBrown}>
+                <Ionicons name="location" size={16} color="white" />
+              </View>
+            </View>
+          </Marker>
+        </MapView>
+
+        {/* --- CARTE DE PAIEMENT --- */}
+        <View style={styles.bottomSheet}>
+          <Text style={styles.addressSubtext}>Destination : {orderData.deliveryAddress}</Text>
+          <TouchableOpacity style={styles.mainPayButton} activeOpacity={0.8}>
+            <Text style={styles.mainPayButtonText}>Confirmer la réception ({orderData.totalAmount})</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={[styles.orderReceiveButton, { backgroundColor: colors.primary }]}>
-          <Text style={styles.orderReceiveText}>Order Receive</Text>
-        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
+  container: { flex: 1, backgroundColor: '#000' },
+  darkHeader: {
+    backgroundColor: '#000',
+    paddingHorizontal: 20,
+    paddingBottom: 35,
+  },
+  navBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  headerTitle: { fontSize: 20, fontWeight: 'bold' },
-
-  mapWrapper: { height: height * 0.45, position: 'relative' },
-  mapPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 20,
-    borderRadius: 12,
-  },
-  mapPlaceholderText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 20,
-  },
-  mapPlaceholderSubtext: {
-    fontSize: 16,
     marginTop: 10,
   },
-  wave: { position: 'absolute', bottom: 0 },
-
-  deliveryCard: {
-    marginHorizontal: 20,
-    borderRadius: 15,
-    padding: 20,
-    marginTop: -30,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 5,
+  whiteCircleBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  deliveryStatus: { fontSize: 16, marginBottom: 15, fontWeight: 'bold' },
-  deliveryInfo: { flexDirection: 'row', alignItems: 'center' },
-  avatar: {
-    width: 50,
-    height: 50,
+  navTitle: { color: '#FFF', fontSize: 16, fontWeight: '500' },
+  statusBox: { alignItems: 'center', marginTop: 25 },
+  statusText: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 28,
+    marginBottom: 20,
+    paddingHorizontal: 10
+  },
+  timeBadge: {
+    backgroundColor: BRAND_BROWN,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  driverName: { fontSize: 16, fontWeight: 'bold' },
-  driverId: { fontSize: 14 },
-  actionButton: {
-    width: 40,
-    height: 40,
+  timeText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  mapWrapper: { flex: 1, backgroundColor: '#FFF' },
+  deliveryMarker: {
+    backgroundColor: BRAND_BROWN,
+    padding: 7,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
+    borderWidth: 2,
+    borderColor: '#FFF',
+    elevation: 6,
   },
-  orderReceiveButton: {
-    marginTop: 20,
-    paddingVertical: 15,
-    borderRadius: 12,
+  markerCircleWhite: {
+    width: 30, height: 30, borderRadius: 15,
+    backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center',
+    borderWidth: 1, borderColor: '#DDD', elevation: 3,
+  },
+  markerDestinationBrown: {
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: BRAND_BROWN, justifyContent: 'center', alignItems: 'center',
+    borderWidth: 2, borderColor: '#FFF', elevation: 5,
+  },
+  destinationMarkerContainer: { alignItems: 'center' },
+  etaBubble: {
+    backgroundColor: '#FFF',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginBottom: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    elevation: 3,
+  },
+  etaText: { fontSize: 11, fontWeight: 'bold', color: '#000' },
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingHorizontal: 25,
+    paddingTop: 25,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 25,
+    alignItems: 'center',
+    elevation: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+  },
+  addressSubtext: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#666',
+    marginBottom: 15,
+  },
+  mainPayButton: {
+    backgroundColor: '#000',
+    width: '100%',
+    paddingVertical: 18,
+    borderRadius: 30,
     alignItems: 'center',
   },
-  orderReceiveText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  mainPayButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
