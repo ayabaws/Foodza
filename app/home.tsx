@@ -6,10 +6,12 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { useLocation } from '@/contexts/LocationContext';
 import DishPreviewModal from '@/components/DishPreviewModal';
 import PopularDishCard from '@/components/PopularDishCard';
 import CategoryCard from '@/components/CategoryCard';
 import RestaurantCard from '@/components/SimpleRestaurantCard';
+import LocationPermissionModal from '@/components/LocationPermissionModal';
 import { BlurView } from 'expo-blur';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -51,17 +53,24 @@ export default function HomeScreen() {
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
   const { favorites } = useFavorites();
+  const { currentLocation } = useLocation();
 
   const [selectedCategory, setSelectedCategory] = useState('Tous');
   const [activeTab, setActiveTab] = useState('Livraison');
   const [showLocationModal, setShowLocationModal] = useState(false);
-  const [locationAuthorized, setLocationAuthorized] = useState(false);
   const [showDishModal, setShowDishModal] = useState(false);
   const [selectedDish, setSelectedDish] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryScrollPosition, setCategoryScrollPosition] = useState(0);
   const categoryScrollViewRef = useRef<ScrollView>(null);
   const [cartItems, setCartItems] = useState<any[]>([]);
+
+  // Vérifier si la localisation est configurée
+  useEffect(() => {
+    if (!currentLocation) {
+      setShowLocationModal(true);
+    }
+  }, [currentLocation]);
 
   // Calculer la position de la ligne orange selon la catégorie et le scroll
   const getOrangeLinePosition = () => {
@@ -208,8 +217,8 @@ export default function HomeScreen() {
     : popularItems.filter((item: PopularItem) => item.category === selectedCategory);
 
   useEffect(() => {
-    if (!locationAuthorized) setShowLocationModal(true);
-  }, [locationAuthorized]);
+    if (!currentLocation) setShowLocationModal(true);
+  }, [currentLocation]);
 
   // Handlers pour la navigation
   const handleSearch = () => {
@@ -261,12 +270,22 @@ export default function HomeScreen() {
   };
 
   const handleLocationAllow = () => {
-    setLocationAuthorized(true);
     setShowLocationModal(false);
   };
 
   const handleLocationSkip = () => {
     setShowLocationModal(false);
+  };
+
+  const formatLocationDisplay = (location: any) => {
+    if (!location) return 'Kalaban-coro';
+    
+    // Si c'est une adresse avec plusieurs parties, afficher seulement la partie principale
+    if (location.street && location.street.includes(',')) {
+      return location.street.split(',')[0].trim();
+    }
+    
+    return location.street || 'Kalaban-coro';
   };
 
   const handleTabPress = (tab: string) => {
@@ -288,7 +307,9 @@ export default function HomeScreen() {
             <Text style={styles.locationLabel}>Localisation</Text>
             <TouchableOpacity style={styles.locationSelector} onPress={handleLocationPress}>
               <Ionicons name="location" size={18} color="#BF5B30" />
-              <Text style={styles.locationValue}>Kalaban-coro</Text>
+              <Text style={styles.locationValue}>
+                {formatLocationDisplay(currentLocation)}
+              </Text>
               <Ionicons name="chevron-down" size={16} color="#000" />
             </TouchableOpacity>
           </View>
@@ -509,31 +530,11 @@ export default function HomeScreen() {
       />
 
       {/* Modal de localisation */}
-      <Modal transparent visible={showLocationModal} animationType="fade">
-        <View style={StyleSheet.absoluteFillObject}>
-          <BlurView intensity={20} style={StyleSheet.absoluteFillObject} />
-          <View style={styles.modalContainer}>
-            <Ionicons name="location" size={50} color="#BF5B30" />
-            <Text style={styles.modalTitle}>Localisation</Text>
-            <Text style={styles.modalDescription}>
-              Autoriser les cartes à accéder à votre position ?
-            </Text>
-
-            <TouchableOpacity
-              style={styles.btnPrimary}
-              onPress={handleLocationAllow}
-            >
-              <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Autoriser</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleLocationSkip}>
-              <Text style={{ marginTop: 10, color: '#BF5B30' }}>
-                Passer pour l'instant
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <LocationPermissionModal
+        visible={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onLocationSet={() => setShowLocationModal(false)}
+      />
 
     </SafeAreaView>
   );

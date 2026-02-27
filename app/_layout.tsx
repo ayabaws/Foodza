@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { OrderProvider } from '@/contexts/OrderContext';
+import { LocationProvider } from '@/contexts/LocationContext';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
@@ -50,9 +51,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <FavoritesProvider>
-        <OrderProvider>
-          <RootLayoutNav />
-        </OrderProvider>
+        <LocationProvider>
+          <OrderProvider>
+            <RootLayoutNav />
+          </OrderProvider>
+        </LocationProvider>
       </FavoritesProvider>
     </ThemeProvider>
   );

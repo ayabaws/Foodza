@@ -1,12 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import AddressManager from '@/components/AddressManager';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const [showAddressManager, setShowAddressManager] = useState(false);
 
   const userProfile = {
     name: "Fanta Diakité",
@@ -53,7 +55,7 @@ export default function ProfileScreen() {
         <ProfileItem icon={<Ionicons name="heart" size={20} color={colors.text.secondary} />} label="Favoris" onPress={() => router.push('/screens/favorites')} />
         <ProfileItem icon={<Feather name="list" size={20} color={colors.text.secondary} />} label="Mes Commandes" onPress={() => console.log('Mes commandes')} />
         <ProfileItem icon={<Feather name="credit-card" size={20} color={colors.text.secondary} />} label="Payment" onPress={() => console.log('Payment')} />
-        <ProfileItem icon={<Feather name="map-pin" size={20} color={colors.text.secondary} />} label="Addresses" onPress={() => console.log('Addresses')} />
+        <ProfileItem icon={<Feather name="map-pin" size={20} color={colors.text.secondary} />} label="Addresses" onPress={() => setShowAddressManager(true)} />
         <ProfileItem 
           icon={<Feather name="settings" size={20} color={colors.text.secondary} />} 
           label="Paramètres" 
@@ -83,6 +85,15 @@ export default function ProfileScreen() {
         </View>
 
       </ScrollView>
+
+      {/* Address Manager Modal */}
+      {showAddressManager && (
+        <View style={StyleSheet.absoluteFill}>
+          <SafeAreaView style={StyleSheet.absoluteFill}>
+            <AddressManager onBack={() => setShowAddressManager(false)} />
+          </SafeAreaView>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
