@@ -278,14 +278,14 @@ export default function HomeScreen() {
   };
 
   const formatLocationDisplay = (location: any) => {
-    if (!location) return 'Kalaban-coro';
+    if (!location) return 'Pas d\'adresse';
     
     // Si c'est une adresse avec plusieurs parties, afficher seulement la partie principale
     if (location.street && location.street.includes(',')) {
       return location.street.split(',')[0].trim();
     }
     
-    return location.street || 'Kalaban-coro';
+    return location.street || 'Pas d\'adresse';
   };
 
   const handleTabPress = (tab: string) => {

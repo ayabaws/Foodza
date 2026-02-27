@@ -48,12 +48,14 @@ export default function AddressManager({ onBack }: AddressManagerProps) {
   });
   const [tempCoordinates, setTempCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
   const [reverseGeocodedAddress, setReverseGeocodedAddress] = useState<string>('');
+  const [isGeocoding, setIsGeocoding] = useState<boolean>(false);
 
   const openAddModal = () => {
     console.log('Opening add modal'); // Debug
     setFormData({ label: '', street: '' });
     setTempCoordinates(null);
     setReverseGeocodedAddress('');
+    setIsGeocoding(false);
     setEditingAddress(null);
     setShowAddModal(true);
   };
@@ -136,40 +138,66 @@ export default function AddressManager({ onBack }: AddressManagerProps) {
   const handleMapSelection = (coordinate: { latitude: number; longitude: number }) => {
     console.log('Map selection:', coordinate); // Debug
     setTempCoordinates(coordinate);
+    setIsGeocoding(true);
     // Géocodage inversé pour obtenir l'adresse
     reverseGeocode(coordinate);
   };
 
   const reverseGeocode = async (coordinate: { latitude: number; longitude: number }) => {
     try {
-      // Simulation de géocodage inversé (en production, utiliser une vraie API)
-      const mockAddresses = [
-        { lat: 12.6395, lng: -8.0065, address: "ACI 2000, Rue 14, Bamako, Mali" },
-        { lat: 12.6338, lng: -8.0003, address: "Kalaban Coro, Route de Koulikoro, Bamako, Mali" },
-        { lat: 12.6456, lng: -8.0123, address: "Hippodrome, Avenue Cheick Zaman, Bamako, Mali" },
-        { lat: 12.6234, lng: -8.0234, address: "Lafiabougou, Marché, Bamako, Mali" },
-        { lat: 12.6567, lng: -8.0098, address: "Badalabougou, Quartier Administratif, Bamako, Mali" },
-      ];
-
-      // Trouver l'adresse la plus proche
-      let closestAddress = "Adresse inconnue";
-      let minDistance = Infinity;
-
-      mockAddresses.forEach(mock => {
-        const distance = Math.sqrt(
-          Math.pow(coordinate.latitude - mock.lat, 2) + 
-          Math.pow(coordinate.longitude - mock.lng, 2)
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestAddress = mock.address;
+      // Utiliser l'API de géocodage inversé d'OpenStreetMap (Nominatim)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coordinate.latitude}&lon=${coordinate.longitude}&addressdetails=1&accept-language=fr`,
+        {
+          headers: {
+            'User-Agent': 'FoodzaApp/1.0'
+          }
         }
-      });
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch address');
+      }
+      
+      const data = await response.json();
+      
+      if (data && data.display_name) {
+        // Construire une adresse complète formatée
+        const address = data.display_name;
+        setReverseGeocodedAddress(address);
+        console.log('Reverse geocoded address:', address);
+      } else {
+        // Fallback vers des adresses simulées si l'API ne répond pas
+        const mockAddresses = [
+          { lat: 12.6395, lng: -8.0065, address: "ACI 2000, Rue 14, Bamako, Mali" },
+          { lat: 12.6338, lng: -8.0003, address: "Kalaban Coro, Route de Koulikoro, Bamako, Mali" },
+          { lat: 12.6456, lng: -8.0123, address: "Hippodrome, Avenue Cheick Zaman, Bamako, Mali" },
+          { lat: 12.6234, lng: -8.0234, address: "Lafiabougou, Marché, Bamako, Mali" },
+          { lat: 12.6567, lng: -8.0098, address: "Badalabougou, Quartier Administratif, Bamako, Mali" },
+        ];
 
-      setReverseGeocodedAddress(closestAddress);
+        let closestAddress = "Adresse inconnue";
+        let minDistance = Infinity;
+
+        mockAddresses.forEach(mock => {
+          const distance = Math.sqrt(
+            Math.pow(coordinate.latitude - mock.lat, 2) + 
+            Math.pow(coordinate.longitude - mock.lng, 2)
+          );
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestAddress = mock.address;
+          }
+        });
+
+        setReverseGeocodedAddress(closestAddress);
+      }
     } catch (error) {
       console.error('Reverse geocoding error:', error);
-      setReverseGeocodedAddress('Adresse non disponible');
+      // Fallback en cas d'erreur réseau
+      setReverseGeocodedAddress('Adresse non disponible - Veuillez entrer manuellement');
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -184,7 +212,7 @@ export default function AddressManager({ onBack }: AddressManagerProps) {
 
   const confirmMapSelection = () => {
     console.log('Confirm map selection:', tempCoordinates); // Debug
-    if (tempCoordinates) {
+    if (tempCoordinates && !isGeocoding) {
       // Mettre à jour le formulaire avec l'adresse géocodée
       setFormData(prev => ({ ...prev, street: reverseGeocodedAddress }));
       // Revenir au formulaire d'ajout
@@ -322,11 +350,16 @@ export default function AddressManager({ onBack }: AddressManagerProps) {
               style={[styles.input, styles.textArea, { backgroundColor: tempCoordinates ? '#F0F8F0' : '#F5F5F5' }]}
               value={formData.street}
               onChangeText={(text) => setFormData({ ...formData, street: text })}
-              placeholder={tempCoordinates ? "Adresse obtenue de la carte..." : "Rue, quartier, ville..."}
+              placeholder={isGeocoding ? "Récupération de l'adresse..." : tempCoordinates ? "Adresse obtenue de la carte..." : "Rue, quartier, ville..."}
               multiline
-              editable={!tempCoordinates} // Désactiver si coordonnées sont définies
+              editable={!tempCoordinates && !isGeocoding} // Désactiver si coordonnées sont définies ou géocodage en cours
             />
-            {tempCoordinates && (
+            {isGeocoding && (
+              <Text style={styles.geocodingNote}>
+                ⏳ Récupération de l'adresse en cours...
+              </Text>
+            )}
+            {tempCoordinates && !isGeocoding && (
               <Text style={styles.geocodedNote}>
                 Adresse obtenue automatiquement de votre sélection sur la carte
               </Text>
@@ -389,11 +422,13 @@ export default function AddressManager({ onBack }: AddressManagerProps) {
               <Text style={styles.mapCancelText}>Annuler</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[styles.mapConfirmButton, !tempCoordinates && styles.disabledButton]}
+              style={[styles.mapConfirmButton, (!tempCoordinates || isGeocoding) && styles.disabledButton]}
               onPress={confirmMapSelection}
-              disabled={!tempCoordinates}
+              disabled={!tempCoordinates || isGeocoding}
             >
-              <Text style={styles.mapConfirmButtonText}>Confirmer cette position</Text>
+              <Text style={styles.mapConfirmButtonText}>
+                {isGeocoding ? 'Récupération en cours...' : 'Confirmer cette position'}
+              </Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -676,6 +711,13 @@ const styles = StyleSheet.create({
   geocodedNote: {
     fontSize: 12,
     color: '#666',
+    fontStyle: 'italic',
+    marginTop: 5,
+    marginBottom: 10,
+  },
+  geocodingNote: {
+    fontSize: 12,
+    color: '#8B4513',
     fontStyle: 'italic',
     marginTop: 5,
     marginBottom: 10,
