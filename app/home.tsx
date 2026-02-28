@@ -13,41 +13,12 @@ import CategoryCard from '@/components/CategoryCard';
 import RestaurantCard from '@/components/SimpleRestaurantCard';
 import LocationPermissionModal from '@/components/LocationPermissionModal';
 import { BlurView } from 'expo-blur';
+import { dataService, Category, Restaurant, PopularItem } from '@/services/DataService';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isSmallScreen = screenWidth < 375;
 const isMediumScreen = screenWidth >= 375 && screenWidth < 414;
 const isLargeScreen = screenWidth >= 414;
-
-interface Category {
-  id: string;
-  name: string;
-  image: any;
-}
-
-interface Restaurant {
-  id: string;
-  name: string;
-  image: string;
-  rating: number;
-  deliveryTime: string;
-  deliveryFee: string;
-  cuisine: string;
-  distance: string;
-  address: string;
-  discount?: string;
-}
-
-interface PopularItem {
-  id: string;
-  name: string;
-  image: string;
-  rating: number;
-  priceRange: string;
-  discount?: string;
-  category?: string;
-  description?: string;
-}
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -64,6 +35,17 @@ export default function HomeScreen() {
   const [categoryScrollPosition, setCategoryScrollPosition] = useState(0);
   const categoryScrollViewRef = useRef<ScrollView>(null);
   const [cartItems, setCartItems] = useState<any[]>([]);
+
+  // Charger les données depuis le service
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [popularItems, setPopularItems] = useState<PopularItem[]>([]);
+
+  useEffect(() => {
+    setCategories(dataService.getCategories());
+    setRestaurants(dataService.getRestaurants());
+    setPopularItems(dataService.getPopularItems());
+  }, []);
 
   // Vérifier si la localisation est configurée
   useEffect(() => {
@@ -109,108 +91,6 @@ export default function HomeScreen() {
     }
   };
 
-  const categories: Category[] = [
-    { id: '1', name: 'Tous', image: require('@/assets/home/all.png') },
-    { id: '2', name: 'Pizza', image: require('@/assets/home/pizza.png') },
-    { id: '3', name: 'Boisson', image: require('@/assets/home/jus.webp') },
-    { id: '4', name: 'Local', image: require('@/assets/home/local.png') },
-    { id: '5', name: 'Grill', image: require('@/assets/home/grill.png') },
-  ];
-
-  const restaurants: Restaurant[] = [
-    {
-      id: '1',
-      name: 'Pizza Palace',
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400',
-      rating: 4.5,
-      deliveryTime: '25-30 min',
-      deliveryFee: '500 FCFA',
-      cuisine: 'Pizza',
-      distance: '1.2 km',
-      address: 'Avenue Cheick Zayed, Bamako',
-      discount: '20% OFF'
-    },
-    {
-      id: '2',
-      name: 'Le Grillard',
-      image: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=400',
-      rating: 4.3,
-      deliveryTime: '30-35 min',
-      deliveryFee: '700 FCFA',
-      cuisine: 'Grill',
-      distance: '2.1 km',
-      address: 'Route de Koulikoro, Bamako'
-    },
-    {
-      id: '3',
-      name: 'Burger House',
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400',
-      rating: 4.2,
-      deliveryTime: '20-25 min',
-      deliveryFee: '400 FCFA',
-      cuisine: 'Fast Food',
-      distance: '0.8 km',
-      address: 'Quartier du Fleuve, Bamako',
-      discount: '15% OFF'
-    },
-    {
-      id: '4',
-      name: 'La Pâtisserie',
-      image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400',
-      rating: 4.7,
-      deliveryTime: '15-20 min',
-      deliveryFee: '300 FCFA',
-      cuisine: 'Viennoiseries',
-      distance: '0.5 km',
-      address: 'ACI 2000, Bamako'
-    },
-    {
-      id: '5',
-      name: 'Restaurant Local',
-      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400',
-      rating: 4.4,
-      deliveryTime: '35-40 min',
-      deliveryFee: '800 FCFA',
-      cuisine: 'Plats traditionnels',
-      distance: '3.2 km',
-      address: 'Lafiabougou, Bamako'
-    }
-  ];
-
-  const popularItems: PopularItem[] = [
-    {
-      id: '1',
-      name: 'Poulet Yassa',
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800',
-      rating: 4.3,
-      priceRange: '2000 - 5000 FCFA',
-      discount: '70% OFF',
-      category: 'Plats traditionnels',
-      description: 'Poulet mariné aux oignons et citron, servi avec riz'
-    },
-    {
-      id: '2',
-      name: 'Croissant',
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800',
-      rating: 4.3,
-      priceRange: '2000 - 5000 FCFA',
-      discount: '70% OFF',
-      category: 'Viennoiseries',
-      description: 'Croissant beurré croustillant et doré'
-    },
-    {
-      id: '3',
-      name: 'Baguette',
-      image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400',
-      rating: 4.3,
-      priceRange: '2000 - 5000 FCFA',
-      discount: '70% OFF',
-      category: 'Boulangerie',
-      description: 'Baguette française fraîchement cuite'
-    },
-  ];
-
-
   // Filtrer les plats selon la catégorie sélectionnée
   const filteredPopularItems = selectedCategory === 'Tous'
     ? popularItems
@@ -246,7 +126,12 @@ export default function HomeScreen() {
   };
 
   const handleRestaurantPress = (restaurant: Restaurant) => {
-    router.push('/restaurant');
+    router.push({
+      pathname: '/restaurant',
+      params: {
+        restaurantId: restaurant.id
+      }
+    });
   };
 
   const handlePopularItemPress = (item: PopularItem) => {
@@ -456,13 +341,13 @@ export default function HomeScreen() {
           <View style={styles.sectionTitleContainer}>
             <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>Top Restaurants</Text>
           </View>
-          <TouchableOpacity style={styles.seeAllButton} onPress={() => router.push('/screens/explore')}>
-            <Text style={[styles.seeAllText, { color: colors.primary }]}>Voir tout</Text>
+          <TouchableOpacity style={styles.seeAllButton} onPress={() => router.push('/screens/all-restaurants')}>
+            <Text style={[styles.seeAllText, { color: colors.primary }]}>Voir plus</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.restaurantsContainer}>
-          {restaurants.map((restaurant) => (
+          {restaurants.slice(0, 1).map((restaurant) => (
             <RestaurantCard
               key={restaurant.id}
               restaurant={restaurant}

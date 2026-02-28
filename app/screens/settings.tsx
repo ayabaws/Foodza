@@ -1,13 +1,37 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, StatusBar, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { dataService } from '@/services/DataService';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { isDarkMode, toggleTheme, colors } = useTheme();
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Se déconnecter',
+      'Êtes-vous sûr de vouloir vous déconnecter ?',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Se déconnecter',
+          style: 'destructive',
+          onPress: () => {
+            // Effacer les données utilisateur locales
+            dataService.clearUserData();
+            // Rediriger vers la page d'accueil/onboarding
+            router.replace('/onboarding/welcome/1');
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -68,7 +92,7 @@ export default function SettingsScreen() {
           icon={<Feather name="log-out" size={20} color="#FF3B30" />} 
           label="Se déconnecter" 
           isDangerous={true}
-          onPress={() => console.log('Se déconnecter')}
+          onPress={handleLogout}
         />
 
       </ScrollView>

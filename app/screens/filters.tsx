@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Alert, Switch, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { dataService } from '@/services/DataService';
 
 interface FilterOption {
   id: string;
@@ -30,7 +31,7 @@ export default function FiltersScreen() {
     promotions: false,
   });
 
-  const [priceRanges] = useState<PriceRange[]>([
+  const [priceRanges] = useState([
     { id: '1', label: 'Moins de 2000 FCFA', min: 0, max: 2000, selected: false },
     { id: '2', label: '2000 - 5000 FCFA', min: 2000, max: 5000, selected: false },
     { id: '3', label: '5000 - 10000 FCFA', min: 5000, max: 10000, selected: false },
@@ -38,15 +39,18 @@ export default function FiltersScreen() {
   ]);
 
   const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
+  const [cuisines, setCuisines] = useState<{ id: string; label: string; value: boolean }[]>([]);
 
-  const [cuisines, setCuisines] = useState<FilterOption[]>([
-    { id: '1', label: 'Africaine', value: false },
-    { id: '2', label: 'Française', value: false },
-    { id: '3', label: 'Italienne', value: false },
-    { id: '4', label: 'Asiatique', value: false },
-    { id: '5', label: 'Fast Food', value: false },
-    { id: '6', label: 'Végétarien', value: false },
-  ]);
+  // Charger les catégories depuis le service
+  useEffect(() => {
+    const categories = dataService.getAllUniqueCategories();
+    const cuisineOptions = categories.map((category, index) => ({
+      id: (index + 1).toString(),
+      label: category,
+      value: false
+    }));
+    setCuisines(cuisineOptions);
+  }, []);
 
   const [ratings, setRatings] = useState<FilterOption[]>([
     { id: '4', label: '4.0 & plus', value: false },

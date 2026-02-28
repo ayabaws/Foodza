@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   Image, Dimensions, FlatList, Animated, Easing, StatusBar
@@ -6,26 +6,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import MenuModal from '@/components/MenuModal';
 import PopularDishCard from '@/components/PopularDishCard';
 import DishPreviewModal from '@/components/DishPreviewModal';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
+import { dataService, Restaurant, Dish } from '@/services/DataService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: string;
-  desc: string;
-  cat: string;
-  img: string;
-  quantity: number;
-}
-
-// --- DATA ---const 
+// --- DATA ---
 const HERO_IMAGES = [
   { id: '1', url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800' }, // Pizza Royale
   { id: '2', url: 'https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?w=800' }, // Burger Gourmet
@@ -37,14 +28,6 @@ const HERO_IMAGES = [
   { id: '8', url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800' }, // Plat cuisiné healthy
   { id: '9', url: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800' }, // Donuts / Sucré
   { id: '10', url: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800' }, // Salade fraîche
-];
-
-const CATEGORIES = [
-  { id: '1', name: 'Tous', image: require('@/assets/home/all.png') },
-  { id: '2', name: 'Pizza', image: require('@/assets/home/pizza.png') },
-  { id: '3', name: 'Boisson', image: require('@/assets/home/jus.webp') },
-  { id: '4', name: 'Local', image: require('@/assets/home/local.png') },
-  { id: '5', name: 'Grill', image: require('@/assets/home/grill.png') },
 ];
 
 const FOOD_ITEMS = [
@@ -97,41 +80,27 @@ const FOOD_ITEMS = [
     id: '6',
     name: 'Burger Gourmet XXL',
     price: '3500 CFA',
-    desc: 'Pain brioché, steak de boeuf pur, cheddar fondant et frites maison.',
+    desc: 'Double steak de bœuf, cheddar fondant, bacon croustillant et sauce maison.',
     cat: 'Grill',
     img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=500'
   },
-  {
-    id: '7',
-    name: 'Poulet Braisé',
-    price: '5000 CFA',
-    desc: 'Demi-poulet braisé au feu de bois avec sa marinade épicée.',
-    cat: 'Grill',
-    img: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?q=80&w=500'
-  },
-
-  // --- BOISSONS ---
-  {
-    id: '8',
-    name: 'Cocktail Bissap',
-    price: '1000 CFA',
-    desc: 'Infusion fraîche de fleurs d\'hibiscus, menthe et arôme vanille.',
-    cat: 'Boisson',
-    img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=500'
-  },
-  {
-    id: '9',
-    name: 'Jus de Gingembre',
-    price: '1000 CFA',
-    desc: 'Énergie pure : jus de gingembre frais pressé avec une pointe de citron.',
-    cat: 'Boisson',
-    img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=500'
-  }
 ];
+
+interface CartItem {
+  id: string;
+  name: string;
+  price: string;
+  desc: string;
+  cat: string;
+  img: string;
+  quantity: number;
+}
 
 export default function RestaurantScreen() {
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
+  const params = useLocalSearchParams();
+  
   const [selectedCat, setSelectedCat] = useState('Tous');
   const [cartVisible, setCartVisible] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -139,9 +108,39 @@ export default function RestaurantScreen() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [showDishModal, setShowDishModal] = useState(false);
   const [selectedDish, setSelectedDish] = useState<any>(null);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [dishes, setDishes] = useState<Dish[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   const menuAnim = useRef(new Animated.Value(30)).current;
   const flatListRef = useRef<FlatList>(null);
+
+  // Charger les données du restaurant et des plats
+  useEffect(() => {
+    // Récupérer les données du restaurant depuis les params
+    if (params.restaurantData) {
+      try {
+        const restaurantData = JSON.parse(params.restaurantData as string);
+        setRestaurant(restaurantData);
+      } catch (error) {
+        console.error('Erreur parsing restaurant data:', error);
+      }
+    } else if (params.restaurantId) {
+      // Alternative: récupérer depuis le service par ID
+      const restaurantData = dataService.getRestaurantById(params.restaurantId as string);
+      setRestaurant(restaurantData || null);
+    }
+  }, [params]);
+
+  // Mémoriser les données du service pour éviter les re-renders infinis
+  const dishesData = useMemo(() => dataService.getDishes(), []);
+  const categoriesData = useMemo(() => dataService.getAllUniqueCategories(), []);
+
+  // Charger les plats et catégories depuis le service
+  useEffect(() => {
+    setDishes(dishesData);
+    setCategories(['Tous', ...categoriesData]);
+  }, [dishesData, categoriesData]);
 
   // --- AUTO-PLAY CAROUSEL (5 secondes) ---
   useEffect(() => {
@@ -330,11 +329,23 @@ export default function RestaurantScreen() {
             <Text style={styles.pourToi}>Pour toi</Text>
           </View>
 
-          <Text style={[styles.title, { color: colors.text.primary }]}>La Brioche Dorée</Text>
+          <Text style={[styles.title, { color: colors.text.primary }]}>
+            {restaurant?.name || 'Restaurant'}
+          </Text>
 
           <View style={styles.pills}>
-            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}><Ionicons name="location" size={14} color={colors.text.secondary} /><Text style={[styles.pText, { color: colors.text.secondary }]}>Badalabougou, Bamako</Text></View>
-            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}><Ionicons name="bicycle" size={16} color={colors.text.secondary} /><Text style={[styles.pText, { color: colors.text.secondary }]}>25-30 mins • 5 km</Text></View>
+            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}>
+              <Ionicons name="location" size={14} color={colors.text.secondary} />
+              <Text style={[styles.pText, { color: colors.text.secondary }]}>
+                {restaurant?.address || 'Adresse non disponible'}
+              </Text>
+            </View>
+            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}>
+              <Ionicons name="bicycle" size={16} color={colors.text.secondary} />
+              <Text style={[styles.pText, { color: colors.text.secondary }]}>
+                {restaurant?.deliveryTime || '25-30 mins'} • {restaurant?.distance || '5 km'}
+              </Text>
+            </View>
           </View>
 
           {/* BANDEAU PROMO */}

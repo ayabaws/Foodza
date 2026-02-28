@@ -11,6 +11,40 @@ export default function OtpVerificationScreen() {
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+
+  const validatePhoneNumber = (number: string) => {
+    // Validation pour numéro malien (commence par 7, 6, ou 5 et contient 8 chiffres)
+    const phoneRegex = /^[56789]\d{7}$/;
+    return phoneRegex.test(number);
+  };
+
+  const handleSendOtp = () => {
+    // Réinitialiser l'erreur
+    setPhoneError('');
+    
+    // Validation du numéro de téléphone
+    if (!phoneNumber.trim()) {
+      setPhoneError('Veuillez entrer un numéro de téléphone');
+      return;
+    }
+    
+    if (!validatePhoneNumber(phoneNumber.trim())) {
+      setPhoneError('Format invalide. Le numéro doit commencer par 7, 6 ou 5 et contenir 8 chiffres');
+      return;
+    }
+    
+    // Si tout est valide, naviguer vers la page OTP
+    router.push('/onboarding/otp');
+  };
+
+  const handlePhoneChange = (text: string) => {
+    setPhoneNumber(text);
+    // Effacer l'erreur quand l'utilisateur commence à taper
+    if (phoneError) {
+      setPhoneError('');
+    }
+  };
 
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
@@ -62,19 +96,26 @@ export default function OtpVerificationScreen() {
               <Text style={[styles.countryText, { color: colors.text.primary }]}>+223</Text>
             </View>
 
-            <View style={[styles.phoneInputBox, { backgroundColor: colors.border.medium }]}>
+            <View style={[styles.phoneInputBox, { backgroundColor: colors.border.medium, borderColor: phoneError ? '#FF3B30' : colors.border.medium }]}>
               <TextInput
                 style={[styles.input, { color: colors.text.primary }]}
                 placeholder="Numero de telephone"
                 placeholderTextColor={colors.text.tertiary}
                 keyboardType="phone-pad"
                 value={phoneNumber}
-                onChangeText={setPhoneNumber}
+                onChangeText={handlePhoneChange}
+                maxLength={8}
               />
             </View>
           </View>
 
-          <TouchableOpacity style={[styles.buttonMain, { backgroundColor: colors.background2 }]} onPress={() => router.push('/onboarding/otp')}>
+          {phoneError ? (
+            <Text style={[styles.errorText, { color: '#FF3B30' }]}>
+              {phoneError}
+            </Text>
+          ) : null}
+
+          <TouchableOpacity style={[styles.buttonMain, { backgroundColor: colors.background2 }]} onPress={handleSendOtp}>
             <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>ENVOIE OTP</Text>
           </TouchableOpacity>
 
@@ -191,6 +232,15 @@ const styles = StyleSheet.create({
 
   input: {
     fontSize: 15,
+  },
+
+  errorText: {
+    fontSize: 12,
+    marginTop:-10,
+    marginBottom: 10,
+    textAlign: 'right',
+    left:70,
+    width:"80%"
   },
 
   buttonMain: {

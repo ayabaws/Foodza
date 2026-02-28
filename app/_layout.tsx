@@ -10,12 +10,14 @@ import OrderTrackingModal from '@/components/OrderTrackingModal';
 
 function RootLayoutNav() {
   const { isDarkMode } = useTheme();
-  
+
   return (
     <>
-      <Stack screenOptions={{ headerShown: false,
+      <Stack screenOptions={{
+        headerShown: false,
         animation: 'slide_from_right',
-        animationDuration: 400, }}>
+        animationDuration: 400,
+      }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="home" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding/flash" options={{ headerShown: false }} />
@@ -38,6 +40,7 @@ function RootLayoutNav() {
         <Stack.Screen name="screens/explore" options={{ headerShown: false }} />
         <Stack.Screen name="screens/order-details" options={{ headerShown: false }} />
         <Stack.Screen name="screens/order-track" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/all-restaurants" options={{ headerShown: false }} />
         <Stack.Screen name="screens/order-success" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>

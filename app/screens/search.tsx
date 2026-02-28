@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { dataService } from '@/services/DataService';
 
 export default function SearchScreen() {
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchHistory, setSearchHistory] = useState([
-    'Pizza',
-    'Burger',
-    'Thieboudienne',
-    'Yassa',
-    'Mafé'
-  ]);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  // Charger les données depuis le service
+  useEffect(() => {
+    // Obtenir les catégories uniques comme suggestions
+    const categories = dataService.getAllUniqueCategories();
+    const dishes = dataService.getDishes().map(dish => dish.name);
+    const restaurants = dataService.getRestaurants().map(resto => resto.name);
+    
+    setSuggestions([...categories, ...dishes.slice(0, 5), ...restaurants.slice(0, 3)]);
+    setRecentSearches(['Pizza', 'Burger', 'Thieboudienne', 'Yassa', 'Mafé']);
+  }, []);
 
   const popularSearches = [
     'Restaurant africain',

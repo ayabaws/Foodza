@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, StatusBar, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,19 +7,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import DishPreviewModal from '@/components/DishPreviewModal';
 import DishCard from '@/components/DishCard';
+import { dataService, Dish } from '@/services/DataService';
 
-interface Dish {
-  id: string;
-  name: string;
-  image: string;
-  price: string;
-  description: string;
-  category: string;
-  rating: number;
-  priceRange: string;
-  discount?: string;
-  deliveryTime: string;
-}
 
 export default function ExploreScreen() {
   const router = useRouter();
@@ -31,107 +20,18 @@ export default function ExploreScreen() {
   const [sortBy, setSortBy] = useState('populaire');
   const [showDishModal, setShowDishModal] = useState(false);
   const [selectedDish, setSelectedDish] = useState<any>(null);
+  const [allDishes, setAllDishes] = useState<Dish[]>([]);
 
-  // Base de données des plats
-  const allDishes: Dish[] = [
-    {
-      id: '1',
-      name: 'Poulet Yassa',
-      image: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?q=80&w=800',
-      price: '4500 CFA',
-      description: 'Poulet mariné au citron, oignons caramélisés et riz parfumé',
-      category: 'Local',
-      rating: 4.9,
-      priceRange: '2000 - 5000 FCFA',
-      deliveryTime: '25-30 min',
-      discount: '70% OFF'
-    },
-    {
-      id: '2',
-      name: 'Pizza Margherita',
-      image: 'https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?q=80&w=800',
-      price: '5000 CFA',
-      description: 'Sauce tomate, mozzarella fraîche, basilic et huile d\'olive',
-      category: 'Pizza',
-      rating: 4.5,
-      priceRange: '4000 - 7000 FCFA',
-      deliveryTime: '20-25 min',
-      discount: '30% OFF'
-    },
-    {
-      id: '3',
-      name: 'Burger Gourmet',
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=800',
-      price: '3500 CFA',
-      description: 'Bœuf grillé, cheddar affiné, oignons rouges et frites maison',
-      category: 'Grill',
-      rating: 4.7,
-      priceRange: '2500 - 5000 FCFA',
-      deliveryTime: '15-20 min'
-    },
-    {
-      id: '4',
-      name: 'Thieboudienne Rouge',
-      image: 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800',
-      price: '4500 CFA',
-      description: 'Riz rouge sénégalais au poisson, carotte, manioc et chou',
-      category: 'Local',
-      rating: 4.8,
-      priceRange: '3000 - 6000 FCFA',
-      deliveryTime: '30-40 min',
-      discount: '15% OFF'
-    },
-    {
-      id: '5',
-      name: 'Croissant Chocolat',
-      image: 'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=800',
-      price: '1200 CFA',
-      description: 'Viennoiserie pur beurre, feuilletée et chocolat fondant',
-      category: 'Viennoiserie',
-      rating: 4.3,
-      priceRange: '800 - 2000 FCFA',
-      deliveryTime: '10-15 min'
-    },
-    {
-      id: '6',
-      name: 'Sushi Plateau',
-      image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800',
-      price: '8500 CFA',
-      description: 'Assortiment de 12 sushis et makis saumon et thon',
-      category: 'Japonais',
-      rating: 4.6,
-      priceRange: '5000 - 12000 FCFA',
-      deliveryTime: '30-45 min'
-    },
-    {
-      id: '7',
-      name: 'Tacos Boeuf',
-      image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=800',
-      price: '3200 CFA',
-      description: 'Tortilla de blé, émincé de boeuf, sauce fromagère et frites',
-      category: 'Mexicain',
-      rating: 4.4,
-      priceRange: '2500 - 4500 FCFA',
-      deliveryTime: '20-25 min'
-    },
-    {
-      id: '8',
-      name: 'Jus de Bissap',
-      image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=800',
-      price: '1000 CFA',
-      description: 'Infusion de fleurs d\'hibiscus à la menthe fraîche',
-      category: 'Boisson',
-      rating: 4.9,
-      priceRange: '500 - 1500 FCFA',
-      deliveryTime: '5-10 min'
-    }
-  ];
-
-  // Extraire les catégories uniques
-  const categories = useMemo(() => {
-    const cats = ['Tous', ...new Set(allDishes.map(dish => dish.category))];
-    return cats;
+  // Charger les données depuis le service
+  useEffect(() => {
+    setAllDishes(dataService.getDishes());
   }, []);
+
+
+  // Extraire les catégories uniques depuis le service
+  const categories = useMemo(() => {
+    return ['Tous', ...dataService.getAllUniqueCategories().filter(cat => cat !== 'Tous')];
+  }, [allDishes]);
 
   // Fonction pour obtenir la couleur de catégorie
   const getCategoryColor = (category: string) => {

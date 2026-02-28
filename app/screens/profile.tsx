@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, Platform, Alert } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import AddressManager from '@/components/AddressManager';
+import { dataService, UserProfile } from '@/services/DataService';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { isDarkMode, toggleTheme, colors } = useTheme();
   const [showAddressManager, setShowAddressManager] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  const userProfile = {
-    name: "Fanta Diakité",
-    email: "fanta2013@gmail.com",
-    phone: "+223 90 04 91 59",
-    avatarUrl: null, 
-    initials: "FD"
+  // Charger les données utilisateur depuis le service
+  useEffect(() => {
+    setUserProfile(dataService.getUserProfile());
+  }, []);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Se déconnecter',
+      'Êtes-vous sûr de vouloir vous déconnecter ?',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Se déconnecter',
+          style: 'destructive',
+          onPress: () => {
+            // Effacer les données utilisateur locales
+            dataService.clearUserData();
+            // Rediriger vers la page d'accueil/onboarding
+            router.replace('/onboarding/welcome/1');
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -36,19 +58,21 @@ export default function ProfileScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* Profile Info avec Logique de Fallback pour l'image */}
-        <View style={styles.profileSection}>
-          {userProfile.avatarUrl ? (
-            <Image source={{ uri: userProfile.avatarUrl }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatarFallback, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.avatarFallbackText, { color: colors.text.primary }]}>{userProfile.initials}</Text>
-            </View>
-          )}
-          
-          <Text style={[styles.userName, { color: colors.text.primary }]}>{userProfile.name}</Text>
-          <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.email}</Text>
-          <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.phone}</Text>
-        </View>
+        {userProfile && (
+          <View style={styles.profileSection}>
+            {userProfile.avatarUrl ? (
+              <Image source={{ uri: userProfile.avatarUrl }} style={styles.avatar} />
+            ) : (
+              <View style={[styles.avatarFallback, { backgroundColor: colors.surface }]}>
+                <Text style={[styles.avatarFallbackText, { color: colors.text.primary }]}>{userProfile.initials}</Text>
+              </View>
+            )}
+            
+            <Text style={[styles.userName, { color: colors.text.primary }]}>{userProfile.name}</Text>
+            <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.email}</Text>
+            <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.phone}</Text>
+          </View>
+        )}
 
         {/* SECTION GENERALE */}
         <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Generale</Text>
@@ -65,7 +89,7 @@ export default function ProfileScreen() {
           icon={<Feather name="log-out" size={20} color="#FF3B30" />} 
           label="Se déconnecter" 
           isDangerous={true}
-          onPress={() => console.log('Se déconnecter')} 
+          onPress={handleLogout} 
         />
 
         {/* SECTION THEME */}

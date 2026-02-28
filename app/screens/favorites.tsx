@@ -1,28 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Image, FlatList, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { dataService, Restaurant } from '@/services/DataService';
 
-interface Restaurant {
-  id: string;
-  name: string;
-  image: any;
-  rating: number;
-  priceRange: string;
-  category?: string;
-  address?: string;
-}
 
 export default function FavoritesScreen() {
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
   const { favorites, removeFromFavorites, isFavorite } = useFavorites();
   const [selectedCategory, setSelectedCategory] = useState('Tous');
+  const [categories, setCategories] = useState<string[]>([]);
 
-  const categories = ['Tous', 'Fast Food', 'Pizza', 'Sushi', 'Healthy', 'Dessert'];
+  // Charger les catégories depuis le service
+  useEffect(() => {
+    const uniqueCategories = dataService.getAllUniqueCategories();
+    setCategories(['Tous', ...uniqueCategories]);
+  }, []);
 
   const filteredFavorites = selectedCategory === 'Tous' 
     ? favorites 
