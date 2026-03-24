@@ -1,13 +1,19 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, FlatList, StatusBar, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import DishCard from '@/components/DishCard';
+import DishPreviewModal from '@/components/DishPreviewModal';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { dataService, Dish } from '@/services/DataService';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useFavorites } from '@/contexts/FavoritesContext';
-import DishPreviewModal from '@/components/DishPreviewModal';
-import DishCard from '@/components/DishCard';
-import { dataService, Dish } from '@/services/DataService';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = width < 380;
+const isMediumScreen = width >= 380 && width < 768;
+const isLargeScreen = width >= 768 && width < 1024;
+const isTablet = width >= 1024;
 
 
 export default function ExploreScreen() {
@@ -235,7 +241,7 @@ export default function ExploreScreen() {
         </View>
 
         {/* Dishes List */}
-        <View style={{ paddingHorizontal: 20, marginTop: 15 }}>
+        <View style={{ paddingHorizontal: isSmallScreen ? 16 : 20, marginTop: isSmallScreen ? 12 : 15 }}>
           {filteredAndSortedDishes.map((item) => (
             <DishCard
               key={item.id}
@@ -247,7 +253,7 @@ export default function ExploreScreen() {
 
         {filteredAndSortedDishes.length === 0 && (
           <View style={styles.emptyContainer}>
-            <Ionicons name="search-outline" size={60} color={colors.text.tertiary} />
+            <Ionicons name="search-outline" size={isSmallScreen ? 40 : 50} color={colors.text.tertiary} />
             <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>Aucun plat trouvé</Text>
             <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
               Essayez de modifier votre recherche ou vos filtres
@@ -277,8 +283,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    paddingVertical: isSmallScreen ? 12 : 15,
     borderBottomWidth: 1,
   },
 
@@ -286,31 +292,31 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: isSmallScreen ? 18 : 20,
     fontWeight: 'bold',
   },
   searchContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    paddingTop: 10
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    marginBottom: isSmallScreen ? 15 : 20,
+    paddingTop: isSmallScreen ? 8 : 10
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 25,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    paddingHorizontal: isSmallScreen ? 12 : 15,
+    paddingVertical: isSmallScreen ? 10 : 12,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
   },
   filterButton: {
     padding: 8,
   },
   categoriesContainer: {
-    marginBottom: 20,
-    paddingHorizontal: 20,
+    marginBottom: isSmallScreen ? 15 : 20,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
   },
   categoriesContent: {
     paddingRight: 20,
@@ -322,17 +328,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoriesTitle: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: '600',
   },
   categoriesCount: {
     fontSize: 14,
   },
   categoryChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: isSmallScreen ? 10 : 12,
+    paddingVertical: isSmallScreen ? 6 : 8,
     borderRadius: 20,
-    marginRight: 10,
+    marginRight: isSmallScreen ? 8 : 10,
     backgroundColor: '#E0E0E0',
     elevation: 1,
     shadowColor: '#000',
@@ -346,7 +352,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   categoryChipText: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#2C1810',
     fontWeight: '500',
   },
@@ -370,18 +376,18 @@ const styles = StyleSheet.create({
   sortContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 10,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    marginBottom: isSmallScreen ? 8 : 10,
   },
   sortLabel: {
-    fontSize: 14,
-    marginRight: 10,
+    fontSize: isSmallScreen ? 12 : 14,
+    marginRight: isSmallScreen ? 8 : 10,
   },
   sortChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: isSmallScreen ? 10 : 12,
+    paddingVertical: isSmallScreen ? 5 : 6,
     borderRadius: 15,
-    marginRight: 10,
+    marginRight: isSmallScreen ? 8 : 10,
     backgroundColor: '#E0E0E0',
   },
   sortChipText: {
@@ -389,11 +395,11 @@ const styles = StyleSheet.create({
     color: '#2C1810',
   },
   resultsContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 10,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    paddingBottom: isSmallScreen ? 8 : 10,
   },
   resultsText: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
   },
   dishesList: {
     paddingHorizontal: 20,
@@ -441,7 +447,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dishName: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: '700',
     marginBottom: 4,
   },
@@ -479,8 +485,8 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   dishDescription: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: isSmallScreen ? 12 : 14,
+    lineHeight: isSmallScreen ? 18 : 20,
     marginBottom: 12,
     color: '#666',
   },
@@ -493,7 +499,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dishPrice: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: '700',
     marginBottom: 2,
   },
@@ -510,7 +516,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   deliveryTime: {
-    fontSize: 12,
+    fontSize: isSmallScreen ? 10 : 12,
     fontWeight: '500',
   },
   discountBadge: {
@@ -571,14 +577,14 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
   },
   emptyDescription: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 12 : 13,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: isSmallScreen ? 18 : 20,
   },
 });

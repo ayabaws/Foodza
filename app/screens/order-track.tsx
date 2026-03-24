@@ -2,21 +2,20 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-  Alert,
-  Dimensions,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Dimensions,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
@@ -118,14 +117,14 @@ export default function OrderTrackScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       {/* HEADER */}
       <View style={styles.headerFloating}>
         <SafeAreaView edges={['top']}>
           <View style={styles.navBar}>
-            <TouchableOpacity style={styles.backCircle}><Ionicons name="arrow-back" size={24} color="#000" /></TouchableOpacity>
+            <TouchableOpacity style={styles.backCircle} onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="#000" /></TouchableOpacity>
             <View style={styles.headerInfo}>
               <Text style={styles.orderIdText}>{orderData.orderId}</Text>
               <Text style={styles.headerSubtitle}>Suivi en direct</Text>
@@ -138,13 +137,13 @@ export default function OrderTrackScreen() {
         </SafeAreaView>
       </View>
 
-      {/* MAP */}
+      {/* MAP PLACEHOLDER */}
       <View style={styles.mapWrapper}>
-        <MapView provider={PROVIDER_GOOGLE} style={StyleSheet.absoluteFillObject} initialRegion={{ ...destCoords, latitudeDelta: 0.03, longitudeDelta: 0.03 }}>
-          <Polyline coordinates={[orderData.coords.delivery, destCoords]} strokeColor={BRAND_BROWN} strokeWidth={3} lineDashPattern={[5, 5]} />
-          <Marker coordinate={orderData.coords.delivery}><View style={styles.riderMarkerMain}><MaterialCommunityIcons name="motorbike" size={24} color="#FFF" /></View></Marker>
-          <Marker coordinate={destCoords}><View style={styles.destMarker}><Ionicons name="location" size={20} color={BRAND_BROWN} /></View></Marker>
-        </MapView>
+        <View style={styles.mapPlaceholder}>
+          <Ionicons name="map" size={60} color="#CCC" />
+          <Text style={styles.mapPlaceholderText}>Suivi de livraison en temps réel</Text>
+          <Text style={styles.mapPlaceholderSubtext}>Votre commande est en route</Text>
+        </View>
       </View>
 
       <View style={styles.bottomSheet}>
@@ -286,6 +285,7 @@ export default function OrderTrackScreen() {
               ref={scrollViewRef}
               onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
               contentContainerStyle={{ padding: 20 }}
+              style={{ maxHeight: height * 0.4 }}
             >
               {messages.map((m) => (
                 <View key={m.id} style={[styles.chatBubble, m.sender === 'user' ? styles.chatUser : styles.chatBot]}>
@@ -293,6 +293,28 @@ export default function OrderTrackScreen() {
                 </View>
               ))}
             </ScrollView>
+
+            {/* Questions prédéfinies */}
+            <View style={styles.quickQuestionsContainer}>
+              <Text style={styles.quickQuestionsTitle}>Questions rapides :</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickQuestionsScroll}>
+                {[
+                  "Où est ma commande ?",
+                  "Combien de temps ?",
+                  "Annuler ma commande",
+                  "Modifier l'adresse",
+                  "Contacter le livreur"
+                ].map((question, index) => (
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.quickQuestionBtn}
+                    onPress={() => sendMessage(question)}
+                  >
+                    <Text style={styles.quickQuestionText}>{question}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
 
             <View style={styles.chatInputContainer}>
               <TextInput
@@ -324,19 +346,17 @@ export default function OrderTrackScreen() {
             <TextInput style={styles.input} value={tempName} onChangeText={setTempName} />
             <Text style={styles.inputLabel}>Adresse exacte</Text>
             <TextInput style={styles.input} value={tempAddress} onChangeText={setTempAddress} />
-            <View style={styles.miniMapContainer}>
-              <MapView style={StyleSheet.absoluteFillObject} initialRegion={{ ...destCoords, latitudeDelta: 0.01, longitudeDelta: 0.01 }}>
-                <Marker draggable coordinate={destCoords} onDragEnd={(e) => setDestCoords(e.nativeEvent.coordinate)}>
-                  <View style={styles.destMarker}><Ionicons name="location" size={30} color={BRAND_BROWN} /></View>
-                </Marker>
-              </MapView>
+            <View style={styles.addressPreview}>
+              <Ionicons name="location" size={24} color={BRAND_BROWN} />
+              <Text style={styles.addressPreviewText}>Adresse : {tempAddress}</Text>
             </View>
             <TouchableOpacity style={styles.saveBtn} onPress={() => setShowEditModal(false)}><Text style={styles.saveBtnText}>Enregistrer</Text></TouchableOpacity>
           </ScrollView>
         </SafeAreaView>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -350,6 +370,23 @@ const styles = StyleSheet.create({
   helpBtn: { backgroundColor: '#0000004d', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
   helpText: { color: '#FFF', fontWeight: 'bold', fontSize: 12, marginLeft: 4 },
   mapWrapper: { height: height * 0.4 },
+  mapPlaceholder: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: '#F5F5F5' 
+  },
+  mapPlaceholderText: { 
+    fontSize: 18, 
+    fontWeight: '600', 
+    color: '#666', 
+    marginTop: 10 
+  },
+  mapPlaceholderSubtext: { 
+    fontSize: 14, 
+    color: '#999', 
+    marginTop: 5 
+  },
   riderMarkerMain: { backgroundColor: BRAND_BROWN, padding: 8, borderRadius: 20, borderWidth: 2, borderColor: '#FFF' },
   destMarker: { backgroundColor: '#FFF', padding: 5, borderRadius: 20, elevation: 5 },
   bottomSheet: { flex: 1, backgroundColor: '#FFF', marginTop: -30, borderTopLeftRadius: 35, borderTopRightRadius: 35, paddingHorizontal: 25, elevation: 20 },
@@ -422,10 +459,56 @@ const styles = StyleSheet.create({
   chatInput: { flex: 1, backgroundColor: '#F5F5F5', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, marginRight: 10, fontSize: 14 },
   sendBtn: { backgroundColor: BRAND_BROWN, width: 45, height: 45, borderRadius: 23, justifyContent: 'center', alignItems: 'center' },
 
+  // Questions rapides
+  quickQuestionsContainer: { 
+    paddingHorizontal: 15, 
+    paddingVertical: 10, 
+    backgroundColor: '#F8F9FA', 
+    borderTopWidth: 1, 
+    borderTopColor: '#EEE' 
+  },
+  quickQuestionsTitle: { 
+    fontSize: 12, 
+    fontWeight: '600', 
+    color: '#666', 
+    marginBottom: 8 
+  },
+  quickQuestionsScroll: { 
+    flexDirection: 'row' 
+  },
+  quickQuestionBtn: { 
+    backgroundColor: '#FFF', 
+    paddingHorizontal: 12, 
+    paddingVertical: 8, 
+    borderRadius: 15, 
+    marginRight: 8, 
+    borderWidth: 1, 
+    borderColor: '#E0E0E0' 
+  },
+  quickQuestionText: { 
+    fontSize: 12, 
+    color: '#333', 
+    fontWeight: '500' 
+  },
+
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center' },
   modalHeaderTitle: { fontSize: 18, fontWeight: '700' },
   input: { backgroundColor: '#F5F5F5', padding: 15, borderRadius: 12, marginBottom: 15 },
   inputLabel: { fontSize: 14, fontWeight: '700', marginBottom: 8, marginTop: 10 },
+  addressPreview: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#F5F5F5', 
+    padding: 15, 
+    borderRadius: 12, 
+    marginTop: 10 
+  },
+  addressPreviewText: { 
+    flex: 1, 
+    marginLeft: 10, 
+    fontSize: 14, 
+    color: '#666' 
+  },
   miniMapContainer: { height: 250, borderRadius: 20, overflow: 'hidden', marginTop: 10 },
   saveBtn: { backgroundColor: BRAND_BROWN, padding: 18, borderRadius: 20, alignItems: 'center', marginTop: 20 },
   saveBtnText: { color: '#FFF', fontWeight: '800' },

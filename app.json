@@ -1,48 +1,37 @@
 {
   "expo": {
-    "name": "FooDZa",
+    "name": "Foodza",
     "slug": "FOODZA",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Variant7.png",
     "scheme": "foodza",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.schuler.foodza",
-      "buildNumber": "1.0.0",
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundImage": "./assets/images/icon.png",
-        "monochromeImage": "./assets/images/icon.png"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "buildNumber": "1.0.0"
     },
     "android": {
       "package": "com.schuler.foodza",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundImage": "./assets/images/icon.png",
-        "monochromeImage": "./assets/images/icon.png"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+        "foregroundImage": "./assets/images/Variant7.png",
+        "backgroundImage": "./assets/images/Variant7.png",
+        "monochromeImage": "./assets/images/Variant7.png"
+      }
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/logo.png"
+      "favicon": "./assets/images/Variant7.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/Variant7.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -59,8 +48,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "80dca2a6-f365-4824-b7bf-624311c090a5"
+        "projectId": "ec266485-b2ad-4ded-97e6-d76ed2d6e6f1"
       }
-    }
+    },
+    "owner": "ayabaws"
   }
 }

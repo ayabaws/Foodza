@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, StatusBar, FlatList, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useOrder } from '@/contexts/OrderContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import OrderService from '@/services/OrderService';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-
-const { width } = Dimensions.get('window');
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CartScreen() {
+  const [screenData, setScreenData] = useState(Dimensions.get('window'));
+  const { width, height } = screenData;
+  const isSmallScreen = width < 375;
+  const isMediumScreen = width >= 375 && width < 414;
+  const isLargeScreen = width >= 414;
+  const isTablet = width > 768;
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setScreenData(window);
+    });
+    return () => subscription?.remove();
+  }, []);
+
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
   const { startOrder } = useOrder();
@@ -26,24 +39,82 @@ export default function CartScreen() {
     setShowConfirmModal(true);
   };
 
-  const confirmOrder = () => {
+  const confirmOrder = async () => {
     setShowConfirmModal(false);
     
-    // Démarrer la commande avec les données du panier
-    startOrder({
-      restaurantName: 'La brioche dorée',
-      estimatedTime: '12 mins...',
-      items: cartItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        image: item.image
-      }))
-    });
-    
-    // Vider le panier
-    setCartItems([]);
-    // Rediriger vers la page de suivi de commande
-    router.push('/screens/order-track');
+    try {
+      // Calculer le total
+      const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      // Préparer les données de la commande
+      const orderData = {
+        restaurantName: 'La brioche dorée',
+        restaurantImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400',
+        status: 'en-cours' as const,
+        total: total,
+        totalAmount: total,
+        items: cartItems.map(item => ({
+          id: item.id,
+          menuItemId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          extras: []
+        })),
+        estimatedTime: '39 mins',
+        deliveryAddress: {
+          id: 'default',
+          street: 'Kalaban-coro',
+          city: 'Bamako',
+          postalCode: '1234',
+          country: 'Mali',
+          isDefault: true
+        },
+        paymentMethod: {
+          id: 'orange_money',
+          type: 'mobile_money' as const,
+          isDefault: true,
+          details: {
+            mobileProvider: 'Orange',
+            mobileNumber: '+223XXXXXXXXX'
+          }
+        }
+      };
+
+      // Sauvegarder la commande dans l'historique
+      const savedOrder = await OrderService.saveOrder(orderData);
+      console.log('Commande sauvegardée avec ID:', savedOrder.id);
+
+      // Démarrer la commande avec les données du panier
+      startOrder({
+        restaurantName: 'La brioche dorée',
+        estimatedTime: '39 mins',
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          image: item.image
+        }))
+      });
+      
+      // Vider le panier
+      setCartItems([]);
+      // Rediriger vers la page de suivi de commande
+      router.push('/screens/order-track');
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de la commande:', error);
+      // En cas d'erreur, quand même continuer avec le flux normal
+      startOrder({
+        restaurantName: 'La brioche dorée',
+        estimatedTime: '39 mins',
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          image: item.image
+        }))
+      });
+      setCartItems([]);
+      router.push('/screens/order-track');
+    }
   };
 
   const cancelOrder = () => {
@@ -96,7 +167,7 @@ export default function CartScreen() {
       <StatusBar barStyle="dark-content" />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { padding: 15, zIndex: 10, position: 'absolute', left: 10, top: 0 }]}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -159,12 +230,24 @@ export default function CartScreen() {
             <Text style={styles.addressLabel}>Livrer à</Text>
             <Text style={styles.addressValue}>Maison - Kalaban-coro</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          <TouchableOpacity style={styles.addressArrow}>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
         </TouchableOpacity>
 
       </ScrollView>
 
-      <View style={styles.blackFooter}>
+      <View style={[styles.footerContainer, {
+        borderTopLeftRadius: isSmallScreen ? 20 : 40,
+        borderTopRightRadius: isSmallScreen ? 20 : 40,
+        paddingHorizontal: isSmallScreen ? 15 : 25,
+        paddingTop: isSmallScreen ? 15 : 25,
+        paddingBottom: isSmallScreen ? 20 : 35,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }]}>
+
         <View style={styles.paymentMethod}>
           <View style={styles.paymentLabelContainer}>
             <Text style={styles.paymentLabelText}>Payment</Text>
@@ -177,15 +260,18 @@ export default function CartScreen() {
           colors={['#8B4513', '#5D2E17']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={styles.orderButton}
+          style={[styles.orderButton, {
+            width: isSmallScreen ? '70%' : '65%',
+            borderRadius: isSmallScreen ? 20 : 30,
+          }]}
         >
           <TouchableOpacity style={styles.orderButtonInside} onPress={handleOrder}>
             <View>
-              <Text style={styles.totalAmount}>9500 CFA</Text>
-              <Text style={styles.totalLabel}>Total</Text>
+              <Text style={[styles.totalAmount, { fontSize: isSmallScreen ? 12 : 14 }]}>9500 CFA</Text>
+              <Text style={[styles.totalLabel, { fontSize: isSmallScreen ? 9 : 11 }]}>Total</Text>
             </View>
-            <View style={styles.commanderContainer}>
-              <Text style={styles.commanderText}>Commander</Text>
+            <View style={[styles.commanderContainer, { gap: isSmallScreen ? 3 : 5 }]}>
+              <Text style={[styles.commanderText, { fontSize: isSmallScreen ? 9 : 11 }]}>Commander</Text>
               <Ionicons name="chevron-forward" size={18} color="#FFF" />
             </View>
           </TouchableOpacity>
@@ -250,8 +336,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  restaurantName: { fontSize: 14, color: '#666', left: -75 },
-  timeContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, left: -40 },
+  restaurantName: { fontSize: 14, color: '#666', left: -10 },
+  timeContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, left: 0 },
   timeText: { fontSize: 14, fontWeight: '600', color: '#000' },
   backButton: { padding: 5 },
   section: { paddingHorizontal: 20, marginTop: 10 },
@@ -321,9 +407,10 @@ const styles = StyleSheet.create({
   addressInfo: { flex: 1, marginLeft: 15 },
   addressLabel: { fontSize: 12, color: '#8E8E93' },
   addressValue: { fontSize: 14, fontWeight: '400', marginTop: 2 },
+  addressArrow: { padding: 10 },
 
-  // LE FOOTER NOIR INCURVÉ
-  blackFooter: {
+  // LE FOOTER RESPONSIVE
+  footerContainer: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
@@ -333,9 +420,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingTop: 25,
     paddingBottom: 35,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   paymentMethod: { flex: 1 },
   paymentLabelContainer: { flexDirection: 'row', alignItems: 'center', gap: 5 },
@@ -373,8 +457,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderRadius: 24,
     padding: 30,
-    width: '90%',
-    maxWidth: 380,
+    width: '98%',
+    maxWidth: 450,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
@@ -454,7 +538,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderRadius: 16,
     alignItems: 'center',
     flexDirection: 'row',

@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, StatusBar, TouchableOpacity, TextInput, Dimensions, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import Svg, { Path } from 'react-native-svg';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = width < 375;
+const isMediumScreen = width >= 375 && width < 414;
+const isLargeScreen = width >= 414 && width <= 768;
+const isTablet = width > 768;
 
 export default function OtpVerificationScreen() {
   const router = useRouter();
@@ -87,20 +91,20 @@ export default function OtpVerificationScreen() {
         </View>
 
         {/* FORM CARD */}
-        <View style={[styles.formContainer, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.title, { color: colors.text.primary }]}>Vérification OTP</Text>
-          <Text style={[styles.subtitle, { color: colors.text.secondary }]}>Entrez votre e-mail ou numéro.</Text>
+        <View style={[styles.formContainer, { backgroundColor: '#fff' }]}>
+          <Text style={[styles.title, { color: '#000' }]}>Vérification OTP</Text>
+          <Text style={[styles.subtitle, { color: '#777' }]}>Entrez votre e-mail ou numéro.</Text>
 
           <View style={styles.inputRow}>
-            <View style={[styles.countryPicker, { backgroundColor: colors.border.medium }]}>
-              <Text style={[styles.countryText, { color: colors.text.primary }]}>+223</Text>
+            <View style={[styles.countryPicker, { backgroundColor: '#fff', borderColor: '#E6E6E6' }]}>
+              <Text style={[styles.countryText, { color: '#000' }]}>+223</Text>
             </View>
 
-            <View style={[styles.phoneInputBox, { backgroundColor: colors.border.medium, borderColor: phoneError ? '#FF3B30' : colors.border.medium }]}>
+            <View style={[styles.phoneInputBox, { backgroundColor: '#fff', borderColor: phoneError ? '#FF3B30' : '#E6E6E6' }]}>
               <TextInput
-                style={[styles.input, { color: colors.text.primary }]}
-                placeholder="Numero de telephone"
-                placeholderTextColor={colors.text.tertiary}
+                style={[styles.input, { color: '#000' }]}
+                placeholder="Numéro de téléphone"
+                placeholderTextColor="#999"
                 keyboardType="phone-pad"
                 value={phoneNumber}
                 onChangeText={handlePhoneChange}
@@ -120,9 +124,9 @@ export default function OtpVerificationScreen() {
           </TouchableOpacity>
 
           <View style={styles.dividerRow}>
-            <View style={[styles.line, { backgroundColor: colors.border.light }]} />
-            <Text style={[styles.ouText, { color: colors.text.secondary }]}>ou</Text>
-            <View style={[styles.line, { backgroundColor: colors.border.light }]} />
+            <View style={[styles.line, { backgroundColor: '#EFEFEF' }]} />
+            <Text style={[styles.ouText, { color: '#999' }]}>ou</Text>
+            <View style={[styles.line, { backgroundColor: '#EFEFEF' }]} />
           </View>
 
           <View style={styles.socialRow}>
@@ -136,10 +140,10 @@ export default function OtpVerificationScreen() {
           </View>
 
           <View style={styles.footerContainer}>
-            <Text style={[styles.footerText, { color: colors.text.secondary }]}>
+            <Text style={[styles.footerText, { color: '#999' }]}>
               En continuant, vous acceptez nos :{"\n"}
-              <Text style={[styles.footerLink, { color: colors.primary }]}>Conditions générales</Text> et{" "}
-              <Text style={[styles.footerLink, { color: colors.primary }]}>Politique de confidentialité</Text>
+              <Text style={[styles.footerLink, { color: '#000' }]}>Conditions générales</Text> et{" "}
+              <Text style={[styles.footerLink, { color: '#000' }]}>Politique de confidentialité</Text>
             </Text>
           </View>
         </View>
@@ -148,13 +152,14 @@ export default function OtpVerificationScreen() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
   },
 
   headerImageContainer: {
-    height: 360,
+    height: isSmallScreen ? 280 : isMediumScreen ? 320 : isLargeScreen ? 340 : isTablet ? 380 : 360,
     width: '100%',
     overflow: 'hidden',
     backgroundColor: '#fff',
@@ -182,74 +187,78 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+    paddingHorizontal: isSmallScreen ? 16 : isMediumScreen ? 20 : isLargeScreen ? 22 : isTablet ? 28 : 24,
+    paddingBottom: isSmallScreen ? 30 : isMediumScreen ? 35 : isLargeScreen ? 38 : isTablet ? 45 : 40,
+    marginTop: isSmallScreen ? -20 : isMediumScreen ? -18 : -16,
   },
 
   title: {
-    fontSize: 22,
+    fontSize: isSmallScreen ? 18 : isMediumScreen ? 20 : isLargeScreen ? 22 : isTablet ? 26 : 22,
     fontWeight: '800',
     color: '#000',
   },
 
   subtitle: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 13 : isLargeScreen ? 14 : isTablet ? 16 : 14,
     color: '#777',
     marginTop: 6,
-    marginBottom: 25,
+    marginBottom: isSmallScreen ? 20 : isMediumScreen ? 22 : isLargeScreen ? 25 : isTablet ? 28 : 25,
   },
 
   inputRow: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 22,
+    gap: isSmallScreen ? 8 : 10,
+    marginBottom: isSmallScreen ? 18 : isMediumScreen ? 20 : 22,
   },
 
   countryPicker: {
-    width: '25%',
-    height: 56,
+    width: '20%',
+    height: isSmallScreen ? 48 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 56,
     borderWidth: 1,
     borderColor: '#E6E6E6',
-    borderRadius: 16,
+    borderRadius: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
   },
 
   countryText: {
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
   },
 
   phoneInputBox: {
     flex: 1,
-    height: 56,
+    height: isSmallScreen ? 48 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 56,
     borderWidth: 1,
     borderColor: '#E6E6E6',
-    borderRadius: 16,
+    borderRadius: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16,
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: isSmallScreen ? 8 : isMediumScreen ? 10 : 12,
+    backgroundColor: '#fff',
+    minWidth: 120,
   },
 
   input: {
-    fontSize: 15,
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
+    textAlign: 'left',
   },
 
   errorText: {
-    fontSize: 12,
-    marginTop:-10,
+    fontSize: isSmallScreen ? 10 : isMediumScreen ? 11 : isLargeScreen ? 12 : isTablet ? 13 : 12,
+    marginTop: -10,
     marginBottom: 10,
-    textAlign: 'right',
-    left:70,
-    width:"80%"
+    textAlign: 'center',
+    width: '100%',
   },
 
   buttonMain: {
     backgroundColor: '#000',
-    height: 56,
-    borderRadius: 28,
+    height: isSmallScreen ? 48 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 56,
+    borderRadius: isSmallScreen ? 24 : isMediumScreen ? 26 : isLargeScreen ? 27 : isTablet ? 30 : 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: isSmallScreen ? 6 : 8,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 6 },
@@ -261,12 +270,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '800',
     letterSpacing: 1,
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
   },
 
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 25,
+    marginVertical: isSmallScreen ? 20 : isMediumScreen ? 22 : isLargeScreen ? 25 : isTablet ? 28 : 25,
   },
 
   line: {
@@ -276,20 +286,20 @@ const styles = StyleSheet.create({
   },
 
   ouText: {
-    marginHorizontal: 10,
+    marginHorizontal: isSmallScreen ? 8 : 10,
     color: '#999',
   },
 
   socialRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
+    gap: isSmallScreen ? 16 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 24 : 20,
   },
 
   iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: isSmallScreen ? 48 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 56,
+    height: isSmallScreen ? 48 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 56,
+    borderRadius: isSmallScreen ? 24 : isMediumScreen ? 26 : isLargeScreen ? 27 : isTablet ? 30 : 28,
     borderWidth: 1,
     borderColor: '#EEE',
     justifyContent: 'center',
@@ -297,24 +307,24 @@ const styles = StyleSheet.create({
   },
 
   socialIcon: {
-    width: 35,
-    height: 35,
+    width: isSmallScreen ? 28 : isMediumScreen ? 32 : isLargeScreen ? 34 : isTablet ? 40 : 35,
+    height: isSmallScreen ? 28 : isMediumScreen ? 32 : isLargeScreen ? 34 : isTablet ? 40 : 35,
   },
 
   socialIcon2: {
-    width: 55,
-    height: 55,
+    width: isSmallScreen ? 45 : isMediumScreen ? 50 : isLargeScreen ? 52 : isTablet ? 60 : 55,
+    height: isSmallScreen ? 45 : isMediumScreen ? 50 : isLargeScreen ? 52 : isTablet ? 60 : 55,
   },
 
   footerContainer: {
-    marginTop: 30,
+    marginTop: isSmallScreen ? 24 : isMediumScreen ? 28 : isLargeScreen ? 32 : isTablet ? 40 : 30,
   },
 
   footerText: {
     textAlign: 'center',
-    fontSize: 10,
+    fontSize: isSmallScreen ? 9 : isMediumScreen ? 10 : isLargeScreen ? 11 : isTablet ? 12 : 10,
     color: '#999',
-    lineHeight: 16,
+    lineHeight: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
   },
 
   footerLink: {

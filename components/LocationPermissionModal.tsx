@@ -1,17 +1,24 @@
+import { useLocation } from '@/contexts/LocationContext';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  Alert,
-  PermissionsAndroid,
-  Platform,
+    Alert,
+    Dimensions,
+    Modal,
+    PermissionsAndroid,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker } from 'react-native-maps';
-import { useLocation } from '@/contexts/LocationContext';
+
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = width < 375;
+const isMediumScreen = width >= 375 && width < 414;
+const isLargeScreen = width >= 414 && width <= 768;
+const isTablet = width > 768;
 
 interface LocationPermissionModalProps {
   visible: boolean;
@@ -52,25 +59,136 @@ export default function LocationPermissionModal({ visible, onClose, onLocationSe
     }
   };
 
-  const getCurrentLocation = () => {
-    // Simuler la récupération de la localisation actuelle
-    // En production, utiliser navigator.geolocation ou expo-location
-    const mockLocation = {
-      latitude: 12.6395,
-      longitude: -8.0065,
-    };
+  const getCurrentLocation = async () => {
+  try {
+    // Importer expo-location dynamiquement
+    const Location = require('expo-location');
+    
+    // Demander les permissions
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    
+    if (status !== 'granted') {
+      Alert.alert('Permission requise', 'La permission de localisation est nécessaire pour détecter votre position');
+      return;
+    }
 
+    // Obtenir la position actuelle avec haute précision
+    const location = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High,
+      maximumAge: 10000, // 10 secondes maximum
+    });
+
+    const { latitude, longitude } = location.coords;
+    console.log('Position GPS utilisateur:', latitude, longitude);
+
+    // Géocodage inversé pour obtenir l'adresse réelle
+    try {
+      // Essayer d'abord avec OpenStreetMap
+      let response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=fr&zoom=16&addressdetails=1`
+      );
+      
+      let locationText = '';
+      let data = null;
+      
+      if (response.ok) {
+        data = await response.json();
+        console.log('Données adresse OSM:', data);
+      }
+      
+      // Logique améliorée pour extraire l'adresse
+      if (data && data.address) {
+        const address = data.address;
+        
+        // Priorité absolue aux quartiers/villes connus au Mali
+        const quartier = address.suburb || address.neighbourhood || address.city_district || address.quarter || address.hamlet;
+        const ville = address.city || address.town || address.village || address.county || address.state;
+        const pays = address.country;
+        
+        // Si on trouve un quartier et une ville, c'est parfait
+        if (quartier && ville) {
+          locationText = `${quartier}, ${ville}`;
+        } 
+        // Si seulement une ville, on l'utilise
+        else if (ville) {
+          locationText = ville;
+        } 
+        // Si seulement un quartier, on l'utilise
+        else if (quartier) {
+          locationText = quartier;
+        } 
+        // Si on a un nom d'affichage, on l'utilise en nettoyant
+        else if (data.display_name) {
+          const parts = data.display_name.split(',').slice(0, 3); // Prendre les 3 premières parties
+          locationText = parts.join(', ').trim();
+        } 
+        // Dernier recours : coordonnées GPS claires
+        else {
+          console.warn('Aucune adresse trouvée, utilisation des coordonnées GPS');
+          locationText = `Position GPS (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+        }
+      } else {
+        console.warn('OSM API a échoué ou pas de données adresse');
+        // Si l'API échoue, essayer de déterminer si on est dans une zone connue
+        // Coordonnées approximatives de Bamako : 12.6392, -8.0029
+        const distanceBamako = Math.sqrt(
+          Math.pow(latitude - 12.6392, 2) + Math.pow(longitude - (-8.0029), 2)
+        );
+        
+        if (distanceBamako < 0.5) { // Si très proche de Bamako
+          locationText = 'Bamako, Mali';
+        } else {
+          locationText = `Position GPS (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+        }
+      }
+
+      console.log('Localisation finale:', locationText);
+      setCurrentLocation({
+        id: 'current',
+        label: 'Position actuelle',
+        street: locationText,
+        coordinates: { latitude, longitude },
+        isDefault: true,
+      });
+
+      Alert.alert(
+        'Succès',
+        'Votre position a été récupérée avec succès!',
+        [{ text: 'OK', onPress: () => { onLocationSet(); onClose(); } }]
+      );
+    } catch (error) {
+      console.warn('Erreur géocodage complète:', error);
+      // Si le géocodage échoue complètement
+      setCurrentLocation({
+        id: 'current',
+        label: 'Position actuelle',
+        street: `Position GPS (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`,
+        coordinates: { latitude, longitude },
+        isDefault: true,
+      });
+
+      Alert.alert(
+        'Succès',
+        'Votre position a été récupérée avec succès!',
+        [{ text: 'OK', onPress: () => { onLocationSet(); onClose(); } }]
+      );
+    }
+  } catch (error) {
+    console.warn('Erreur GPS complète:', error);
+    Alert.alert('Erreur', 'Impossible de détecter votre position. Vérifiez que votre GPS est activé.');
+    
+    // En cas d'erreur complète, informer l'utilisateur
     setCurrentLocation({
       id: 'current',
       label: 'Position actuelle',
-      street: 'Votre position actuelle',
-      coordinates: mockLocation,
+      street: 'Localisation indisponible',
+      coordinates: { latitude: 0, longitude: 0 },
       isDefault: true,
     });
-
     onLocationSet();
     onClose();
-  };
+  }
+};
 
   const handleMapSelection = (coordinate: { latitude: number; longitude: number }) => {
     setTempCoordinates(coordinate);
@@ -93,282 +211,173 @@ export default function LocationPermissionModal({ visible, onClose, onLocationSe
 
   return (
     <Modal
+      transparent
       visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
+      animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Ionicons name="close" size={24} color="#000" />
+      <View style={styles.modalOverlay}>
+        <BlurView intensity={25} style={StyleSheet.absoluteFillObject} />
+        <View style={styles.darkOverlay} />
+
+        <View style={styles.modalContainer}>
+          {/* Icon location en haut */}
+          <View style={styles.iconWrapper}>
+            <View style={styles.iconBackground}>
+              <Ionicons name="location" size={isSmallScreen ? 35 : isMediumScreen ? 40 : isLargeScreen ? 45 : isTablet ? 50 : 45} color="#8C3E22" />
+            </View>
+          </View>
+
+          <Text style={styles.modalTitle}>Localisation</Text>
+          <Text style={styles.modalDescription}>
+            Autoriser les cartes à accéder à votre position pendant que vous utilisez l'application ?
+          </Text>
+
+          <TouchableOpacity style={[styles.btnPrimary]} onPress={getCurrentLocation}>
+            <Text style={styles.btnPrimaryText}>Autoriser</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Configurer votre localisation</Text>
-          <View style={{ width: 24 }} />
+
+          <TouchableOpacity style={styles.btnSecondary} onPress={() => {
+          setCurrentLocation({
+            id: 'no-address',
+            label: 'Pas d\'adresse',
+            street: 'Pas d\'adresse',
+            coordinates: { latitude: 0, longitude: 0 },
+            isDefault: true,
+          });
+          onClose();
+        }}>
+          <Text style={styles.btnSecondaryText}>Passer pour l'instant</Text>
+        </TouchableOpacity>
         </View>
-
-        {!showMap ? (
-          <View style={styles.content}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="location-outline" size={60} color="#8B4513" />
-            </View>
-
-            <Text style={styles.title}>Où souhaitez-vous être livré ?</Text>
-            <Text style={styles.subtitle}>Choisissez comment vous voulez définir votre adresse de livraison</Text>
-
-            {/* Options */}
-            <TouchableOpacity 
-              style={[styles.option, selectedOption === 'current' && styles.selectedOption]}
-              onPress={() => setSelectedOption('current')}
-            >
-              <View style={styles.optionIcon}>
-                <Ionicons name="navigate" size={24} color="#8B4513" />
-              </View>
-              <View style={styles.optionContent}>
-                <Text style={styles.optionTitle}>Utiliser ma position actuelle</Text>
-                <Text style={styles.optionSubtitle}>Localisation automatique via GPS</Text>
-              </View>
-              <View style={[styles.radio, selectedOption === 'current' && styles.radioSelected]} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.option, selectedOption === 'map' && styles.selectedOption]}
-              onPress={() => setSelectedOption('map')}
-            >
-              <View style={styles.optionIcon}>
-                <Ionicons name="map-outline" size={24} color="#8B4513" />
-              </View>
-              <View style={styles.optionContent}>
-                <Text style={styles.optionTitle}>Choisir sur la carte</Text>
-                <Text style={styles.optionSubtitle}>Sélectionner manuellement votre adresse</Text>
-              </View>
-              <View style={[styles.radio, selectedOption === 'map' && styles.radioSelected]} />
-            </TouchableOpacity>
-
-            {/* Actions */}
-            <TouchableOpacity 
-              style={[styles.confirmButton, !selectedOption && styles.disabledButton]}
-              onPress={() => {
-                if (selectedOption === 'current') {
-                  requestLocationPermission();
-                } else if (selectedOption === 'map') {
-                  setShowMap(true);
-                }
-              }}
-              disabled={!selectedOption}
-            >
-              <Text style={styles.confirmButtonText}>Continuer</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.skipButton} onPress={onClose}>
-              <Text style={styles.skipButtonText}>Plus tard</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.mapContainer}>
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: 12.6395,
-                longitude: -8.0065,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-              onPress={(e) => handleMapSelection(e.nativeEvent.coordinate)}
-            >
-              {tempCoordinates && (
-                <Marker coordinate={tempCoordinates}>
-                  <View style={styles.mapMarker}>
-                    <Ionicons name="location" size={30} color="#8B4513" />
-                  </View>
-                </Marker>
-              )}
-            </MapView>
-
-            <View style={styles.mapActions}>
-              <TouchableOpacity style={styles.mapCancelButton} onPress={() => setShowMap(false)}>
-                <Text style={styles.mapCancelText}>Retour</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.mapConfirmButton, !tempCoordinates && styles.disabledButton]}
-                onPress={confirmMapSelection}
-                disabled={!tempCoordinates}
-              >
-                <Text style={styles.mapConfirmText}>Confirmer cette position</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  darkOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+  },
+  modalOverlay: {
     flex: 1,
-    backgroundColor: '#FFF',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  iconContainer: {
-    alignSelf: 'center',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+  modalContainer: {
+    width: isSmallScreen ? width * 0.90 : isMediumScreen ? width * 0.88 : isLargeScreen ? width * 0.85 : isTablet ? width * 0.70 : width * 0.85,
+    backgroundColor: 'white',
+    borderRadius: isSmallScreen ? 25 : isMediumScreen ? 28 : isLargeScreen ? 30 : isTablet ? 35 : 30,
+    padding: isSmallScreen ? 25 : isMediumScreen ? 28 : isLargeScreen ? 30 : isTablet ? 35 : 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  iconWrapper: {
+    marginBottom: isSmallScreen ? 20 : 25,
+  },
+  iconBackground: {
+    width: isSmallScreen ? 80 : isMediumScreen ? 85 : isLargeScreen ? 90 : isTablet ? 100 : 90,
+    height: isSmallScreen ? 80 : isMediumScreen ? 85 : isLargeScreen ? 90 : isTablet ? 100 : 90,
+    borderRadius: isSmallScreen ? 40 : isMediumScreen ? 42 : isLargeScreen ? 45 : isTablet ? 50 : 45,
     backgroundColor: '#FFF8F0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
+  modalTitle: {
+    fontSize: isSmallScreen ? 20 : isMediumScreen ? 21 : isLargeScreen ? 22 : isTablet ? 26 : 22,
+    fontWeight: 'bold',
+    marginBottom: isSmallScreen ? 12 : 15,
+    textAlign: 'center',
     color: '#000',
-    textAlign: 'center',
-    marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
+  modalDescription: {
+    fontSize: isSmallScreen ? 13 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 17 : 15,
     textAlign: 'center',
-    marginBottom: 40,
-    lineHeight: 20,
+    color: '#636E72',
+    marginBottom: isSmallScreen ? 25 : 30,
+    lineHeight: isSmallScreen ? 20 : 22,
+    paddingHorizontal: isSmallScreen ? 10 : isMediumScreen ? 15 : 20,
   },
-  option: {
-    flexDirection: 'row',
+  btnPrimary: {
+    backgroundColor: '#000',
+    width: '100%',
+    height: isSmallScreen ? 50 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 54,
+    borderRadius: isSmallScreen ? 25 : isMediumScreen ? 26 : isLargeScreen ? 27 : isTablet ? 30 : 27,
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9F9F9',
-    padding: 20,
-    borderRadius: 15,
+    marginBottom: isSmallScreen ? 12 : 15,
+  },
+  btnPrimaryText: {
+    color: 'white',
+    fontSize: isSmallScreen ? 15 : isMediumScreen ? 16 : isLargeScreen ? 17 : isTablet ? 19 : 17,
+    fontWeight: 'bold',
+  },
+  btnSecondary: {
+    width: '100%',
+    height: isSmallScreen ? 50 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 54,
+    borderRadius: isSmallScreen ? 25 : isMediumScreen ? 26 : isLargeScreen ? 27 : isTablet ? 30 : 27,
+    borderWidth: 1,
+    borderColor: '#D7CCC8',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btnSecondaryText: {
+    color: '#8C3E22',
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
+    fontWeight: '600',
+  },
+  manualInputContainer: {
+    width: '100%',
+    marginTop: 15,
     marginBottom: 15,
-    borderWidth: 2,
-    borderColor: 'transparent',
   },
-  selectedOption: {
-    borderColor: '#8B4513',
+  manualInput: {
+    width: '100%',
+    height: isSmallScreen ? 45 : isMediumScreen ? 48 : isLargeScreen ? 50 : isTablet ? 55 : 50,
+    borderWidth: 1,
+    borderColor: '#D7CCC8',
+    borderRadius: isSmallScreen ? 20 : isMediumScreen ? 22 : isLargeScreen ? 25 : isTablet ? 28 : 25,
+    paddingHorizontal: isSmallScreen ? 15 : 20,
+    marginBottom: 10,
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
     backgroundColor: '#FFF8F0',
   },
-  optionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#FFF',
+  btnConfirm: {
+    backgroundColor: '#8C3E22',
+    width: '100%',
+    height: isSmallScreen ? 45 : isMediumScreen ? 48 : isLargeScreen ? 50 : isTablet ? 55 : 50,
+    borderRadius: isSmallScreen ? 22 : isMediumScreen ? 24 : isLargeScreen ? 25 : isTablet ? 27 : 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
   },
-  optionContent: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 4,
-  },
-  optionSubtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
-  radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#DDD',
-  },
-  radioSelected: {
-    backgroundColor: '#8B4513',
-    borderColor: '#8B4513',
-  },
-  confirmButton: {
-    backgroundColor: '#8B4513',
-    paddingVertical: 18,
-    borderRadius: 15,
-    alignItems: 'center',
-    marginTop: 30,
-  },
-  disabledButton: {
+  btnConfirmDisabled: {
     backgroundColor: '#CCC',
   },
-  confirmButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
+  btnConfirmText: {
+    color: 'white',
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
+    fontWeight: 'bold',
   },
-  skipButton: {
-    paddingVertical: 15,
+  btnSkip: {
+    width: '100%',
+    height: isSmallScreen ? 40 : isMediumScreen ? 42 : isLargeScreen ? 44 : isTablet ? 50 : 44,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 5,
   },
-  skipButtonText: {
-    color: '#666',
-    fontSize: 16,
+  btnSkipText: {
+    color: '#999',
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 13 : isLargeScreen ? 14 : isTablet ? 16 : 14,
     fontWeight: '500',
-  },
-  mapContainer: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  mapMarker: {
-    backgroundColor: '#FFF',
-    padding: 8,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#8B4513',
-  },
-  mapActions: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    backgroundColor: '#FFF',
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-  },
-  mapCancelButton: {
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
-    backgroundColor: '#F0F0F0',
-  },
-  mapCancelText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  mapConfirmButton: {
-    backgroundColor: '#8B4513',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  mapConfirmText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

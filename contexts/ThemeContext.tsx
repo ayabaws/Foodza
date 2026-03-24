@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useColorScheme as useNativeColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useColorScheme as useNativeColorScheme } from 'react-native';
 
 type Theme = 'light' | 'dark';
 
@@ -52,7 +52,7 @@ const lightColors = {
 };
 
 const darkColors = {
-  primary: '#FFFFFF',
+  primary: '#8C3E22',
   secondary: '#4CAF50',
   background: '#000000',
   background2: '#FFFFFF',
@@ -80,7 +80,7 @@ const darkColors = {
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const deviceScheme = useNativeColorScheme();
   const [theme, setThemeState] = useState<Theme>('light');
-  const [followSystemTheme, setFollowSystemThemeState] = useState(true);
+  const [followSystemTheme, setFollowSystemThemeState] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const systemTheme = deviceScheme || 'light';
@@ -100,10 +100,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // Check if AsyncStorage is available
       if (!AsyncStorage) {
         console.log('AsyncStorage not available, using defaults');
-        setFollowSystemThemeState(true);
-        if (systemTheme) {
-          setThemeState(systemTheme);
-        }
+        setFollowSystemThemeState(false);
+        setThemeState('light');
         return;
       }
 
@@ -112,20 +110,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       if (savedFollowSystem !== null) {
         setFollowSystemThemeState(savedFollowSystem === 'true');
+      } else {
+        setFollowSystemThemeState(false);
       }
       
       if (savedTheme) {
         setThemeState(savedTheme);
-      } else if (followSystemTheme && systemTheme) {
-        setThemeState(systemTheme);
+      } else {
+        setThemeState('light');
       }
     } catch (error) {
       console.log('Error loading theme settings, using defaults:', error);
       // Utiliser les valeurs par défaut en cas d'erreur
-      setFollowSystemThemeState(true);
-      if (systemTheme) {
-        setThemeState(systemTheme);
-      }
+      setFollowSystemThemeState(false);
+      setThemeState('light');
     } finally {
       setIsLoading(false);
     }

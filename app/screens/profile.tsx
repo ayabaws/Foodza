@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, Platform, Alert } from 'react-native';
-import { Ionicons, Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
 import AddressManager from '@/components/AddressManager';
 import { dataService, UserProfile } from '@/services/DataService';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Dimensions, Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const isSmallScreen = screenWidth < 375;
+const isMediumScreen = screenWidth >= 375 && screenWidth < 414;
+const isLargeScreen = screenWidth >= 414 && screenWidth <= 768;
+const isTablet = screenWidth > 768;
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { isDarkMode, toggleTheme, colors } = useTheme();
   const [showAddressManager, setShowAddressManager] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
@@ -41,17 +45,17 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+    <SafeAreaView style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+      <StatusBar barStyle="dark-content" />
       
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.iconPadding}>
-          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+          <Ionicons name="arrow-back" size={24} color="#333333" />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Mon Compte</Text>
+        <Text style={[styles.headerTitle, { color: '#333333' }]}>Mon Compte</Text>
         <TouchableOpacity onPress={() => console.log('Modifier le profil')}>
-          <Text style={[styles.modifierText, { color: colors.primary }]}>Modifier</Text>
+          <Text style={[styles.modifierText, { color: '#BF5B30' }]}>Modifier</Text>
         </TouchableOpacity>
       </View>
 
@@ -63,25 +67,25 @@ export default function ProfileScreen() {
             {userProfile.avatarUrl ? (
               <Image source={{ uri: userProfile.avatarUrl }} style={styles.avatar} />
             ) : (
-              <View style={[styles.avatarFallback, { backgroundColor: colors.surface }]}>
-                <Text style={[styles.avatarFallbackText, { color: colors.text.primary }]}>{userProfile.initials}</Text>
+              <View style={[styles.avatarFallback, { backgroundColor: '#F5F5F5' }]}>
+                <Text style={[styles.avatarFallbackText, { color: '#333333' }]}>{userProfile.initials}</Text>
               </View>
             )}
             
-            <Text style={[styles.userName, { color: colors.text.primary }]}>{userProfile.name}</Text>
-            <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.email}</Text>
-            <Text style={[styles.userSubText, { color: colors.text.secondary }]}>{userProfile.phone}</Text>
+            <Text style={[styles.userName, { color: '#333333' }]}>{userProfile.name}</Text>
+            <Text style={[styles.userSubText, { color: '#666666' }]}>{userProfile.email}</Text>
+            <Text style={[styles.userSubText, { color: '#666666' }]}>{userProfile.phone}</Text>
           </View>
         )}
 
         {/* SECTION GENERALE */}
-        <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Generale</Text>
-        <ProfileItem icon={<Ionicons name="heart" size={20} color={colors.text.secondary} />} label="Favoris" onPress={() => router.push('/screens/favorites')} />
-        <ProfileItem icon={<Feather name="list" size={20} color={colors.text.secondary} />} label="Mes Commandes" onPress={() => console.log('Mes commandes')} />
-        <ProfileItem icon={<Feather name="credit-card" size={20} color={colors.text.secondary} />} label="Payment" onPress={() => console.log('Payment')} />
-        <ProfileItem icon={<Feather name="map-pin" size={20} color={colors.text.secondary} />} label="Addresses" onPress={() => setShowAddressManager(true)} />
+        <Text style={[styles.sectionLabel, { color: '#888888' }]}>Generale</Text>
+        <ProfileItem icon={<Ionicons name="heart" size={20} color="#666666" />} label="Favoris" onPress={() => router.push('/screens/favorites')} />
+        <ProfileItem icon={<Feather name="list" size={20} color="#666666" />} label="Mes Commandes" onPress={() => router.push('/screens/my-orders')} />
+        <ProfileItem icon={<Feather name="credit-card" size={20} color="#666666" />} label="Payment" onPress={() => console.log('Payment')} />
+        <ProfileItem icon={<Feather name="map-pin" size={20} color="#666666" />} label="Addresses" onPress={() => setShowAddressManager(true)} />
         <ProfileItem 
-          icon={<Feather name="settings" size={20} color={colors.text.secondary} />} 
+          icon={<Feather name="settings" size={20} color="#666666" />} 
           label="Paramètres" 
           onPress={() => router.push('/screens/settings')} 
         />
@@ -91,22 +95,6 @@ export default function ProfileScreen() {
           isDangerous={true}
           onPress={handleLogout} 
         />
-
-        {/* SECTION THEME */}
-        <Text style={[styles.sectionLabel, { color: colors.text.tertiary }]}>Theme</Text>
-        <View style={[styles.menuItem, { backgroundColor: colors.surface }]}>
-          <View style={styles.leftSide}>
-            <Feather name="moon" size={20} color={colors.text.secondary} style={styles.iconMargin} />
-            <Text style={[styles.itemLabel, { color: colors.text.primary }]}>Mode sombre</Text>
-          </View>
-          <Switch 
-            value={isDarkMode} 
-            onValueChange={toggleTheme}
-            trackColor={{ false: colors.border.medium, true: colors.secondary }}
-            thumbColor="#FFF"
-            style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
-          />
-        </View>
 
       </ScrollView>
 
@@ -123,15 +111,13 @@ export default function ProfileScreen() {
 }
 
 const ProfileItem = ({ icon, label, onPress, isDangerous = false }: any) => {
-  const { colors } = useTheme();
-  
   return (
-    <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.surface }]} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity style={[styles.menuItem, { backgroundColor: '#F5F5F5' }]} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.leftSide}>
         <View style={styles.iconMargin}>{icon}</View>
-        <Text style={[styles.itemLabel, { color: isDangerous ? '#FF3B30' : colors.text.primary }]}>{label}</Text>
+        <Text style={[styles.itemLabel, { color: isDangerous ? '#FF3B30' : '#333333' }]}>{label}</Text>
       </View>
-      <Feather name="chevron-right" size={18} color={isDangerous ? "#FF3B30" : colors.text.tertiary} />
+      <Feather name="chevron-right" size={18} color={isDangerous ? "#FF3B30" : "#888888"} />
     </TouchableOpacity>
   );
 };
@@ -142,46 +128,85 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: isSmallScreen ? 16 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 32 : 20,
+    paddingVertical: isSmallScreen ? 15 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 25 : 20,
+    marginTop: 10,
   },
-  headerTitle: { fontSize: 17, fontWeight: '700' },
-  modifierText: { color: '#FFFFFF', fontWeight: '600', fontSize: 15 },
+  headerTitle: { 
+    fontSize: isSmallScreen ? 16 : isMediumScreen ? 17 : isLargeScreen ? 18 : isTablet ? 22 : 18, 
+    fontWeight: '700' 
+  },
+  modifierText: { 
+    color: '#FFFFFF', 
+    fontWeight: '600', 
+    fontSize: isSmallScreen ? 13 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 17 : 15 
+  },
   iconPadding: { padding: 5 },
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 30 },
-  profileSection: { alignItems: 'center', marginTop: 20, marginBottom: 30 },
-  avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 15 },
+  scrollContent: { 
+    paddingHorizontal: isSmallScreen ? 16 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 32 : 20, 
+    paddingBottom: 30 
+  },
+  profileSection: { 
+    alignItems: 'center', 
+    marginTop: isSmallScreen ? 15 : isMediumScreen ? 20 : isLargeScreen ? 25 : isTablet ? 30 : 20, 
+    marginBottom: isSmallScreen ? 25 : isMediumScreen ? 30 : isLargeScreen ? 35 : isTablet ? 40 : 30 
+  },
+  avatar: { 
+    width: isSmallScreen ? 80 : isMediumScreen ? 90 : isLargeScreen ? 100 : isTablet ? 120 : 100, 
+    height: isSmallScreen ? 80 : isMediumScreen ? 90 : isLargeScreen ? 100 : isTablet ? 120 : 100, 
+    borderRadius: isSmallScreen ? 40 : isMediumScreen ? 45 : isLargeScreen ? 50 : isTablet ? 60 : 50, 
+    marginBottom: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 15 
+  },
   // Style pour le cercle avec initiales
   avatarFallback: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: isSmallScreen ? 80 : isMediumScreen ? 90 : isLargeScreen ? 100 : isTablet ? 120 : 100,
+    height: isSmallScreen ? 80 : isMediumScreen ? 90 : isLargeScreen ? 100 : isTablet ? 120 : 100,
+    borderRadius: isSmallScreen ? 40 : isMediumScreen ? 45 : isLargeScreen ? 50 : isTablet ? 60 : 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 15,
   },
   avatarFallbackText: {
-    fontSize: 32,
+    fontSize: isSmallScreen ? 26 : isMediumScreen ? 29 : isLargeScreen ? 32 : isTablet ? 38 : 32,
     fontWeight: '700',
   },
-  userName: { fontSize: 22, fontWeight: '700', marginBottom: 4 },
-  userSubText: { fontSize: 14, marginBottom: 2 },
-  sectionLabel: { fontSize: 12, marginBottom: 10, marginTop: 15, fontWeight: '500' },
+  userName: { 
+    fontSize: isSmallScreen ? 18 : isMediumScreen ? 20 : isLargeScreen ? 22 : isTablet ? 26 : 22, 
+    fontWeight: '700', 
+    marginBottom: 4 
+  },
+  userSubText: { 
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 13 : isLargeScreen ? 14 : isTablet ? 16 : 14, 
+    marginBottom: 2 
+  },
+  sectionLabel: { 
+    fontSize: isSmallScreen ? 11 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 15 : 13, 
+    marginBottom: isSmallScreen ? 8 : 10, 
+    marginTop: isSmallScreen ? 12 : 15, 
+    fontWeight: '500' 
+  },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 10,
+    paddingVertical: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 16 : isTablet ? 18 : 14,
+    paddingHorizontal: isSmallScreen ? 14 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 20 : 16,
+    borderRadius: isSmallScreen ? 10 : isMediumScreen ? 11 : isLargeScreen ? 12 : isTablet ? 14 : 12,
+    marginBottom: isSmallScreen ? 8 : 10,
   },
   leftSide: { flexDirection: 'row', alignItems: 'center' },
-  iconMargin: { marginRight: 12, width: 24, alignItems: 'center' },
-  itemLabel: { fontSize: 15, fontWeight: '400' },
+  iconMargin: { 
+    marginRight: isSmallScreen ? 10 : 12, 
+    width: isSmallScreen ? 22 : 24, 
+    alignItems: 'center' 
+  },
+  itemLabel: { 
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 15, 
+    fontWeight: '400' 
+  },
   modifierButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingHorizontal: isSmallScreen ? 10 : 12,
+    paddingVertical: isSmallScreen ? 5 : 6,
+    borderRadius: isSmallScreen ? 6 : 8,
   },
 });

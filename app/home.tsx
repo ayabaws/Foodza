@@ -1,19 +1,18 @@
-import Svg, { Path, Defs, LinearGradient, Stop, ClipPath, Image as SvgImage } from 'react-native-svg';
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Animated, FlatList, Alert, Dimensions, StatusBar, TextInput, Modal } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
+import CategoryCard from '@/components/CategoryCard';
+import DishPreviewModal from '@/components/DishPreviewModal';
+import LocationPermissionModal from '@/components/LocationPermissionModal';
+import PopularDishCard from '@/components/PopularDishCard';
+import RestaurantCard from '@/components/SimpleRestaurantCard';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useLocation } from '@/contexts/LocationContext';
-import DishPreviewModal from '@/components/DishPreviewModal';
-import PopularDishCard from '@/components/PopularDishCard';
-import CategoryCard from '@/components/CategoryCard';
-import RestaurantCard from '@/components/SimpleRestaurantCard';
-import LocationPermissionModal from '@/components/LocationPermissionModal';
-import { BlurView } from 'expo-blur';
-import { dataService, Category, Restaurant, PopularItem } from '@/services/DataService';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Category, dataService, PopularItem, Restaurant } from '@/services/DataService';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { ClipPath, Defs, LinearGradient, Path, Stop, Image as SvgImage } from 'react-native-svg';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isSmallScreen = screenWidth < 375;
@@ -34,7 +33,6 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryScrollPosition, setCategoryScrollPosition] = useState(0);
   const categoryScrollViewRef = useRef<ScrollView>(null);
-  const [cartItems, setCartItems] = useState<any[]>([]);
 
   // Charger les données depuis le service
   const [categories, setCategories] = useState<Category[]>([]);
@@ -111,6 +109,11 @@ export default function HomeScreen() {
     router.push('/screens/filters');
   };
 
+  const handleVoiceSearch = () => {
+    // TODO: Implémenter la recherche vocale
+    console.log('Recherche vocale activée');
+  };
+
   const handleExplore = () => {
     router.push('/screens/explore');
   };
@@ -174,9 +177,13 @@ export default function HomeScreen() {
   };
 
   const handleTabPress = (tab: string) => {
-    setActiveTab(tab);
-    if (tab === 'Sur place') {
-      router.push('/screens/explore');
+    if (tab === 'Livraison') {
+      setActiveTab('Livraison');
+      // On reste sur le home
+    } else if (tab === 'Sur place') {
+      setActiveTab('Sur place');
+      // Navigation vers la page non disponible
+      router.push('/screens/dine-in-not-available');
     }
   };
 
@@ -200,14 +207,6 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.headerButtons}>
-            <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/cart')}>
-              <Ionicons name="cart-outline" size={20} color="#FFFFFF" />
-              {cartItems.length > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>{cartItems.length}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
             <TouchableOpacity style={styles.profileCircle} onPress={handleProfile}>
               <Text style={styles.profileLetter}>F</Text>
             </TouchableOpacity>
@@ -216,17 +215,20 @@ export default function HomeScreen() {
 
         {/* SEARCH */}
         <View style={styles.searchSection}>
-          <TouchableOpacity style={styles.searchBar} onPress={handleSearch}>
-            <Ionicons name="search-outline" size={22} color="#BF5B30" />
+          <View style={styles.searchBar}>
+            <Ionicons name="search-outline" size={20} color="#BF5B30" />
             <TextInput
               placeholder="Nom du restaurant, plat..."
               style={styles.searchInput}
               value={searchQuery}
               onChangeText={setSearchQuery}
               onSubmitEditing={handleSearch}
+              placeholderTextColor="#999"
             />
-            <Ionicons name="mic-outline" size={22} color="#BF5B30" />
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.voiceButton} onPress={handleVoiceSearch}>
+              <Ionicons name="mic-outline" size={18} color="#BF5B30" />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity style={styles.filterButton} onPress={handleFilter}>
             <Ionicons name="options-outline" size={22} color="#000" />
@@ -284,7 +286,7 @@ export default function HomeScreen() {
           <View style={[StyleSheet.absoluteFill, styles.bannerContent]}>
             <Text style={styles.bannerTitle}>Commande En Toute Simplicité</Text>
             <Text style={styles.bannerSub}>
-              Explorez des cuisines authentiques et faites-vous livrer en un clic
+              Explorez  des cuisines authentiques et faites-vous livrer en toute simplicité.
             </Text>
             <TouchableOpacity style={styles.explorerBtn} onPress={handleExplore}>
               <Ionicons name="compass-outline" size={18} color="#FFF" />
@@ -388,13 +390,25 @@ export default function HomeScreen() {
         <View style={styles.bottomNav}>
 
           <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Livraison')}>
-            <MaterialCommunityIcons name="moped" size={24} color="#FFF" />
-            <Text style={styles.navText}>Livraison</Text>
+            <MaterialCommunityIcons 
+              name="moped" 
+              size={isSmallScreen ? 20 : 22} 
+              color={activeTab === 'Livraison' ? '#8C3E22' : '#FFF'} 
+            />
+            <Text style={[styles.navText, { color: activeTab === 'Livraison' ? '#8C3E22' : '#FFF' }]}>
+              Livraison
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.navItem} onPress={() => handleTabPress('Sur place')}>
-            <Ionicons name="restaurant-outline" size={22} color="#FFF" />
-            <Text style={styles.navText}>Sur place</Text>
+            <Ionicons 
+              name="restaurant-outline" 
+              size={isSmallScreen ? 18 : 20} 
+              color={activeTab === 'Sur place' ? '#8C3E22' : '#FFF'} 
+            />
+            <Text style={[styles.navText, { color: activeTab === 'Sur place' ? '#8C3E22' : '#FFF' }]}>
+              Sur place
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.explorerFab} onPress={handleExplore}>
@@ -427,7 +441,6 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -464,85 +477,53 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  favoritesButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#BF5B30',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-
-  cartButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#BF5B30',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-
-  favoritesBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: '#FF4444',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cartBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: '#FF4444',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  favoritesBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  cartBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-
   profileLetter: { color: '#FFF', fontWeight: 'bold' },
 
   searchSection: {
     flexDirection: 'row',
-    paddingHorizontal: isSmallScreen ? 16 : 20,
-    marginTop: isSmallScreen ? 16 : 20,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    marginTop: 20,
     alignItems: 'center'
   },
 
   searchBar: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#F3F3F3',
-    borderRadius: 40,
-    paddingHorizontal: 20,
-    height: 55,
     alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 40,
+    borderWidth: 1,
+    borderColor:'#8a8a8a',
+    paddingHorizontal: 16,
+    height: 44
   },
 
-  searchInput: { flex: 1, marginLeft: 10 },
+  searchInput: { 
+    flex: 1, 
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#333',
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    height: 44,
+    lineHeight: 18
+  },
+
+  voiceButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
 
   filterButton: {
-    width: isSmallScreen ? 50 : 55,
-    height: isSmallScreen ? 50 : 55,
+    width: 55,
+    height: 55,
     borderRadius: 30,
-    backgroundColor: '#F3F3F3',
+    borderWidth: 1,
+    borderColor:'#8a8a8a',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: isSmallScreen ? 8 : 12,
@@ -554,11 +535,6 @@ const styles = StyleSheet.create({
     height: isSmallScreen ? 200 : 220,
     borderRadius: 25,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
   },
 
   bannerContent: {
@@ -569,11 +545,11 @@ const styles = StyleSheet.create({
 
   bannerTitle: {
     color: '#FFF',
-    fontSize: 22,
+    fontSize: isSmallScreen ? 18 : 20,
     fontWeight: '600',
     width: '75%',
-    top: 15,
-    lineHeight: 25,
+    top: isSmallScreen ? 12 : 13,
+    lineHeight: isSmallScreen ? 22 : 24,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
@@ -581,10 +557,10 @@ const styles = StyleSheet.create({
 
   bannerSub: {
     color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 12,
-    marginTop: 22,
+    fontSize: isSmallScreen ? 10 : 11,
+    marginTop: isSmallScreen ? 18 : 20,
     width: '80%',
-    lineHeight: 15,
+    lineHeight: isSmallScreen ? 13 : 14,
   },
 
   bannerStats: {
@@ -627,26 +603,21 @@ const styles = StyleSheet.create({
   },
 
   explorerBtn: {
-    marginTop: 15,
+    marginTop: 5,
     backgroundColor: '#BF5B30',
-    paddingVertical: 12,
-    paddingHorizontal: 28,
+    paddingVertical: isSmallScreen ? 10 : 11,
+    paddingHorizontal: isSmallScreen ? 20 : 24,
     borderRadius: 25,
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
   },
 
   explorerBtnText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: isSmallScreen ? 11 : 12,
   },
 
   categoriesContainer: {
@@ -1009,18 +980,18 @@ const styles = StyleSheet.create({
 
   navItem: { alignItems: 'center', flex: 1 },
 
-  navText: { color: '#FFF', fontSize: 11, marginTop: 4 },
+  navText: { color: '#FFF', fontSize: isSmallScreen ? 9 : 11, marginTop: 4 },
 
   explorerFab: {
     backgroundColor: '#BF5B30',
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    paddingVertical: isSmallScreen ? 10 : 12,
     borderRadius: 30,
     alignItems: 'center',
   },
 
-  fabText: { color: '#FFF', fontWeight: 'bold', marginLeft: 8 },
+  fabText: { color: '#FFF', fontWeight: 'bold', marginLeft: isSmallScreen ? 6 : 8, fontSize: isSmallScreen ? 10 : 12 },
 
   modalContainer: {
     position: 'absolute',

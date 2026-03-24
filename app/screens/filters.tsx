@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Alert, Switch, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { dataService } from '@/services/DataService';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = width < 380;
+const isMediumScreen = width >= 380 && width < 768;
+const isLargeScreen = width >= 768 && width < 1024;
+const isTablet = width >= 1024;
 
 interface FilterOption {
   id: string;
@@ -255,8 +261,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    paddingVertical: isSmallScreen ? 12 : 15,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
@@ -264,25 +270,25 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: isSmallScreen ? 18 : 20,
     fontWeight: 'bold',
     color: '#2C1810',
   },
   resetButton: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#8C3E22',
   },
   scrollView: {
     flex: 1,
   },
   section: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    paddingVertical: isSmallScreen ? 15 : 20,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
     color: '#2C1810',
     marginBottom: 15,
@@ -296,20 +302,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8F8F8',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: isSmallScreen ? 10 : 12,
+    paddingVertical: isSmallScreen ? 8 : 10,
     borderRadius: 25,
-    marginBottom: 10,
-    width: '48%',
+    marginBottom: isSmallScreen ? 8 : 10,
+    width: isSmallScreen ? '48%' : '48%',
     justifyContent: 'center',
   },
   filterChipActive: {
     backgroundColor: '#8C3E22',
   },
   filterChipText: {
-    fontSize: 12,
+    fontSize: isSmallScreen ? 10 : 12,
     color: '#666',
-    marginLeft: 6,
+    marginLeft: isSmallScreen ? 4 : 6,
     fontWeight: '500',
   },
   filterChipTextActive: {
@@ -318,7 +324,7 @@ const styles = StyleSheet.create({
   priceItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: isSmallScreen ? 12 : 15,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
@@ -342,7 +348,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#8C3E22',
   },
   priceText: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#333',
     flex: 1,
   },
@@ -356,17 +362,17 @@ const styles = StyleSheet.create({
   },
   cuisineChip: {
     backgroundColor: '#F8F8F8',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
+    paddingHorizontal: isSmallScreen ? 12 : 15,
+    paddingVertical: isSmallScreen ? 6 : 8,
     borderRadius: 20,
-    marginRight: 10,
-    marginBottom: 10,
+    marginRight: isSmallScreen ? 8 : 10,
+    marginBottom: isSmallScreen ? 8 : 10,
   },
   cuisineChipActive: {
     backgroundColor: '#8C3E22',
   },
   cuisineChipText: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#666',
   },
   cuisineChipTextActive: {
@@ -375,7 +381,7 @@ const styles = StyleSheet.create({
   ratingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: isSmallScreen ? 12 : 15,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
@@ -387,7 +393,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   ratingText: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#333',
     flex: 1,
   },
@@ -396,21 +402,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   bottomContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    paddingVertical: isSmallScreen ? 12 : 15,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
     backgroundColor: '#FFFFFF',
   },
   applyButton: {
     backgroundColor: '#8C3E22',
-    paddingVertical: 15,
+    paddingVertical: isSmallScreen ? 12 : 15,
     borderRadius: 25,
     alignItems: 'center',
   },
   applyButtonText: {
     color: '#FFF',
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
   },
 });

@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TextInput, TouchableOpacity, StatusBar, FlatList } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Dimensions, FlatList, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const isSmallScreen = screenWidth < 375;
+const isMediumScreen = screenWidth >= 375 && screenWidth < 414;
+const isLargeScreen = screenWidth >= 414;
+const isTablet = screenWidth > 768;
 
 interface CartItem {
   id: string;
@@ -352,8 +358,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
+    paddingVertical: isSmallScreen ? 12 : 15,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
@@ -361,12 +367,12 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: isSmallScreen ? 18 : isTablet ? 22 : 20,
     fontWeight: 'bold',
     color: '#2C1810',
   },
   cartSection: {
-    paddingHorizontal: 20,
+    paddingHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
     paddingVertical: 15,
   },
   cartItem: {
@@ -385,8 +391,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   cartItemImage: {
-    width: 80,
-    height: 80,
+    width: isSmallScreen ? 70 : 80,
+    height: isSmallScreen ? 70 : 80,
     borderRadius: 10,
     marginRight: 15,
   },
@@ -395,13 +401,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cartItemName: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
     color: '#2C1810',
     marginBottom: 4,
   },
   cartItemRestaurant: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#666',
     marginBottom: 4,
   },
@@ -416,7 +422,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   cartItemPrice: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
     color: '#4CAF50',
   },
@@ -427,20 +433,20 @@ const styles = StyleSheet.create({
     width: 100,
   },
   quantityButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: isSmallScreen ? 28 : 30,
+    height: isSmallScreen ? 28 : 30,
+    borderRadius: isSmallScreen ? 14 : 15,
     backgroundColor: '#F8F8F8',
     justifyContent: 'center',
     alignItems: 'center',
   },
   quantityText: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
     color: '#2C1810',
   },
   couponSection: {
-    marginHorizontal: 20,
+    marginHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
     marginBottom: 20,
   },
   couponButton: {
@@ -452,7 +458,7 @@ const styles = StyleSheet.create({
   },
   couponButtonText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#2C1810',
     marginLeft: 10,
   },
@@ -482,7 +488,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addressSection: {
-    marginHorizontal: 20,
+    marginHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
     marginBottom: 20,
   },
   addressButton: {
@@ -493,9 +499,9 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   addressIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: isSmallScreen ? 35 : 40,
+    height: isSmallScreen ? 35 : 40,
+    borderRadius: isSmallScreen ? 17.5 : 20,
     backgroundColor: '#E8F5E8',
     justifyContent: 'center',
     alignItems: 'center',
@@ -505,17 +511,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addressLabel: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#666',
     marginBottom: 4,
   },
   addressText: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#2C1810',
     fontWeight: '500',
   },
   paymentSection: {
-    marginHorizontal: 20,
+    marginHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
     marginBottom: 20,
   },
   paymentButton: {
@@ -526,9 +532,9 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   paymentIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: isSmallScreen ? 35 : 40,
+    height: isSmallScreen ? 35 : 40,
+    borderRadius: isSmallScreen ? 17.5 : 20,
     backgroundColor: '#E8F5E8',
     justifyContent: 'center',
     alignItems: 'center',
@@ -538,12 +544,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   paymentLabel: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#666',
     marginBottom: 4,
   },
   paymentText: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#2C1810',
     fontWeight: '500',
   },
@@ -551,14 +557,14 @@ const styles = StyleSheet.create({
     marginBottom: 200,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: isSmallScreen ? 18 : isTablet ? 22 : 20,
     fontWeight: 'bold',
     color: '#2C1810',
-    marginHorizontal: 20,
+    marginHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
     marginBottom: 15,
   },
   recommendedList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
   },
   recommendedItem: {
     flexDirection: 'row',
@@ -576,8 +582,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   recommendedItemImage: {
-    width: 60,
-    height: 60,
+    width: isSmallScreen ? 50 : 60,
+    height: isSmallScreen ? 50 : 60,
     borderRadius: 10,
     marginRight: 15,
   },
@@ -586,13 +592,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   recommendedItemName: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
     color: '#2C1810',
     marginBottom: 4,
   },
   recommendedItemRestaurant: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#666',
     marginBottom: 4,
   },
@@ -607,14 +613,14 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   recommendedItemPrice: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
     color: '#4CAF50',
   },
   addRecommendedButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: isSmallScreen ? 35 : 40,
+    height: isSmallScreen ? 35 : 40,
+    borderRadius: isSmallScreen ? 17.5 : 20,
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
     alignItems: 'center',
@@ -628,7 +634,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    paddingHorizontal: 20,
+    paddingHorizontal: isSmallScreen ? 16 : isTablet ? 32 : 20,
     paddingVertical: 20,
   },
   summaryRow: {
@@ -638,11 +644,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#666',
   },
   summaryValue: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#2C1810',
     fontWeight: '500',
   },
@@ -656,24 +662,24 @@ const styles = StyleSheet.create({
     borderTopColor: '#E0E0E0',
   },
   totalLabel: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
     color: '#2C1810',
   },
   totalValue: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
     color: '#4CAF50',
   },
   orderButton: {
     backgroundColor: '#2C1810',
-    paddingVertical: 18,
+    paddingVertical: isSmallScreen ? 15 : 18,
     borderRadius: 25,
     alignItems: 'center',
   },
   orderButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
   },
 });

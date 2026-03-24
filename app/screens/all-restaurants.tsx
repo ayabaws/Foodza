@@ -1,20 +1,37 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Dimensions, FlatList, StatusBar, TextInput
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import CategoryCard from '@/components/CategoryCard';
+import RestaurantCard from '@/components/SimpleRestaurantCard';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Category, dataService, Restaurant } from '@/services/DataService';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useFavorites } from '@/contexts/FavoritesContext';
-import { dataService, Restaurant, Category } from '@/services/DataService';
-import RestaurantCard from '@/components/SimpleRestaurantCard';
-import CategoryCard from '@/components/CategoryCard';
-
-const { width: screenWidth } = Dimensions.get('window');
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+    Dimensions, FlatList,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AllRestaurantsScreen() {
+  const [screenData, setScreenData] = useState(Dimensions.get('window'));
+  const { width: screenWidth, height: screenHeight } = screenData;
+  const isSmallScreen = screenWidth < 375;
+  const isMediumScreen = screenWidth >= 375 && screenWidth < 414;
+  const isLargeScreen = screenWidth >= 414;
+  const isTablet = screenWidth > 768;
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setScreenData(window);
+    });
+    return () => subscription?.remove();
+  }, []);
   const router = useRouter();
   const { colors, isDarkMode } = useTheme();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -109,17 +126,45 @@ export default function AllRestaurantsScreen() {
 
       {/* Search Bar */}
       <View style={styles.searchSection}>
-        <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border.light }]}>
-          <Ionicons name="search-outline" size={20} color={colors.text.secondary} />
+        <View style={[
+          styles.searchBar, 
+          { 
+            backgroundColor: '#FFFFFF', 
+            borderColor: colors.border.light,
+            paddingHorizontal: isSmallScreen ? 12 : 16,
+            paddingVertical: isSmallScreen ? 8 : 10,
+            gap: isSmallScreen ? 8 : 12,
+            minHeight: isSmallScreen ? 44 : 48
+          }
+        ]}>
+          <Ionicons name="search-outline" size={20} color="#666666" />
           <TextInput
             placeholder="Rechercher un restaurant..."
-            style={[styles.searchInput, { color: colors.text.primary }]}
+            style={[
+              styles.searchInput, 
+              { 
+                color: '#000000',
+                fontSize: isSmallScreen ? 16 : 18,
+                fontWeight: '500',
+                paddingVertical: 0,
+                paddingHorizontal: 0
+              }
+            ]}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor={colors.text.tertiary}
+            placeholderTextColor="#666666"
           />
         </View>
-        <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.surface }]} onPress={handleFilter}>
+        <TouchableOpacity style={[
+          styles.filterButton, 
+          { 
+            backgroundColor: '#FFFFFF',
+            width: isSmallScreen ? 44 : 48,
+            height: isSmallScreen ? 44 : 48,
+            borderRadius: isSmallScreen ? 22 : 24,
+            borderColor: colors.border.light
+          }
+        ]} onPress={handleFilter}>
           <Ionicons name="options-outline" size={22} color={colors.text.primary} />
         </TouchableOpacity>
       </View>
@@ -249,20 +294,13 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 25,
+    borderRadius: 20,
     borderWidth: 1,
-    gap: 12,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
   },
   filterButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,

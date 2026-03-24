@@ -1,9 +1,15 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import { Alert, Dimensions, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = width < 375;
+const isMediumScreen = width >= 375 && width < 414;
+const isLargeScreen = width >= 414 && width <= 768;
+const isTablet = width > 768;
 
 export default function OtpScreen() {
   const router = useRouter();
@@ -84,6 +90,13 @@ export default function OtpScreen() {
                 keyboardType="number-pad"
                 maxLength={1}
                 textAlign="center"
+                textAlignVertical="center"
+                secureTextEntry={false}
+                editable={true}
+                selectTextOnFocus={false}
+                contextMenuHidden={true}
+                scrollEnabled={false}
+                showSoftInputOnFocus={true}
               />
             );
           })}
@@ -109,45 +122,52 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    padding: 20,
+    padding: isSmallScreen ? 16 : isMediumScreen ? 18 : 20,
   },
 
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingHorizontal: isSmallScreen ? 16 : isMediumScreen ? 20 : isLargeScreen ? 22 : isTablet ? 28 : 24,
+    paddingTop: isSmallScreen ? 16 : isMediumScreen ? 18 : 20,
   },
 
   title: {
-    fontSize: 22,
+    fontSize: isSmallScreen ? 20 : isMediumScreen ? 21 : isLargeScreen ? 22 : isTablet ? 26 : 22,
     fontWeight: '700',
-    marginBottom: 8,
+    marginBottom: isSmallScreen ? 6 : 8,
   },
 
   subtitle: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 13 : isLargeScreen ? 14 : isTablet ? 16 : 14,
     color: '#888',
-    marginBottom: 40,
+    marginBottom: isSmallScreen ? 30 : isMediumScreen ? 35 : isLargeScreen ? 40 : isTablet ? 50 : 40,
   },
 
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 10,
-    marginBottom: 40,
+    paddingHorizontal: 0,
+    marginBottom: isSmallScreen ? 30 : isMediumScreen ? 35 : isLargeScreen ? 40 : isTablet ? 50 : 40,
   },
 
   otpInput: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,        
+    width: isSmallScreen ? 40 : isMediumScreen ? 44 : isLargeScreen ? 48 : isTablet ? 56 : 48,
+    height: isSmallScreen ? 50 : isMediumScreen ? 54 : isLargeScreen ? 58 : isTablet ? 66 : 58,
+    borderRadius: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 15,
     borderWidth: 2,
     borderColor: '#E5E5E5',
-    fontSize: 18,
+    fontSize: isSmallScreen ? 20 : isMediumScreen ? 21 : isLargeScreen ? 22 : isTablet ? 24 : 22,
     fontWeight: '600',
     color: '#000',
     backgroundColor: '#FFF',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    paddingTop: isSmallScreen ? 8 : isMediumScreen ? 9 : isLargeScreen ? 10 : isTablet ? 12 : 10,
+    paddingBottom: isSmallScreen ? 8 : isMediumScreen ? 9 : isLargeScreen ? 10 : isTablet ? 12 : 10,
+    paddingHorizontal: 0,
+    includeFontPadding: false,
+    lineHeight: isSmallScreen ? 34 : isMediumScreen ? 36 : isLargeScreen ? 38 : isTablet ? 42 : 38,
   },
 
   otpFocused: {
@@ -161,22 +181,23 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: '#000',
     width: '100%',
-    height: 56,
-    borderRadius: 30,
+    height: isSmallScreen ? 48 : isMediumScreen ? 52 : isLargeScreen ? 54 : isTablet ? 60 : 56,
+    borderRadius: isSmallScreen ? 24 : isMediumScreen ? 26 : isLargeScreen ? 27 : isTablet ? 30 : 28,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: isSmallScreen ? 20 : isMediumScreen ? 22 : isLargeScreen ? 24 : isTablet ? 30 : 24,
   },
 
   continueText: {
     color: '#FFF',
     fontWeight: '700',
     letterSpacing: 1,
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16,
   },
 
   resendText: {
     color: '#999',
-    fontSize: 13,
+    fontSize: isSmallScreen ? 11 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 15 : 13,
     textAlign: 'center',
   },
 

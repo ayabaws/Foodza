@@ -114,6 +114,8 @@ export interface Order {
   id: string;
   userId: string;
   restaurantId: string;
+  restaurantName: string;
+  restaurantImage: string;
   items: OrderItem[];
   status: OrderStatus;
   totalAmount: number;
@@ -126,6 +128,9 @@ export interface Order {
   actualDeliveryTime?: Date;
   createdAt: Date;
   updatedAt: Date;
+  date: string;
+  time: string;
+  estimatedTime?: string;
   tracking?: OrderTracking;
   review?: Review;
 }
@@ -149,7 +154,10 @@ export type OrderStatus =
   | 'on_the_way'
   | 'delivered'
   | 'cancelled'
-  | 'refunded';
+  | 'refunded'
+  | 'en-cours'
+  | 'livrée'
+  | 'annulée';
 
 export interface OrderTracking {
   status: OrderStatus;

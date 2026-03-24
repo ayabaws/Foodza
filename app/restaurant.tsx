@@ -1,20 +1,32 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Dimensions, FlatList, Animated, Easing, StatusBar
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import Svg, { Path } from 'react-native-svg';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import DishPreviewModal from '@/components/DishPreviewModal';
 import MenuModal from '@/components/MenuModal';
 import PopularDishCard from '@/components/PopularDishCard';
-import DishPreviewModal from '@/components/DishPreviewModal';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
-import { dataService, Restaurant, Dish } from '@/services/DataService';
+import { dataService, Dish, Restaurant } from '@/services/DataService';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+    Animated,
+    Dimensions,
+    FlatList,
+    Image,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const isSmallScreen = SCREEN_WIDTH < 375;
+const isMediumScreen = SCREEN_WIDTH >= 375 && SCREEN_WIDTH < 414;
+const isLargeScreen = SCREEN_WIDTH >= 414;
+const isTablet = SCREEN_WIDTH > 768;
 
 // --- DATA ---
 const HERO_IMAGES = [
@@ -333,35 +345,36 @@ export default function RestaurantScreen() {
             {restaurant?.name || 'Restaurant'}
           </Text>
 
-          <View style={styles.pills}>
-            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}>
-              <Ionicons name="location" size={14} color={colors.text.secondary} />
-              <Text style={[styles.pText, { color: colors.text.secondary }]}>
+          <View style={[styles.pills, { marginLeft: -20 }]}>
+            <View style={[styles.pill, { backgroundColor: 'white', borderColor: colors.border.light, justifyContent: 'flex-start' as const, alignItems: 'center' as const, paddingLeft: 8, marginLeft: 20, paddingRight: 1, width: 160, height: 25 }]}>
+              <Ionicons name="location" size={10} color={colors.text.secondary} />
+              <Text style={[styles.pText, { color: colors.text.secondary, textAlign: 'left', flex: 1 }]}>
                 {restaurant?.address || 'Adresse non disponible'}
               </Text>
             </View>
-            <View style={[styles.pill, { backgroundColor: colors.surface, borderColor: colors.border.light }]}>
-              <Ionicons name="bicycle" size={16} color={colors.text.secondary} />
-              <Text style={[styles.pText, { color: colors.text.secondary }]}>
+            <View style={[styles.pill, { backgroundColor: 'white', borderColor: colors.border.light, justifyContent: 'flex-start' as const, alignItems: 'center' as const, paddingLeft: 10, marginLeft: 4, paddingRight: 10, width: 120, height: 25 }]}>
+              <Ionicons name="bicycle" size={12} color={colors.text.secondary} />
+              <Text style={[styles.pText, { color: colors.text.secondary, textAlign: 'left', flex: 1 }]}>
                 {restaurant?.deliveryTime || '25-30 mins'} • {restaurant?.distance || '5 km'}
               </Text>
             </View>
           </View>
 
           {/* BANDEAU PROMO */}
-          <View style={styles.promo}>
+          <View style={[styles.promo, { alignSelf: 'center' }]}>
             <LinearGradient
-              colors={['#5D2E17', '#8B4513']}
+              colors={['#000000', '#823B20']}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+              end={{ x: 1, y: 0.5 }}
               style={styles.promo}
             >
-              <View style={styles.promoCircle}><MaterialCommunityIcons name="brightness-percent" size={22} color="#5D2E17" /></View>
+              <View style={styles.promoCircle}>
+                <MaterialCommunityIcons name="brightness-percent" size={38} color="#5D2E17" />
+              </View>
               <View>
                 <Text style={styles.promoT}>-30% sur tout</Text>
                 <Text style={styles.promoC}>Utilisez le code <Text style={{ fontWeight: '900' }}>FOOD20</Text></Text>
               </View>
-              {/* Ton contenu (icône, texte, etc.) */}
             </LinearGradient>
           </View>
 
@@ -400,7 +413,7 @@ export default function RestaurantScreen() {
                   <View style={styles.recommendFooter}>
                     <Text style={styles.recommendPrice}>{item.price}</Text>
                     <TouchableOpacity style={[styles.addButton, dynamicStyles.addButton]} onPress={() => handleAddToCart(item)}>
-                      <Ionicons name="add" size={24} color="white" />
+                      <Ionicons name="add" size={isSmallScreen ? 18 : 20} color="white" />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -452,8 +465,10 @@ export default function RestaurantScreen() {
             </View>
             <View style={styles.cartRight}>
               <TouchableOpacity onPress={() => router.push('/cart')}>
-                <Text style={styles.cartLink}>voir le panier</Text>
-                <Ionicons name="chevron-forward" size={16} color="#fff" />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 }}>
+                  <Text style={[styles.cartLink, { marginLeft: 8 }]}>voir le panier</Text>
+                  <Ionicons name="chevron-forward" size={16} color="#fff" />
+                </View>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -465,11 +480,30 @@ export default function RestaurantScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
-  heroSection: { height: 380 },
-  heroImg: { width: SCREEN_WIDTH, height: 380 },
-  navIcons: { position: 'absolute', top: 0, width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, zIndex: 10 },
+  heroSection: { 
+    height: isSmallScreen ? 320 : isTablet ? 450 : 380 
+  },
+  heroImg: { 
+    width: SCREEN_WIDTH, 
+    height: isSmallScreen ? 320 : isTablet ? 450 : 380 
+  },
+  navIcons: { 
+    position: 'absolute', 
+    top: 0, 
+    width: '100%', 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    paddingHorizontal: isSmallScreen ? 15 : isTablet ? 25 : 20, 
+    zIndex: 10 
+  },
   navRight: { flexDirection: 'row' as const, gap: 10 },
-  blurBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center' as const, alignItems: 'center' as const },
+  blurBtn: { 
+    width: isSmallScreen ? 35 : isTablet ? 50 : 40, 
+    height: isSmallScreen ? 35 : isTablet ? 50 : 40, 
+    borderRadius: isSmallScreen ? 17.5 : isTablet ? 25 : 20, 
+    justifyContent: 'center' as const, 
+    alignItems: 'center' as const 
+  },
   pagination: { position: 'absolute', bottom: 105, alignSelf: 'center', flexDirection: 'row', gap: 6, zIndex: 10 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.4)' },
   dotActive: { width: 25, backgroundColor: 'white' },
@@ -483,22 +517,66 @@ const styles = StyleSheet.create({
   logoVert: { color: 'white', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', transform: [{ rotate: '-90deg' }], marginRight: -6 },
   logoMain: { color: 'white', fontSize: 36, fontWeight: '900', letterSpacing: -2 },
 
-  mainContent: { paddingHorizontal: 20, marginTop: -10 },
+  mainContent: { 
+    paddingHorizontal: isSmallScreen ? 15 : isTablet ? 30 : 20, 
+    marginTop: -10 
+  },
   ratingBox: { alignItems: 'flex-end' as const, marginTop: 10 },
   blackTag: { backgroundColor: 'black', flexDirection: 'row' as const, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, alignItems: 'center' as const, gap: 4 },
   rText: { color: 'white', fontWeight: 'bold', fontSize: 13 },
   pourToi: { fontSize: 11, color: '#888', marginTop: 4 },
-  title: { fontSize: 26, fontWeight: '900', marginTop: -40 },
-  pills: { flexDirection: 'row' as const, gap: 10, marginTop: 15 },
-  pill: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, padding: 10, borderRadius: 25, borderWidth: 1 },
-  pText: { fontSize: 12 },
+  title: { 
+    fontSize: isSmallScreen ? 18 : isMediumScreen ? 22 : isTablet ? 28 : 24, 
+    fontWeight: '900', 
+    marginTop: -40 
+  },
+  pills: { 
+    flexDirection: 'row' as const, 
+    gap: isSmallScreen ? 9 : 13, 
+    marginTop: 30
+  },
+  pill: { 
+    flexDirection: 'row' as const, 
+    alignItems: 'center' as const, 
+    gap: 5, 
+    padding: isSmallScreen ? 2 : 3, 
+    borderRadius: 25, 
+    borderWidth: 1 
+  },
+  pText: {
+    fontSize: isSmallScreen ? 7 : isMediumScreen ? 8 : isTablet ? 10 : 9,
+    color: '#666'
+  },
+  promo: { 
+    borderRadius: 25, 
+    marginHorizontal: isSmallScreen ? -12 : isTablet ? 15 : 10,
+    marginTop: isSmallScreen ? 8 : isTablet ? 12 : 10, 
+    padding: isSmallScreen ? 12 : isTablet ? 22 : 18, 
+    width: isSmallScreen ? 274 : isMediumScreen ? 280 : isTablet ? 340 : 300, 
+    flexDirection: 'row', 
+    gap: isSmallScreen ? 10 : isTablet ? 20 : 15 
+  },
+  promoCircle: { 
+    width: isSmallScreen ? 40 : 48, 
+    height: isSmallScreen ? 40 : 48, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    position: 'relative'
+  },
+  promoT: { 
+    color: 'white', 
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isTablet ? 16 : 15, 
+    fontWeight: 'bold' 
+  },
+  promoC: { 
+    color: 'rgba(255,255,255,0.8)', 
+    fontSize: isSmallScreen ? 9 : isMediumScreen ? 10 : isTablet ? 12 : 11 
+  },
 
-  promo: { borderRadius: 25, margin :-10,top:-20, padding: 20, width: 360, flexDirection: 'row', alignItems: 'center', marginTop: 25, gap: 15 },
-  promoCircle: { width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
-  promoT: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-  promoC: { color: 'rgba(255,255,255,0.8)', fontSize: 13 },
-
-  secTitle: { fontSize: 19, fontWeight: 'bold', },
+  secTitle: { 
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 17 : isTablet ? 20 : 18, 
+    fontWeight: 'bold' 
+  },
 
   filterSection: { marginTop: 30, borderBottomWidth: 1, paddingBottom: 5 },
   catBtn: { alignItems: 'center', marginRight: 30, minWidth: 65 },
@@ -511,7 +589,7 @@ const styles = StyleSheet.create({
   recommendCard: { 
     flexDirection: 'row' as const, 
     borderRadius: 30, 
-    padding: 10, 
+    padding: isSmallScreen ? 8 : 10, 
     marginBottom: 15, 
     elevation: 3, 
     shadowOffset: { width: 0, height: 2 }, 
@@ -519,33 +597,60 @@ const styles = StyleSheet.create({
     shadowRadius: 10 
   },
   recommendImg: {
-    width: 130, height: 130,
-    borderTopLeftRadius: 50, borderTopRightRadius: 10,
-    borderBottomLeftRadius: 30, borderBottomRightRadius: 50
+    width: isSmallScreen ? 110 : 130, 
+    height: isSmallScreen ? 110 : 130,
+    borderTopLeftRadius: 50, 
+    borderTopRightRadius: 10,
+    borderBottomLeftRadius: 30, 
+    borderBottomRightRadius: 50
   },
   recommendInfo: { flex: 1, marginLeft: 15, justifyContent: 'space-between', paddingVertical: 5 },
   recommendHeader: { flexDirection: 'row' as const, justifyContent: 'space-between', alignItems: 'center' as const },
-  recommendName: { fontSize: 16, fontWeight: 'bold', flex: 1 },
-  recommendDesc: { fontSize: 10, marginTop: 4, width: '80%' },
+  recommendName: { 
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isTablet ? 16 : 15, 
+    fontWeight: 'bold', 
+    flex: 1 
+  },
+  recommendDesc: { 
+    fontSize: isSmallScreen ? 8 : isMediumScreen ? 9 : isTablet ? 11 : 10, 
+    marginTop: 4, 
+    width: '80%' 
+  },
   recommendFooter: { flexDirection: 'row' as const, justifyContent: 'space-between', alignItems: 'center' as const, marginTop: 8 },
-  recommendPrice: { fontSize: 14, fontWeight: 'bold' },
+  recommendPrice: { 
+    fontSize: isSmallScreen ? 11 : isMediumScreen ? 12 : isTablet ? 14 : 13, 
+    fontWeight: 'bold' 
+  },
   addButton: { 
-    width: 40, 
-    height: 40, 
-    borderRadius: 20, 
+    width: isSmallScreen ? 28 : 32, 
+    height: isSmallScreen ? 28 : 32, 
+    borderRadius: isSmallScreen ? 14 : 16, 
     justifyContent: 'center' as const, 
     alignItems: 'center' as const 
   },
   menuFloating: { position: 'absolute', alignSelf: 'center', zIndex: 10 },
-  menuInner: { backgroundColor: 'black', flexDirection: 'row' as const, paddingHorizontal: 28, paddingVertical: 15, borderRadius: 35, gap: 10, alignItems: 'center' as const, elevation: 10 },
-  menuText: { color: 'white', fontWeight: 'bold' },
+  menuInner: { 
+    backgroundColor: 'black', 
+    flexDirection: 'row' as const, 
+    paddingHorizontal: isSmallScreen ? 20 : 28, 
+    paddingVertical: isSmallScreen ? 12 : 15, 
+    borderRadius: 35, 
+    gap: 10, 
+    alignItems: 'center' as const, 
+    elevation: 10 
+  },
+  menuText: { 
+    color: 'white', 
+    fontWeight: 'bold',
+    fontSize: isSmallScreen ? 12 : 14 
+  },
 
   // Style Panier avec le fond noir arrondi (Image 8cc7d7)
-  cartBarContainer: { position: 'absolute', bottom: 0, width: '100%', height: 120, backgroundColor: 'black', borderTopLeftRadius: 40, borderTopRightRadius: 40, paddingHorizontal: 20, paddingTop: 20 },
-  cartBarInner: { backgroundColor: '#5D2E17', height: 75, borderRadius: 40, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between', paddingHorizontal: 10 },
-  cartLeft: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 15 },
-  cartThumb: { width: 55, height: 55, borderRadius: 28, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' },
-  cartStatus: { color: 'white', fontSize: 12, fontWeight: '500' },
-  cartLink: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
-  cartRight: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, paddingRight: 15 }
+  cartBarContainer: { position: 'absolute', bottom: 0, width: '100%', height: 100, backgroundColor: 'black', borderTopLeftRadius: 40, borderTopRightRadius: 40, paddingHorizontal: 20, paddingTop: 15 },
+  cartBarInner: { backgroundColor: '#5D2E17', height: 65, borderRadius: 40, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between', paddingHorizontal: 12 },
+  cartLeft: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8 },
+  cartThumb: { width: 45, height: 40, borderRadius: 23, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' },
+  cartStatus: { color: 'white', fontSize: 11, fontWeight: '500', marginTop: 5 },
+  cartLink: { color: '#fff', fontWeight: 'bold', fontSize: 9 },
+  cartRight: { flexDirection: 'row' as const, alignItems: 'flex-start' as const, gap: 5, paddingRight: 11 }
 });

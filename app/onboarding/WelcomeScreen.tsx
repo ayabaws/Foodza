@@ -1,16 +1,16 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  StatusBar,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
-import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import {
+  Dimensions,
+  ImageBackground,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 interface WelcomeScreenProps {
   screenNumber: number;
@@ -39,10 +39,13 @@ const welcomeData = [
 
 export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
   const router = useRouter();
-  const currentScreen = welcomeData[screenNumber - 1];
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   const { width, height } = Dimensions.get('window');
   const isSmallScreen = width < 375;
+  const isMediumScreen = width >= 375 && width < 414;
+  const isLargeScreen = width >= 414 && width <= 768;
   const isTablet = width > 768;
 
   const maliColors = ['#14B53A', '#FCD116', '#CE1126'];
@@ -55,85 +58,165 @@ export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
     }
   };
 
+  const handleScroll = (event: any) => {
+    if (isScrolling) return;
+    
+    const { x } = event.nativeEvent.contentOffset;
+    const screenWidth = Dimensions.get('window').width;
+    
+    // Détection de swipe avec seuil plus sensible
+    if (x < -screenWidth * 0.3 && screenNumber < 3) {
+      setIsScrolling(true);
+      setTimeout(() => {
+        router.push(`/onboarding/welcome/${screenNumber + 1}`);
+      }, 100);
+    } else if (x > screenWidth * 0.3 && screenNumber > 1) {
+      setIsScrolling(true);
+      setTimeout(() => {
+        router.push(`/onboarding/welcome/${screenNumber - 1}`);
+      }, 100);
+    }
+  };
+
+  const handleScrollEnd = () => {
+    // Revenir au centre après scroll
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+    }
+    setIsScrolling(false);
+  };
+
   return (
-    <View style={styles.root}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+    <ScrollView
+      ref={scrollViewRef}
+      style={styles.root}
+      horizontal
+      pagingEnabled={false}
+      showsHorizontalScrollIndicator={false}
+      onScroll={handleScroll}
+      onScrollEndDrag={handleScrollEnd}
+      scrollEventThrottle={16}
+    >
+      <View style={{ width: Dimensions.get('window').width }}>
+        <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-      <ImageBackground
-        source={currentScreen.image}
-        style={styles.background}
-        resizeMode="cover"
-      >
-        {/* Progress bar */}
-        <View style={[
-          styles.progressContainer,
-          { paddingTop: isSmallScreen ? 50 : 70 }
-        ]}>
-          {[1, 2, 3].map((item, index) => (
-            <View
-              key={item}
-              style={[
-                styles.progressBar,
-                item <= screenNumber && {
-                  backgroundColor: maliColors[index],
-                },
-              ]}
-            />
-          ))}
-        </View>
-
-        {/* Gradient Bottom */}
-        <LinearGradient
-          colors={['transparent', 'rgba(0, 0, 0, 1)']}
-          style={[
-            styles.bottomContent,
-            { paddingHorizontal: isSmallScreen ? 15 : 20 }
-          ]}
+        <ImageBackground
+          source={welcomeData[screenNumber - 1].image}
+          style={styles.background}
+          resizeMode="cover"
         >
-          <Text style={[
-            styles.title,
+          {/* Progress bar */}
+          <View style={[
+            styles.progressContainer,
             { 
-              fontSize: isSmallScreen ? 24 : isTablet ? 34 : 28,
-              lineHeight: isSmallScreen ? 28 : isTablet ? 36 : 32
+              paddingTop: isSmallScreen ? 40 : isMediumScreen ? 55 : isLargeScreen ? 65 : isTablet ? 85 : 70,
+              paddingLeft: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
+              gap: isSmallScreen ? 4 : 6,
+              width: isSmallScreen ? '70%' : isMediumScreen ? '75%' : '80%',
+              alignSelf: 'flex-start'
             }
           ]}>
-            {currentScreen.title}
-          </Text>
+            {[1, 2, 3].map((item, index) => (
+              <View
+                key={item}
+                style={[
+                  styles.progressBar,
+                  item <= screenNumber && {
+                    backgroundColor: maliColors[index],
+                  },
+                ]}
+              />
+            ))}
+          </View>
 
-          <Text style={[
-            styles.description,
-            { 
-              fontSize: isSmallScreen ? 11 : isTablet ? 15 : 13,
-              lineHeight: isSmallScreen ? 16 : isTablet ? 20 : 18
-            }
-          ]}>
-            {currentScreen.description}
-          </Text>
-
-          <TouchableOpacity
+          {/* Gradient Bottom */}
+          <LinearGradient
+            colors={['transparent', 'rgba(0, 0, 0, 1)']}
             style={[
-              styles.button,
+              styles.bottomContent,
               { 
-                paddingVertical: isSmallScreen ? 12 : 14,
-                maxWidth: isTablet ? 300 : '100%',
-                alignSelf: isTablet ? 'center' : 'stretch'
+                paddingHorizontal: isSmallScreen ? 12 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 25 : 20,
+                paddingBottom: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
+                paddingTop: isSmallScreen ? 15 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 25 : 20
               }
             ]}
-            onPress={handleNext}
-            activeOpacity={0.85}
           >
             <Text style={[
-              styles.buttonText,
-              { fontSize: isSmallScreen ? 14 : 16 }
+              styles.title,
+              { 
+                fontSize: isSmallScreen ? 20 : isMediumScreen ? 24 : isLargeScreen ? 26 : isTablet ? 32 : 28,
+                lineHeight: isSmallScreen ? 24 : isMediumScreen ? 28 : isLargeScreen ? 30 : isTablet ? 38 : 32,
+                width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%'
+              }
             ]}>
-              Commencer
+              {welcomeData[screenNumber - 1].title}
             </Text>
-          </TouchableOpacity>
-        </LinearGradient>
-      </ImageBackground>
-    </View>
+
+            <Text style={[
+              styles.description,
+              { 
+                fontSize: isSmallScreen ? 10 : isMediumScreen ? 11 : isLargeScreen ? 12 : isTablet ? 14 : 13,
+                lineHeight: isSmallScreen ? 14 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 22 : 18,
+                width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%'
+              }
+            ]}>
+              {welcomeData[screenNumber - 1].description}
+            </Text>
+
+            {/* Afficher le bouton "Continuer" sur les 2 premiers écrans */}
+            {screenNumber < 3 && (
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.continueButton,
+                  { 
+                    paddingVertical: isSmallScreen ? 10 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 16 : 14,
+                    maxWidth: isTablet ? 300 : '100%',
+                    alignSelf: isTablet ? 'center' : 'stretch'
+                  }
+                ]}
+                onPress={handleNext}
+                activeOpacity={0.85}
+              >
+                <Text style={[
+                  styles.buttonText,
+                  styles.continueButtonText,
+                  { fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16 }
+                ]}>
+                  Continuer
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Afficher le bouton "Commencer" uniquement sur le 3ème écran */}
+            {screenNumber === 3 && (
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  { 
+                    paddingVertical: isSmallScreen ? 10 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 16 : 14,
+                    maxWidth: isTablet ? 300 : '100%',
+                    alignSelf: isTablet ? 'center' : 'stretch'
+                  }
+                ]}
+                onPress={handleNext}
+                activeOpacity={0.85}
+              >
+                <Text style={[
+                  styles.buttonText,
+                  { fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16 }
+                ]}>
+                  Commencer
+                </Text>
+              </TouchableOpacity>
+            )}
+          </LinearGradient>
+        </ImageBackground>
+      </View>
+    </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -147,8 +230,6 @@ const styles = StyleSheet.create({
 
   progressContainer: {
     flexDirection: 'row',
-    paddingLeft: 30,
-    paddingTop: 70,
     gap: 6,
     width: '80%',
     alignSelf: 'flex-start',
@@ -188,8 +269,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 25,
     alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#fff',
+    marginTop: 5,
+  
     shadowOffset: {
       width: 0,
       height: 6,
@@ -202,6 +283,15 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+  },
+
+  continueButton: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+  },
+
+  continueButtonText: {
+    color: '#8C3E22',
     fontWeight: '600',
   },
 });

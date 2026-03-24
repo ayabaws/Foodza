@@ -1,18 +1,18 @@
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import OrderTrackingModal from '@/components/OrderTrackingModal';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
-import { OrderProvider } from '@/contexts/OrderContext';
 import { LocationProvider } from '@/contexts/LocationContext';
+import { OrderProvider } from '@/contexts/OrderContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { useTheme } from '@/contexts/ThemeContext';
-import OrderTrackingModal from '@/components/OrderTrackingModal';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function RootLayoutNav() {
   const { isDarkMode } = useTheme();
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? '#000' : '#FFF' }}>
       <Stack screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
@@ -42,11 +42,12 @@ function RootLayoutNav() {
         <Stack.Screen name="screens/order-track" options={{ headerShown: false }} />
         <Stack.Screen name="screens/all-restaurants" options={{ headerShown: false }} />
         <Stack.Screen name="screens/order-success" options={{ headerShown: false }} />
+        <Stack.Screen name="screens/dine-in-not-available" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       <OrderTrackingModal />
-    </>
+    </SafeAreaView>
   );
 }
 

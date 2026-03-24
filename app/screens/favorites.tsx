@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Image, FlatList, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { dataService } from '@/services/DataService';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useFavorites } from '@/contexts/FavoritesContext';
-import { dataService, Restaurant } from '@/services/DataService';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function FavoritesScreen() {
   const router = useRouter();
-  const { colors, isDarkMode } = useTheme();
   const { favorites, removeFromFavorites, isFavorite } = useFavorites();
   const [selectedCategory, setSelectedCategory] = useState('Tous');
   const [categories, setCategories] = useState<string[]>([]);
@@ -40,63 +38,101 @@ export default function FavoritesScreen() {
     );
   };
 
-  const renderRestaurantItem = ({ item }: { item: Restaurant }) => (
-    <TouchableOpacity 
-      style={[styles.restaurantCard, { backgroundColor: colors.surface }]}
-      onPress={() => router.push(`/restaurant?id=${item.id}`)}
-    >
-      <Image source={item.image} style={styles.restaurantImage} />
-      <TouchableOpacity 
-        style={[styles.favoriteButton, { backgroundColor: colors.background }]}
-        onPress={() => handleRemoveFavorite(item.id, item.name)}
-      >
-        <Ionicons name="heart" size={20} color="#FF4444" />
-      </TouchableOpacity>
-      
-      <View style={styles.restaurantInfo}>
-        <Text style={[styles.restaurantName, { color: colors.text.primary }]}>{item.name}</Text>
-        <View style={styles.restaurantMeta}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={14} color="#FFA500" />
-            <Text style={[styles.ratingText, { color: colors.text.secondary }]}>{item.rating}</Text>
+  const renderFavoriteItem = ({ item }: { item: any }) => {
+    if (item.deliveryTime) {
+      // C'est un Restaurant
+      return (
+        <TouchableOpacity 
+          style={[styles.restaurantCard, { backgroundColor: '#FFFFFF' }]}
+          onPress={() => router.push(`/restaurant?id=${item.id || item.restaurantId}`)}
+        >
+          <Image source={{ uri: item.image }} style={styles.restaurantImage} />
+          <TouchableOpacity 
+            style={[styles.favoriteButton, { backgroundColor: '#FFFFFF' }]}
+            onPress={() => handleRemoveFavorite(item.id, item.name)}
+          >
+            <Ionicons name="heart" size={20} color="#870a0a" />
+          </TouchableOpacity>
+          
+          <View style={styles.restaurantInfo}>
+            <Text style={[styles.restaurantName, { color: '#333333' }]}>{item.name}</Text>
+            <View style={styles.restaurantMeta}>
+              <View style={styles.ratingContainer}>
+                <Ionicons name="star" size={14} color="#FFA500" />
+                <Text style={[styles.ratingText, { color: '#666666' }]}>{item.rating}</Text>
+              </View>
+              <Text style={[styles.priceRange, { color: '#666666' }]}>{item.deliveryFee}</Text>
+            </View>
+            {item.cuisine && (
+              <Text style={[styles.category, { color: '#888888' }]}>{item.cuisine}</Text>
+            )}
+            {item.address && (
+              <Text style={[styles.address, { color: '#888888' }]}>{item.address}</Text>
+            )}
           </View>
-          <Text style={[styles.priceRange, { color: colors.text.secondary }]}>{item.priceRange}</Text>
-        </View>
-        {item.category && (
-          <Text style={[styles.category, { color: colors.text.tertiary }]}>{item.category}</Text>
-        )}
-        {item.address && (
-          <Text style={[styles.address, { color: colors.text.tertiary }]}>{item.address}</Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+        </TouchableOpacity>
+      );
+    } else {
+      // C'est un Dish
+      return (
+        <TouchableOpacity 
+          style={[styles.restaurantCard, { backgroundColor: '#FFFFFF' }]}
+          onPress={() => router.push(`/restaurant?id=${item.restaurantId || item.id}`)}
+        >
+          <Image source={{ uri: item.image }} style={styles.restaurantImage} />
+          <TouchableOpacity 
+            style={[styles.favoriteButton, { backgroundColor: '#FFFFFF' }]}
+            onPress={() => handleRemoveFavorite(item.id, item.name)}
+          >
+            <Ionicons name="heart" size={20} color="#FF4444" />
+          </TouchableOpacity>
+          
+          <View style={styles.restaurantInfo}>
+            <Text style={[styles.restaurantName, { color: '#333333' }]}>{item.name}</Text>
+            <View style={styles.restaurantMeta}>
+              <View style={styles.ratingContainer}>
+                <Ionicons name="star" size={14} color="#FFA500" />
+                <Text style={[styles.ratingText, { color: '#666666' }]}>{item.rating}</Text>
+              </View>
+              <Text style={[styles.priceRange, { color: '#666666' }]}>{item.priceRange}</Text>
+            </View>
+            {item.category && (
+              <Text style={[styles.category, { color: '#888888' }]}>{item.category}</Text>
+            )}
+            {item.description && (
+              <Text style={[styles.address, { color: '#888888' }]}>{item.description}</Text>
+            )}
+          </View>
+        </TouchableOpacity>
+      );
+    }
+  };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+    <SafeAreaView style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: colors.border.light }]}>
+      <View style={[styles.header, { borderBottomColor: '#E5E5E5' }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+          <Ionicons name="arrow-back" size={24} color="#333333" />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text.primary }]}>Mes Favoris</Text>
+        <Text style={[styles.headerTitle, { color: '#333333' }]}>Mes Favoris</Text>
         <View style={styles.placeholder} />
       </View>
 
       {favorites.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="heart-outline" size={80} color={colors.text.tertiary} />
-          <Text style={[styles.emptyTitle, { color: colors.text.primary }]}>Aucun favori</Text>
-          <Text style={[styles.emptyDescription, { color: colors.text.secondary }]}>
+          <Ionicons name="heart-outline" size={80} color="#888888" />
+          <Text style={[styles.emptyTitle, { color: '#333333' }]}>Aucun favori</Text>
+          <Text style={[styles.emptyDescription, { color: '#666666' }]}>
             Ajoutez des restaurants à vos favoris pour les retrouver facilement
           </Text>
           <TouchableOpacity 
-            style={[styles.exploreButton, { backgroundColor: colors.primary }]}
+            style={[styles.exploreButton, { backgroundColor: '#BF5B30' }]}
             onPress={() => router.push('/home')}
           >
-            <Text style={[styles.exploreButtonText, { color: colors.text.inverse }]}>Explorer</Text>
+            <Text style={[styles.exploreButtonText, { color: '#FFFFFF' }]}>Explorer</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -109,14 +145,14 @@ export default function FavoritesScreen() {
                   key={category}
                   style={[
                     styles.categoryChip,
-                    selectedCategory === category && { backgroundColor: colors.primary },
-                    { backgroundColor: selectedCategory !== category ? colors.surface : colors.primary }
+                    selectedCategory === category && { backgroundColor: '#BF5B30' },
+                    { backgroundColor: selectedCategory !== category ? '#F5F5F5' : '#BF5B30' }
                   ]}
                   onPress={() => setSelectedCategory(category)}
                 >
                   <Text style={[
                     styles.categoryChipText,
-                    { color: selectedCategory === category ? colors.text.inverse : colors.text.primary }
+                    { color: selectedCategory === category ? '#FFFFFF' : '#333333' }
                   ]}>
                     {category}
                   </Text>
@@ -128,14 +164,14 @@ export default function FavoritesScreen() {
           {/* Favorites List */}
           <FlatList
             data={filteredFavorites}
-            renderItem={renderRestaurantItem}
+            renderItem={renderFavoriteItem}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.noResultsContainer}>
-                <Ionicons name="search-outline" size={50} color={colors.text.tertiary} />
-                <Text style={[styles.noResultsText, { color: colors.text.secondary }]}>
+                <Ionicons name="search-outline" size={50} color="#888888" />
+                <Text style={[styles.noResultsText, { color: '#666666' }]}>
                   Aucun restaurant trouvé dans cette catégorie
                 </Text>
               </View>
