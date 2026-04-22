@@ -144,7 +144,7 @@ export default function AllRestaurantsScreen() {
               styles.searchInput, 
               { 
                 color: '#000000',
-                fontSize: isSmallScreen ? 16 : 18,
+                fontSize: isSmallScreen ? 10 : 16,
                 fontWeight: '500',
                 paddingVertical: 0,
                 paddingHorizontal: 0
@@ -152,7 +152,7 @@ export default function AllRestaurantsScreen() {
             ]}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor="#666666"
+            placeholderTextColor="#999999"
           />
         </View>
         <TouchableOpacity style={[
@@ -235,6 +235,7 @@ export default function AllRestaurantsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.restaurantsList}
         keyExtractor={(item) => item.id}
+        numColumns={isTablet ? 2 : 1}
         renderItem={({ item }) => (
           <RestaurantCard
             restaurant={{
@@ -250,6 +251,7 @@ export default function AllRestaurantsScreen() {
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        ListFooterComponent={() => isTablet ? <View style={{ height: 12 }} /> : null}
       />
     </SafeAreaView>
   );
@@ -258,13 +260,14 @@ export default function AllRestaurantsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: -40,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 4,
   },
   backButton: {
     width: 40,

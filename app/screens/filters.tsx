@@ -210,7 +210,7 @@ export default function FiltersScreen() {
         </View>
 
         {/* Rating */}
-        <View style={styles.section}>
+        <View style={styles.lastSection}>
           <Text style={styles.sectionTitle}>Note minimale</Text>
           {ratings.map((rating) => (
             <TouchableOpacity 
@@ -240,14 +240,14 @@ export default function FiltersScreen() {
             </TouchableOpacity>
           ))}
         </View>
-      </ScrollView>
 
-      {/* Apply Button */}
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
-          <Text style={styles.applyButtonText}>Appliquer les filtres</Text>
-        </TouchableOpacity>
-      </View>
+        {/* Apply Button */}
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
+            <Text style={styles.applyButtonText}>Appliquer les filtres</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -262,36 +262,39 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: isSmallScreen ? 16 : 20,
-    paddingVertical: isSmallScreen ? 12 : 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingVertical: isSmallScreen ? 2 : 4,
   },
   headerButton: {
     padding: 8,
   },
   headerTitle: {
-    fontSize: isSmallScreen ? 18 : 20,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
     color: '#2C1810',
   },
   resetButton: {
-    fontSize: isSmallScreen ? 12 : 14,
+    fontSize: isSmallScreen ? 10 : 12,
     color: '#8C3E22',
   },
   scrollView: {
     flex: 1,
+    paddingBottom: 40,
   },
   section: {
     paddingHorizontal: isSmallScreen ? 16 : 20,
-    paddingVertical: isSmallScreen ? 15 : 20,
+    paddingVertical: isSmallScreen ? 8 : 10,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
+  lastSection: {
+    paddingHorizontal: isSmallScreen ? 16 : 20,
+    paddingVertical: isSmallScreen ? 8 : 10,
+  },
   sectionTitle: {
-    fontSize: isSmallScreen ? 16 : 18,
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 16 : isTablet ? 18 : 17,
     fontWeight: 'bold',
     color: '#2C1810',
-    marginBottom: 15,
+    marginBottom: isSmallScreen ? 12 : isMediumScreen ? 15 : isTablet ? 18 : 15,
   },
   filterGrid: {
     flexDirection: 'row',
@@ -301,21 +304,23 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
-    paddingHorizontal: isSmallScreen ? 10 : 12,
-    paddingVertical: isSmallScreen ? 8 : 10,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    paddingHorizontal: isSmallScreen ? 10 : isMediumScreen ? 12 : isTablet ? 16 : 14,
+    paddingVertical: isSmallScreen ? 8 : isMediumScreen ? 10 : isTablet ? 12 : 10,
     borderRadius: 25,
-    marginBottom: isSmallScreen ? 8 : 10,
-    width: isSmallScreen ? '48%' : '48%',
+    marginBottom: isSmallScreen ? 8 : isMediumScreen ? 10 : isTablet ? 12 : 10,
+    width: isSmallScreen ? '48%' : isMediumScreen ? '48%' : isTablet ? '23%' : '31%',
     justifyContent: 'center',
   },
   filterChipActive: {
     backgroundColor: '#8C3E22',
   },
   filterChipText: {
-    fontSize: isSmallScreen ? 10 : 12,
+    fontSize: isSmallScreen ? 9 : isMediumScreen ? 11 : isTablet ? 13 : 12,
     color: '#666',
-    marginLeft: isSmallScreen ? 4 : 6,
+    marginLeft: isSmallScreen ? 4 : isMediumScreen ? 6 : isTablet ? 8 : 6,
     fontWeight: '500',
   },
   filterChipTextActive: {
@@ -348,7 +353,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#8C3E22',
   },
   priceText: {
-    fontSize: isSmallScreen ? 14 : 16,
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isTablet ? 16 : 15,
     color: '#333',
     flex: 1,
   },
@@ -361,18 +366,20 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   cuisineChip: {
-    backgroundColor: '#F8F8F8',
-    paddingHorizontal: isSmallScreen ? 12 : 15,
-    paddingVertical: isSmallScreen ? 6 : 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    paddingHorizontal: isSmallScreen ? 12 : isMediumScreen ? 15 : isTablet ? 20 : 18,
+    paddingVertical: isSmallScreen ? 6 : isMediumScreen ? 8 : isTablet ? 10 : 8,
     borderRadius: 20,
-    marginRight: isSmallScreen ? 8 : 10,
-    marginBottom: isSmallScreen ? 8 : 10,
+    marginRight: isSmallScreen ? 8 : isMediumScreen ? 10 : isTablet ? 12 : 10,
+    marginBottom: isSmallScreen ? 8 : isMediumScreen ? 10 : isTablet ? 12 : 10,
   },
   cuisineChipActive: {
     backgroundColor: '#8C3E22',
   },
   cuisineChipText: {
-    fontSize: isSmallScreen ? 12 : 14,
+    fontSize: isSmallScreen ? 10 : isMediumScreen ? 12 : isTablet ? 14 : 13,
     color: '#666',
   },
   cuisineChipTextActive: {
@@ -393,7 +400,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   ratingText: {
-    fontSize: isSmallScreen ? 14 : 16,
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isTablet ? 16 : 15,
     color: '#333',
     flex: 1,
   },
@@ -403,9 +410,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     paddingHorizontal: isSmallScreen ? 16 : 20,
-    paddingVertical: isSmallScreen ? 12 : 15,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    paddingVertical: isSmallScreen ? 2 : 4,
     backgroundColor: '#FFFFFF',
   },
   applyButton: {
@@ -416,7 +421,7 @@ const styles = StyleSheet.create({
   },
   applyButtonText: {
     color: '#FFF',
-    fontSize: isSmallScreen ? 14 : 16,
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isTablet ? 16 : 15,
     fontWeight: 'bold',
   },
 });

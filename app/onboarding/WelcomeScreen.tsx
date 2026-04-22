@@ -2,14 +2,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-  Dimensions,
-  ImageBackground,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Dimensions,
+    ImageBackground,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 interface WelcomeScreenProps {
@@ -102,18 +102,18 @@ export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
 
         <ImageBackground
           source={welcomeData[screenNumber - 1].image}
-          style={styles.background}
+          style={[styles.background, { width: '100%', height: '100%' }]}
           resizeMode="cover"
         >
-          {/* Progress bar */}
+          {/* Progress bar - positionné en absolu en haut */}
           <View style={[
             styles.progressContainer,
             { 
-              paddingTop: isSmallScreen ? 40 : isMediumScreen ? 55 : isLargeScreen ? 65 : isTablet ? 85 : 70,
-              paddingLeft: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
+              position: 'absolute',
+              top: 50, // Position pour la barre de statut
+              left: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
               gap: isSmallScreen ? 4 : 6,
               width: isSmallScreen ? '70%' : isMediumScreen ? '75%' : '80%',
-              alignSelf: 'flex-start'
             }
           ]}>
             {[1, 2, 3].map((item, index) => (
@@ -129,12 +129,16 @@ export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
             ))}
           </View>
 
-          {/* Gradient Bottom */}
+          {/* Gradient Bottom - positionné en absolu en bas */}
           <LinearGradient
             colors={['transparent', 'rgba(0, 0, 0, 1)']}
             style={[
               styles.bottomContent,
               { 
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
                 paddingHorizontal: isSmallScreen ? 12 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 25 : 20,
                 paddingBottom: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
                 paddingTop: isSmallScreen ? 15 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 25 : 20
@@ -225,7 +229,8 @@ const styles = StyleSheet.create({
 
   background: {
     flex: 1,
-    justifyContent: 'space-between',
+    width: '100%',
+    height: '100%',
   },
 
   progressContainer: {

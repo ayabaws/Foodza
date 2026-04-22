@@ -11,13 +11,14 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { ClipPath, Defs, LinearGradient, Path, Stop, Image as SvgImage } from 'react-native-svg';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const isSmallScreen = screenWidth < 375;
-const isMediumScreen = screenWidth >= 375 && screenWidth < 414;
-const isLargeScreen = screenWidth >= 414;
+const isSmallScreen = screenWidth < 380;
+const isMediumScreen = screenWidth >= 380 && screenWidth < 768;
+const isLargeScreen = screenWidth >= 768 && screenWidth < 1024;
+const isTablet = screenWidth >= 1024;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -188,8 +189,8 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 140 }}>
 
@@ -435,7 +436,7 @@ export default function HomeScreen() {
         onLocationSet={() => setShowLocationModal(false)}
       />
 
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -444,8 +445,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: isSmallScreen ? 16 : 20,
-    marginTop: isSmallScreen ? 8 : 10,
+    paddingHorizontal: isSmallScreen ? 16 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 32 : 20,
+    marginTop: 8, // Espace pour la barre de statut
     alignItems: 'center'
   },
 
@@ -482,7 +483,7 @@ const styles = StyleSheet.create({
   searchSection: {
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     marginTop: 20,
     alignItems: 'center'
   },
@@ -494,20 +495,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 40,
     borderWidth: 1,
-    borderColor:'#8a8a8a',
-    paddingHorizontal: 16,
-    height: 44
+    borderColor:'#ccc',
+    paddingHorizontal: 12,
+    height: 40
   },
 
   searchInput: { 
     flex: 1, 
-    marginLeft: 10,
-    fontSize: 14,
+    marginLeft: 6,
+    fontSize: isSmallScreen ? 10 : isMediumScreen ? 11 : isLargeScreen ? 12 : isTablet ? 14 : 12,
     color: '#333',
     paddingVertical: 0,
     paddingHorizontal: 0,
-    height: 44,
-    lineHeight: 18
+    height: 40,
+    lineHeight: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 16
   },
 
   voiceButton: {
@@ -518,21 +519,21 @@ const styles = StyleSheet.create({
   },
 
   filterButton: {
-    width: 55,
-    height: 55,
-    borderRadius: 30,
+    width: isSmallScreen ? 44 : 48,
+    height: isSmallScreen ? 44 : 48,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor:'#8a8a8a',
+    borderColor:'#ccc',
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: isSmallScreen ? 8 : 12,
+    marginLeft: isSmallScreen ? 8 : 10,
   },
 
   bannerContainer: {
-    marginHorizontal: isSmallScreen ? 16 : 20,
-    marginTop: isSmallScreen ? 8 : 10,
-    height: isSmallScreen ? 200 : 220,
+    marginHorizontal: isSmallScreen ? 16 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 32 : 20,
+    marginTop: isSmallScreen ? 8 : isMediumScreen ? 10 : isLargeScreen ? 12 : isTablet ? 15 : 10,
+    height: isSmallScreen ? 200 : isMediumScreen ? 210 : isLargeScreen ? 220 : isTablet ? 250 : 220,
     borderRadius: 25,
     overflow: 'hidden',
   },
@@ -545,7 +546,7 @@ const styles = StyleSheet.create({
 
   bannerTitle: {
     color: '#FFF',
-    fontSize: isSmallScreen ? 18 : 20,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: '600',
     width: '75%',
     top: isSmallScreen ? 12 : 13,
@@ -557,7 +558,7 @@ const styles = StyleSheet.create({
 
   bannerSub: {
     color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: isSmallScreen ? 10 : 11,
+    fontSize: isSmallScreen ? 9 : 10,
     marginTop: isSmallScreen ? 18 : 20,
     width: '80%',
     lineHeight: isSmallScreen ? 13 : 14,
@@ -617,7 +618,7 @@ const styles = StyleSheet.create({
   explorerBtnText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: isSmallScreen ? 11 : 12,
+    fontSize: isSmallScreen ? 9 : 11,
   },
 
   categoriesContainer: {
@@ -962,14 +963,14 @@ const styles = StyleSheet.create({
 
   bottomNavContainer: {
     position: 'absolute',
-    bottom: 25,
+    bottom: 0,
     width: '100%',
     alignItems: 'center',
   },
 
   bottomNav: {
     backgroundColor: '#000',
-    width: '92%',
+    width: '96%',
     height: 75,
     borderRadius: 40,
     flexDirection: 'row',
@@ -980,7 +981,7 @@ const styles = StyleSheet.create({
 
   navItem: { alignItems: 'center', flex: 1 },
 
-  navText: { color: '#FFF', fontSize: isSmallScreen ? 9 : 11, marginTop: 4 },
+  navText: { color: '#FFF', fontSize: isSmallScreen ? 8 : 10, marginTop: 4 },
 
   explorerFab: {
     backgroundColor: '#BF5B30',
@@ -1672,8 +1673,8 @@ const styles = StyleSheet.create({
   },
 
   explorerCardImage: {
-    width: 200,
-    height: 200,
+    width: 120,
+    height: 120,
     resizeMode: 'contain',
   },
 

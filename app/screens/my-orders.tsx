@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginTop: 10,
+    paddingVertical: 12,
+    marginTop: 0,
   },
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#333333' },
   iconPadding: { padding: 5 },
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 100,
+    paddingTop: 40,
   },
   emptyTitle: {
     fontSize: 20,
@@ -211,13 +211,13 @@ const styles = StyleSheet.create({
   },
   orderButton: {
     backgroundColor: '#8B4513',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
+    paddingHorizontal: isSmallScreen ? 20 : 30,
+    paddingVertical: isSmallScreen ? 12 : 15,
+    borderRadius: isSmallScreen ? 20 : 25,
   },
   orderButtonText: {
     color: '#FFF',
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: '600',
   },
 

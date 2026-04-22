@@ -89,7 +89,7 @@ export default function ExploreScreen() {
       paddingVertical: 8,
       borderRadius: 20,
       marginRight: 10,
-      backgroundColor: colors.surface,
+      backgroundColor: '#FFFFFF',
       elevation: 1,
       shadowColor: colors.shadow.dark,
       shadowOffset: { width: 0, height: 1 },
@@ -100,7 +100,7 @@ export default function ExploreScreen() {
       paddingVertical: 6,
       borderRadius: 15,
       marginRight: 10,
-      backgroundColor: colors.surface,
+      backgroundColor: '#FFFFFF',
     },
     dishCard: {
       backgroundColor: colors.surface,
@@ -181,7 +181,7 @@ export default function ExploreScreen() {
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <View style={[styles.searchBar, { backgroundColor: colors.surface }]}>
+          <View style={[styles.searchBar, { backgroundColor: '#FFFFFF' }]}>
             <Ionicons name="search" size={20} color={colors.text.tertiary} />
             <TextInput
               style={[styles.searchInput, { color: colors.text.primary }]}
@@ -284,15 +284,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: isSmallScreen ? 16 : 20,
-    paddingVertical: isSmallScreen ? 12 : 15,
-    borderBottomWidth: 1,
+    paddingVertical: isSmallScreen ? 2 : 4,
   },
 
   headerButton: {
     padding: 8,
   },
   headerTitle: {
-    fontSize: isSmallScreen ? 18 : 20,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
   },
   searchContainer: {
@@ -306,10 +305,13 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: isSmallScreen ? 12 : 15,
     paddingVertical: isSmallScreen ? 10 : 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   searchInput: {
     flex: 1,
-    fontSize: isSmallScreen ? 14 : 16,
+    fontSize: isSmallScreen ? 12 : 14,
   },
   filterButton: {
     padding: 8,
@@ -328,7 +330,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoriesTitle: {
-    fontSize: isSmallScreen ? 16 : 18,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: '600',
   },
   categoriesCount: {
@@ -339,7 +341,9 @@ const styles = StyleSheet.create({
     paddingVertical: isSmallScreen ? 6 : 8,
     borderRadius: 20,
     marginRight: isSmallScreen ? 8 : 10,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ccc',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -352,7 +356,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   categoryChipText: {
-    fontSize: isSmallScreen ? 12 : 14,
+    fontSize: isSmallScreen ? 10 : 12,
     color: '#2C1810',
     fontWeight: '500',
   },
@@ -380,7 +384,7 @@ const styles = StyleSheet.create({
     marginBottom: isSmallScreen ? 8 : 10,
   },
   sortLabel: {
-    fontSize: isSmallScreen ? 12 : 14,
+    fontSize: isSmallScreen ? 10 : 12,
     marginRight: isSmallScreen ? 8 : 10,
   },
   sortChip: {
@@ -388,7 +392,9 @@ const styles = StyleSheet.create({
     paddingVertical: isSmallScreen ? 5 : 6,
     borderRadius: 15,
     marginRight: isSmallScreen ? 8 : 10,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   sortChipText: {
     fontSize: 13,
@@ -399,7 +405,7 @@ const styles = StyleSheet.create({
     paddingBottom: isSmallScreen ? 8 : 10,
   },
   resultsText: {
-    fontSize: isSmallScreen ? 12 : 14,
+    fontSize: isSmallScreen ? 10 : 12,
   },
   dishesList: {
     paddingHorizontal: 20,
@@ -447,7 +453,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dishName: {
-    fontSize: isSmallScreen ? 16 : 18,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: '700',
     marginBottom: 4,
   },
@@ -485,8 +491,8 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   dishDescription: {
-    fontSize: isSmallScreen ? 12 : 14,
-    lineHeight: isSmallScreen ? 18 : 20,
+    fontSize: isSmallScreen ? 10 : 12,
+    lineHeight: isSmallScreen ? 16 : 18,
     marginBottom: 12,
     color: '#666',
   },
@@ -499,7 +505,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dishPrice: {
-    fontSize: isSmallScreen ? 16 : 18,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: '700',
     marginBottom: 2,
   },
@@ -577,14 +583,14 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyTitle: {
-    fontSize: isSmallScreen ? 14 : 16,
+    fontSize: isSmallScreen ? 12 : 14,
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
   },
   emptyDescription: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: isSmallScreen ? 10 : 11,
     textAlign: 'center',
-    lineHeight: isSmallScreen ? 18 : 20,
+    lineHeight: isSmallScreen ? 16 : 18,
   },
 });

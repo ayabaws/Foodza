@@ -168,8 +168,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const colors = theme === 'light' ? lightColors : darkColors;
-  const isDarkMode = theme === 'dark';
+  const colors = lightColors; // Forcer les couleurs light
+  const isDarkMode = false; // Forcer le mode clair
 
   if (isLoading) {
     return null;

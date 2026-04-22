@@ -21,6 +21,166 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 const BRAND_BROWN = '#6D3119';
 
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#FFF' },
+  headerFloating: { position: 'absolute', top: 0, width: '100%', zIndex: 10, paddingHorizontal: 20 },
+  navBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10 },
+  backCircle: { width: 45, height: 45, borderRadius: 23, justifyContent: 'center', alignItems: 'center', elevation: 5 },
+  headerInfo: { alignItems: 'center' },
+  orderIdText: { fontWeight: '700', fontSize: 16 },
+  headerSubtitle: { fontSize: 12, color: '#666' },
+  helpBtn: { backgroundColor: '#0000004d', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
+  helpText: { color: '#FFF', fontWeight: 'bold', fontSize: 12, marginLeft: 4 },
+  mapWrapper: { height: height * 0.4 },
+  mapPlaceholder: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: '#F5F5F5' 
+  },
+  mapPlaceholderText: { 
+    fontSize: 18, 
+    fontWeight: '600', 
+    color: '#666', 
+    marginTop: 10 
+  },
+  mapPlaceholderSubtext: { 
+    fontSize: 14, 
+    color: '#999', 
+    marginTop: 5 
+  },
+  riderMarkerMain: { backgroundColor: BRAND_BROWN, padding: 8, borderRadius: 20, borderWidth: 2, borderColor: '#FFF' },
+  destMarker: { backgroundColor: '#FFF', padding: 5, borderRadius: 20, elevation: 5 },
+  bottomSheet: { flex: 1, backgroundColor: '#FFF', marginTop: 20, borderTopLeftRadius: 35, borderTopRightRadius: 35, paddingHorizontal: 25, elevation: 20 },
+  handle: { width: 40, height: 5, backgroundColor: '#EEE', borderRadius: 3, alignSelf: 'center', marginVertical: 15 },
+  resSection: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F9F9F9', padding: 12, borderRadius: 20, marginBottom: 15 },
+  resImage: { width: 50, height: 50, borderRadius: 12 },
+  resInfo: { flex: 1, marginLeft: 12 },
+  resTitle: { fontWeight: '800', fontSize: 15 },
+  resSub: { fontSize: 11, color: '#666' },
+  resRating: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  resRatingText: { fontSize: 11, marginLeft: 5, fontWeight: '600' },
+  resCall: { padding: 10, backgroundColor: '#FFF', borderRadius: 12, borderWidth: 1, borderColor: '#EEE' },
+  paymentBanner: { backgroundColor: '#FFF0EA', padding: 12, borderRadius: 15, flexDirection: 'row', alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#FFDDCF' },
+  paymentBannerText: { flex: 1, marginLeft: 10, fontSize: 13, fontWeight: '700', color: BRAND_BROWN },
+  payBtn: { backgroundColor: BRAND_BROWN, paddingHorizontal: 15, paddingVertical: 6, borderRadius: 8 },
+  payBtnText: { color: '#FFF', fontSize: 12, fontWeight: 'bold' },
+  statusRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  mainStatus: { fontSize: 22, fontWeight: '800' },
+  subStatus: { fontSize: 14, color: '#666' },
+  etaContainer: { backgroundColor: '#F8F8F8', padding: 10, borderRadius: 15, alignItems: 'center' },
+  etaValue: { fontSize: 24, fontWeight: '800', color: BRAND_BROWN },
+  etaUnit: { fontSize: 10, fontWeight: '700' },
+  progressContainer: { flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' },
+  stepWrapper: { flex: 1, marginRight: 5 },
+  progressLine: { height: 4, borderRadius: 2, marginBottom: 8 },
+  stepText: { fontSize: 10, fontWeight: '700', textAlign: 'center' },
+  divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 20 },
+  riderCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FDFDFD', borderWidth: 1, borderColor: '#F0F0F0', padding: 15, borderRadius: 20, marginBottom: 10 },
+  riderAvatar: { width: 50, height: 50, borderRadius: 25 },
+  riderDetails: { flex: 1, marginLeft: 15 },
+  riderName: { fontSize: 16, fontWeight: '700' },
+  riderStats: { fontSize: 13, color: '#666' },
+  callAction: { backgroundColor: BRAND_BROWN, padding: 12, borderRadius: 15 },
+  infoSection: { marginTop: 10 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center' },
+  infoTextGroup: { marginLeft: 15, flex: 1 },
+  infoLabel: { fontSize: 11, color: '#999', textTransform: 'uppercase' },
+  infoValue: { fontSize: 14, fontWeight: '600' },
+  orderDetailSection: { backgroundColor: '#F9F9F9', borderRadius: 20, padding: 15, marginTop: 10 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15, alignItems: 'center' },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#333' },
+  orderItemRow: { flexDirection: 'row', marginBottom: 8, alignItems: 'center' },
+  itemQty: { fontSize: 13, fontWeight: '700', color: BRAND_BROWN, width: 25 },
+  itemName: { fontSize: 13, color: '#444', flex: 1 },
+  itemPrice: { fontSize: 13, color: '#666' },
+  summaryBox: { marginTop: 20 },
+  mainButton: { backgroundColor: '#000', paddingVertical: 18, borderRadius: 20, alignItems: 'center' },
+  mainButtonText: { color: '#FFF', fontWeight: '800', fontSize: 16 },
+
+  // MODAL CHAT
+  overlayContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  overlayChatBox: { backgroundColor: '#FFF', height: height * 0.8, borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden' },
+  chatHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, alignItems: 'center', backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: '#EEE' },
+  chatTitle: { fontWeight: '800', fontSize: 16 },
+  chatStatus: { fontSize: 11, color: '#259547' },
+  chatBubble: { padding: 15, borderRadius: 20, marginBottom: 10, maxWidth: '80%' },
+  chatBot: { alignSelf: 'flex-start', backgroundColor: '#EEE', borderBottomLeftRadius: 5 },
+  chatUser: { alignSelf: 'flex-end', backgroundColor: BRAND_BROWN, borderBottomRightRadius: 5 },
+  chatText: { fontSize: 14, lineHeight: 20 },
+  chatInputContainer: {
+    flexDirection: 'row',
+    padding: 15,
+    backgroundColor: '#FFF',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#EEE',
+    paddingBottom: Platform.OS === 'ios' ? 35 : 15
+  },
+  chatInput: { flex: 1, backgroundColor: '#F5F5F5', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, marginRight: 10, fontSize: 14 },
+  sendBtn: { backgroundColor: BRAND_BROWN, width: 45, height: 45, borderRadius: 23, justifyContent: 'center', alignItems: 'center' },
+
+  // Questions rapides
+  quickQuestionsContainer: { 
+    paddingHorizontal: 15, 
+    paddingVertical: 10, 
+    backgroundColor: '#F8F9FA', 
+    borderTopWidth: 1, 
+    borderTopColor: '#EEE' 
+  },
+  quickQuestionsTitle: { 
+    fontSize: 12, 
+    fontWeight: '600', 
+    color: '#666', 
+    marginBottom: 8 
+  },
+  quickQuestionsScroll: { 
+    flexDirection: 'row' 
+  },
+  quickQuestionBtn: { 
+    backgroundColor: '#FFF', 
+    paddingHorizontal: 12, 
+    paddingVertical: 8, 
+    borderRadius: 15, 
+    marginRight: 8, 
+    borderWidth: 1, 
+    borderColor: '#E0E0E0' 
+  },
+  quickQuestionText: { 
+    fontSize: 12, 
+    color: '#333', 
+    fontWeight: '500' 
+  },
+
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center' },
+  modalHeaderTitle: { fontSize: 18, fontWeight: '700' },
+  input: { backgroundColor: '#F5F5F5', padding: 15, borderRadius: 12, marginBottom: 15 },
+  inputLabel: { fontSize: 14, fontWeight: '700', marginBottom: 8, marginTop: 10 },
+  addressPreview: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#F5F5F5', 
+    padding: 15, 
+    borderRadius: 12, 
+    marginTop: 10 
+  },
+  addressPreviewText: { 
+    flex: 1, 
+    marginLeft: 10, 
+    fontSize: 14, 
+    color: '#666' 
+  },
+  miniMapContainer: { height: 250, borderRadius: 20, overflow: 'hidden', marginTop: 10 },
+  successContainer: { flex: 1, backgroundColor: '#FFF', padding: 25, justifyContent: 'center' },
+  successContent: { alignItems: 'center' },
+  successCircle: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#259547', justifyContent: 'center', alignItems: 'center', marginBottom: 30 },
+  successTitle: { fontSize: 26, fontWeight: '800' },
+  successSubtitle: { textAlign: 'center', color: '#666', marginTop: 10 },
+  homeButton: { backgroundColor: '#000', paddingVertical: 18, borderRadius: 20, alignItems: 'center', marginTop: 50, width: '100%' },
+  homeButtonText: { color: '#FFF', fontWeight: '800' },
+});
+
 export default function OrderTrackScreen() {
   const router = useRouter();
 
@@ -350,173 +510,11 @@ export default function OrderTrackScreen() {
               <Ionicons name="location" size={24} color={BRAND_BROWN} />
               <Text style={styles.addressPreviewText}>Adresse : {tempAddress}</Text>
             </View>
-            <TouchableOpacity style={styles.saveBtn} onPress={() => setShowEditModal(false)}><Text style={styles.saveBtnText}>Enregistrer</Text></TouchableOpacity>
           </ScrollView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
   );
-
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF' },
-  headerFloating: { position: 'absolute', top: 0, width: '100%', zIndex: 10, paddingHorizontal: 20 },
-  navBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10 },
-  backCircle: { width: 45, height: 45, borderRadius: 23, justifyContent: 'center', alignItems: 'center', elevation: 5 },
-  headerInfo: { alignItems: 'center' },
-  orderIdText: { fontWeight: '700', fontSize: 16 },
-  headerSubtitle: { fontSize: 12, color: '#666' },
-  helpBtn: { backgroundColor: '#0000004d', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
-  helpText: { color: '#FFF', fontWeight: 'bold', fontSize: 12, marginLeft: 4 },
-  mapWrapper: { height: height * 0.4 },
-  mapPlaceholder: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    backgroundColor: '#F5F5F5' 
-  },
-  mapPlaceholderText: { 
-    fontSize: 18, 
-    fontWeight: '600', 
-    color: '#666', 
-    marginTop: 10 
-  },
-  mapPlaceholderSubtext: { 
-    fontSize: 14, 
-    color: '#999', 
-    marginTop: 5 
-  },
-  riderMarkerMain: { backgroundColor: BRAND_BROWN, padding: 8, borderRadius: 20, borderWidth: 2, borderColor: '#FFF' },
-  destMarker: { backgroundColor: '#FFF', padding: 5, borderRadius: 20, elevation: 5 },
-  bottomSheet: { flex: 1, backgroundColor: '#FFF', marginTop: -30, borderTopLeftRadius: 35, borderTopRightRadius: 35, paddingHorizontal: 25, elevation: 20 },
-  handle: { width: 40, height: 5, backgroundColor: '#EEE', borderRadius: 3, alignSelf: 'center', marginVertical: 15 },
-  resSection: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F9F9F9', padding: 12, borderRadius: 20, marginBottom: 15 },
-  resImage: { width: 50, height: 50, borderRadius: 12 },
-  resInfo: { flex: 1, marginLeft: 12 },
-  resTitle: { fontWeight: '800', fontSize: 15 },
-  resSub: { fontSize: 11, color: '#666' },
-  resRating: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  resRatingText: { fontSize: 11, marginLeft: 5, fontWeight: '600' },
-  resCall: { padding: 10, backgroundColor: '#FFF', borderRadius: 12, borderWidth: 1, borderColor: '#EEE' },
-  paymentBanner: { backgroundColor: '#FFF0EA', padding: 12, borderRadius: 15, flexDirection: 'row', alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#FFDDCF' },
-  paymentBannerText: { flex: 1, marginLeft: 10, fontSize: 13, fontWeight: '700', color: BRAND_BROWN },
-  payBtn: { backgroundColor: BRAND_BROWN, paddingHorizontal: 15, paddingVertical: 6, borderRadius: 8 },
-  payBtnText: { color: '#FFF', fontSize: 12, fontWeight: 'bold' },
-  statusRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  mainStatus: { fontSize: 22, fontWeight: '800' },
-  subStatus: { fontSize: 14, color: '#666' },
-  etaContainer: { backgroundColor: '#F8F8F8', padding: 10, borderRadius: 15, alignItems: 'center' },
-  etaValue: { fontSize: 24, fontWeight: '800', color: BRAND_BROWN },
-  etaUnit: { fontSize: 10, fontWeight: '700' },
-  progressContainer: { flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' },
-  stepWrapper: { flex: 1, marginRight: 5 },
-  progressLine: { height: 4, borderRadius: 2, marginBottom: 8 },
-  stepText: { fontSize: 10, fontWeight: '700', textAlign: 'center' },
-  divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 20 },
-  riderCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FDFDFD', borderWidth: 1, borderColor: '#F0F0F0', padding: 15, borderRadius: 20, marginBottom: 10 },
-  riderAvatar: { width: 50, height: 50, borderRadius: 25 },
-  riderDetails: { flex: 1, marginLeft: 15 },
-  riderName: { fontSize: 16, fontWeight: '700' },
-  riderStats: { fontSize: 13, color: '#666' },
-  callAction: { backgroundColor: BRAND_BROWN, padding: 12, borderRadius: 15 },
-  infoSection: { marginTop: 10 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-  iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center' },
-  infoTextGroup: { marginLeft: 15, flex: 1 },
-  infoLabel: { fontSize: 11, color: '#999', textTransform: 'uppercase' },
-  infoValue: { fontSize: 14, fontWeight: '600' },
-  orderDetailSection: { backgroundColor: '#F9F9F9', borderRadius: 20, padding: 15, marginTop: 10 },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15, alignItems: 'center' },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#333' },
-  orderItemRow: { flexDirection: 'row', marginBottom: 8, alignItems: 'center' },
-  itemQty: { fontSize: 13, fontWeight: '700', color: BRAND_BROWN, width: 25 },
-  itemName: { fontSize: 13, color: '#444', flex: 1 },
-  itemPrice: { fontSize: 13, color: '#666' },
-  summaryBox: { marginTop: 20 },
-  mainButton: { backgroundColor: '#000', paddingVertical: 18, borderRadius: 20, alignItems: 'center' },
-  mainButtonText: { color: '#FFF', fontWeight: '800', fontSize: 16 },
 
-  // MODAL CHAT
-  overlayContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  overlayChatBox: { backgroundColor: '#FFF', height: height * 0.8, borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden' },
-  chatHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, alignItems: 'center', backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: '#EEE' },
-  chatTitle: { fontWeight: '800', fontSize: 16 },
-  chatStatus: { fontSize: 11, color: '#259547' },
-  chatBubble: { padding: 15, borderRadius: 20, marginBottom: 10, maxWidth: '80%' },
-  chatBot: { alignSelf: 'flex-start', backgroundColor: '#EEE', borderBottomLeftRadius: 5 },
-  chatUser: { alignSelf: 'flex-end', backgroundColor: BRAND_BROWN, borderBottomRightRadius: 5 },
-  chatText: { fontSize: 14, lineHeight: 20 },
-  chatInputContainer: {
-    flexDirection: 'row',
-    padding: 15,
-    backgroundColor: '#FFF',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#EEE',
-    paddingBottom: Platform.OS === 'ios' ? 35 : 15
-  },
-  chatInput: { flex: 1, backgroundColor: '#F5F5F5', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 25, marginRight: 10, fontSize: 14 },
-  sendBtn: { backgroundColor: BRAND_BROWN, width: 45, height: 45, borderRadius: 23, justifyContent: 'center', alignItems: 'center' },
-
-  // Questions rapides
-  quickQuestionsContainer: { 
-    paddingHorizontal: 15, 
-    paddingVertical: 10, 
-    backgroundColor: '#F8F9FA', 
-    borderTopWidth: 1, 
-    borderTopColor: '#EEE' 
-  },
-  quickQuestionsTitle: { 
-    fontSize: 12, 
-    fontWeight: '600', 
-    color: '#666', 
-    marginBottom: 8 
-  },
-  quickQuestionsScroll: { 
-    flexDirection: 'row' 
-  },
-  quickQuestionBtn: { 
-    backgroundColor: '#FFF', 
-    paddingHorizontal: 12, 
-    paddingVertical: 8, 
-    borderRadius: 15, 
-    marginRight: 8, 
-    borderWidth: 1, 
-    borderColor: '#E0E0E0' 
-  },
-  quickQuestionText: { 
-    fontSize: 12, 
-    color: '#333', 
-    fontWeight: '500' 
-  },
-
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, alignItems: 'center' },
-  modalHeaderTitle: { fontSize: 18, fontWeight: '700' },
-  input: { backgroundColor: '#F5F5F5', padding: 15, borderRadius: 12, marginBottom: 15 },
-  inputLabel: { fontSize: 14, fontWeight: '700', marginBottom: 8, marginTop: 10 },
-  addressPreview: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#F5F5F5', 
-    padding: 15, 
-    borderRadius: 12, 
-    marginTop: 10 
-  },
-  addressPreviewText: { 
-    flex: 1, 
-    marginLeft: 10, 
-    fontSize: 14, 
-    color: '#666' 
-  },
-  miniMapContainer: { height: 250, borderRadius: 20, overflow: 'hidden', marginTop: 10 },
-  saveBtn: { backgroundColor: BRAND_BROWN, padding: 18, borderRadius: 20, alignItems: 'center', marginTop: 20 },
-  saveBtnText: { color: '#FFF', fontWeight: '800' },
-  successContainer: { flex: 1, backgroundColor: '#FFF', padding: 25, justifyContent: 'center' },
-  successContent: { alignItems: 'center' },
-  successCircle: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#259547', justifyContent: 'center', alignItems: 'center', marginBottom: 30 },
-  successTitle: { fontSize: 26, fontWeight: '800' },
-  successSubtitle: { textAlign: 'center', color: '#666', marginTop: 10 },
-  homeButton: { backgroundColor: '#000', paddingVertical: 18, borderRadius: 20, alignItems: 'center', marginTop: 50, width: '100%' },
-  homeButtonText: { color: '#FFF', fontWeight: '800' },
-});

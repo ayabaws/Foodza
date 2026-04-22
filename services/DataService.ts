@@ -65,7 +65,14 @@ export interface Settings {
 }
 
 class DataService {
-  private data = appData;
+  private data: {
+    categories: Category[];
+    restaurants: Restaurant[];
+    popularItems: PopularItem[];
+    dishes: Dish[];
+    userProfile: UserProfile;
+    settings: Settings;
+  } = appData;
 
   // Helper method pour convertir les chemins d'images en require()
   private getCategoryImage(imageName: string): any {

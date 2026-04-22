@@ -105,25 +105,27 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 6,
+    marginTop: 0,
   },
   backIcon: { padding: 5 },
   headerTitle: { 
     fontSize: 17, 
     fontWeight: '700', 
-    textAlign: 'center'
+    textAlign: 'center',
+    marginTop: 2
   },
   scrollContent: { 
     paddingHorizontal: 16, 
-    paddingBottom: 40 
+    paddingBottom: 80 
   },
   sectionLabel: {
     fontSize: 12,
-    marginBottom: 8,
-    marginTop: 20,
+    marginBottom: 4,
+    marginTop: 4,
     marginLeft: 4,
     fontWeight: '500'
   },

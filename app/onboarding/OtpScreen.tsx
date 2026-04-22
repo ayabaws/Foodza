@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Alert, Dimensions, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 const isSmallScreen = width < 375;
@@ -46,8 +46,8 @@ export default function OtpScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
 
       {/* Header */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -112,7 +112,7 @@ export default function OtpScreen() {
           Vous n'avez pas reçu l'OTP ? <Text style={[styles.resendLink, { color: colors.primary }]}>Renvoyer l'OTP</Text>
         </Text>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -122,7 +122,8 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    padding: isSmallScreen ? 16 : isMediumScreen ? 18 : 20,
+    padding: isSmallScreen ? 8 : isMediumScreen ? 10 : 12,
+    paddingTop: 25, // Espace très réduit pour la barre de statut
   },
 
   content: {
@@ -146,9 +147,10 @@ const styles = StyleSheet.create({
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    width: '85%', // Réduire la largeur pour rapprocher les champs
     paddingHorizontal: 0,
     marginBottom: isSmallScreen ? 30 : isMediumScreen ? 35 : isLargeScreen ? 40 : isTablet ? 50 : 40,
+    alignSelf: 'center', // Centrer le conteneur
   },
 
   otpInput: {

@@ -129,17 +129,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: isSmallScreen ? 16 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 32 : 20,
-    paddingVertical: isSmallScreen ? 15 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 25 : 20,
-    marginTop: 10,
+    paddingVertical: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 16 : isTablet ? 20 : 14,
+    marginTop: 0,
   },
   headerTitle: { 
-    fontSize: isSmallScreen ? 16 : isMediumScreen ? 17 : isLargeScreen ? 18 : isTablet ? 22 : 18, 
+    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 20 : 16, 
     fontWeight: '700' 
   },
   modifierText: { 
     color: '#FFFFFF', 
     fontWeight: '600', 
-    fontSize: isSmallScreen ? 13 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 17 : 15 
+    fontSize: isSmallScreen ? 11 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 15 : 13 
   },
   iconPadding: { padding: 5 },
   scrollContent: { 
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
   },
   profileSection: { 
     alignItems: 'center', 
-    marginTop: isSmallScreen ? 15 : isMediumScreen ? 20 : isLargeScreen ? 25 : isTablet ? 30 : 20, 
-    marginBottom: isSmallScreen ? 25 : isMediumScreen ? 30 : isLargeScreen ? 35 : isTablet ? 40 : 30 
+    marginTop: isSmallScreen ? 8 : isMediumScreen ? 10 : isLargeScreen ? 12 : isTablet ? 15 : 10, 
+    marginBottom: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 30 : isTablet ? 35 : 25 
   },
   avatar: { 
     width: isSmallScreen ? 80 : isMediumScreen ? 90 : isLargeScreen ? 100 : isTablet ? 120 : 100, 
@@ -171,16 +171,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   userName: { 
-    fontSize: isSmallScreen ? 18 : isMediumScreen ? 20 : isLargeScreen ? 22 : isTablet ? 26 : 22, 
+    fontSize: isSmallScreen ? 16 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 24 : 20, 
     fontWeight: '700', 
     marginBottom: 4 
   },
   userSubText: { 
-    fontSize: isSmallScreen ? 12 : isMediumScreen ? 13 : isLargeScreen ? 14 : isTablet ? 16 : 14, 
+    fontSize: isSmallScreen ? 10 : isMediumScreen ? 11 : isLargeScreen ? 12 : isTablet ? 14 : 12, 
     marginBottom: 2 
   },
   sectionLabel: { 
-    fontSize: isSmallScreen ? 11 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 15 : 13, 
+    fontSize: isSmallScreen ? 9 : isMediumScreen ? 10 : isLargeScreen ? 11 : isTablet ? 13 : 11, 
     marginBottom: isSmallScreen ? 8 : 10, 
     marginTop: isSmallScreen ? 12 : 15, 
     fontWeight: '500' 
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     alignItems: 'center' 
   },
   itemLabel: { 
-    fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : isLargeScreen ? 16 : isTablet ? 18 : 15, 
+    fontSize: isSmallScreen ? 12 : isMediumScreen ? 13 : isLargeScreen ? 14 : isTablet ? 16 : 14, 
     fontWeight: '400' 
   },
   modifierButton: {
