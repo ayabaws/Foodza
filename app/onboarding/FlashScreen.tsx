@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Dimensions, Image as RNImage, StatusBar, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isSmallScreen = screenWidth < 375;
@@ -21,7 +20,7 @@ export default function FlashScreen() {
   }, [router]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#8C3E22" />
       <View style={styles.content}>
         <RNImage
@@ -30,7 +29,7 @@ export default function FlashScreen() {
           resizeMode="contain"
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

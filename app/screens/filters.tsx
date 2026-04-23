@@ -109,7 +109,7 @@ export default function FiltersScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Header */}

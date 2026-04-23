@@ -17,25 +17,25 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
-    Animated,
+  Animated,
 
-    Dimensions,
+  Dimensions,
 
-    FlatList,
+  FlatList,
 
-    Image,
+  Image,
 
-    ScrollView,
+  ScrollView,
 
-    StatusBar,
+  StatusBar,
 
-    StyleSheet,
+  StyleSheet,
 
-    Text,
+  Text,
 
-    TouchableOpacity,
+  TouchableOpacity,
 
-    View
+  View
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';

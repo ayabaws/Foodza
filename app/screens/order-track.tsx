@@ -16,7 +16,6 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 const BRAND_BROWN = '#6D3119';
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
   itemQty: { fontSize: 13, fontWeight: '700', color: BRAND_BROWN, width: 25 },
   itemName: { fontSize: 13, color: '#444', flex: 1 },
   itemPrice: { fontSize: 13, color: '#666' },
-  summaryBox: { marginTop: 20 },
+  summaryBox: { marginTop: 20, paddingBottom: 30 },
   mainButton: { backgroundColor: '#000', paddingVertical: 18, borderRadius: 20, alignItems: 'center' },
   mainButtonText: { color: '#FFF', fontWeight: '800', fontSize: 16 },
 
@@ -277,12 +276,11 @@ export default function OrderTrackScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       {/* HEADER */}
       <View style={styles.headerFloating}>
-        <SafeAreaView edges={['top']}>
           <View style={styles.navBar}>
             <TouchableOpacity style={styles.backCircle} onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="#000" /></TouchableOpacity>
             <View style={styles.headerInfo}>
@@ -294,7 +292,6 @@ export default function OrderTrackScreen() {
               <Text style={styles.helpText}> Aide</Text>
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
       </View>
 
       {/* MAP PLACEHOLDER */}
@@ -308,7 +305,7 @@ export default function OrderTrackScreen() {
 
       <View style={styles.bottomSheet}>
         <View style={styles.handle} />
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 0 }}>
           {!isPaid && (
             <View style={styles.paymentBanner}>
               <Ionicons name="wallet-outline" size={20} color={BRAND_BROWN} />
@@ -398,7 +395,6 @@ export default function OrderTrackScreen() {
           </View>
 
           <View style={styles.summaryBox}>
-            <View style={styles.summaryBox}>
               <TouchableOpacity
                 style={[
                   styles.mainButton,
@@ -417,7 +413,6 @@ export default function OrderTrackScreen() {
               >
                 <Text style={styles.mainButtonText}>Confirmer la réception</Text>
               </TouchableOpacity>
-            </View>
           </View>
         </ScrollView>
       </View>
@@ -495,7 +490,7 @@ export default function OrderTrackScreen() {
 
       {/* MODAL MODIF LIVRAISON */}
       <Modal visible={showEditModal} animationType="slide">
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
+        <View style={{ flex: 1, backgroundColor: '#FFF' }}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowEditModal(false)}><Ionicons name="close" size={28} color="#000" /></TouchableOpacity>
             <Text style={styles.modalHeaderTitle}>Modifier la livraison</Text>
@@ -511,9 +506,9 @@ export default function OrderTrackScreen() {
               <Text style={styles.addressPreviewText}>Adresse : {tempAddress}</Text>
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -1355,7 +1355,7 @@ const styles = StyleSheet.create({
   // Styles pour la section restaurants
   restaurantsContainer: {
     flexDirection: 'column',
-    paddingHorizontal: 20,
+    paddingHorizontal: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 16 : isTablet ? 20 : 16,
     gap: 16,
   },
 

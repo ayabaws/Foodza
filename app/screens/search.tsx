@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { dataService } from '@/services/DataService';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SearchScreen() {
   const router = useRouter();

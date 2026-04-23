@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import React from 'react';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isSmallScreen = screenWidth < 375;
@@ -145,13 +145,13 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   name: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 15 : 18,
     fontWeight: '800',
     color: '#1A1A1A',
     marginBottom: 4,
   },
   priceRange: {
-    fontSize: 13,
+    fontSize: isSmallScreen ? 11 : 13,
     color: '#666',
     marginBottom: 8,
   },
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   deliveryTime: {
-    fontSize: 13,
+    fontSize: isSmallScreen ? 11 : 13,
     color: '#8B4513',
     fontWeight: '600',
   },

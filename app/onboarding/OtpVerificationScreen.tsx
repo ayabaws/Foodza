@@ -54,7 +54,7 @@ export default function OtpVerificationScreen() {
     <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
 
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={true}>
 
         {/* HEADER IMAGE */}
         <View style={styles.headerImageContainer}>
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
 
   headerImageContainer: {
-    height: isSmallScreen ? 280 : isMediumScreen ? 320 : isLargeScreen ? 340 : isTablet ? 380 : 360,
+    height: height * 0.6, // 60% de la hauteur de l'écran
     width: '100%',
     overflow: 'hidden',
     backgroundColor: '#fff',
@@ -176,6 +176,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
 
   wave: {

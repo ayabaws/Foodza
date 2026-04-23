@@ -4,6 +4,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 import OrderService from '@/services/OrderService';
 
+import WireframeLoader from '@/components/WireframeLoader';
+
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { LinearGradient } from 'expo-linear-gradient';
@@ -46,6 +48,15 @@ export default function CartScreen() {
 
   }, []);
 
+  // Simuler le chargement des données
+  useEffect(() => {
+    // Afficher le wireframe pendant 2 secondes
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
 
   const router = useRouter();
@@ -69,6 +80,8 @@ export default function CartScreen() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [showTrackingOverlay, setShowTrackingOverlay] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(true);
 
 
 
@@ -348,10 +361,11 @@ export default function CartScreen() {
 
   return (
 
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
 
       <StatusBar barStyle="dark-content" />
 
+      <WireframeLoader isVisible={isLoading} />
 
 
       <View style={styles.header}>

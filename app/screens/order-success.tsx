@@ -1,21 +1,23 @@
+import { useOrder } from '@/contexts/OrderContext';
+import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-  Dimensions,
-  Image,
-  ImageBackground,
-  Linking,
-  Alert,
+    Alert,
+    Dimensions,
+    Image,
+    ImageBackground,
+    Linking,
+    Modal,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useOrder } from '@/contexts/OrderContext';
 
 const { width } = Dimensions.get('window');
 
@@ -44,6 +46,8 @@ export default function OrderSuccessScreen() {
   const [riderRating, setRiderRating] = useState<number>(0);
   const [resRating, setResRating] = useState<number>(0);
   const [packagingStatus, setPackagingStatus] = useState<'good' | 'not_good' | null>(null);
+  const [showCustomTipModal, setShowCustomTipModal] = useState<boolean>(false);
+  const [customTipAmount, setCustomTipAmount] = useState<string>('');
 
   const makeCall = (phoneNumber: string) => {
     Linking.openURL(`tel:${phoneNumber}`).catch(() => 
@@ -57,7 +61,7 @@ export default function OrderSuccessScreen() {
       riderNote: riderRating,
       restaurantNote: resRating,
       packaging: packagingStatus,
-      pourboire: selectedTip
+      pourboire: selectedTip || customTipAmount
     });
     
     // Terminer la commande active
@@ -210,7 +214,10 @@ export default function OrderSuccessScreen() {
                 </Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.tipButton}>
+            <TouchableOpacity 
+              style={styles.tipButton}
+              onPress={() => setShowCustomTipModal(true)}
+            >
               <Text style={styles.tipLabel}>Autre</Text>
             </TouchableOpacity>
           </View>
@@ -260,6 +267,69 @@ export default function OrderSuccessScreen() {
           <Text style={styles.mainButtonText}>Confirmer et Terminer</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal pour pourboire personnalisé */}
+      <Modal
+        visible={showCustomTipModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCustomTipModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.customTipModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Montant personnalisé</Text>
+              <TouchableOpacity onPress={() => setShowCustomTipModal(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.modalSubtitle}>
+              Entrez le montant que vous souhaitez donner à {orderData.rider.name.split(' ')[0]}
+            </Text>
+            
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.customTipInput}
+                placeholder="0"
+                placeholderTextColor="#999"
+                keyboardType="numeric"
+                value={customTipAmount}
+                onChangeText={setCustomTipAmount}
+                autoFocus
+              />
+              <Text style={styles.currencyText}>F</Text>
+            </View>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => {
+                  setShowCustomTipModal(false);
+                  setCustomTipAmount('');
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Annuler</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={() => {
+                  if (customTipAmount && parseInt(customTipAmount) > 0) {
+                    setSelectedTip(customTipAmount);
+                    setShowCustomTipModal(false);
+                    setCustomTipAmount('');
+                  } else {
+                    Alert.alert("Erreur", "Veuillez entrer un montant valide");
+                  }
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Confirmer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -268,6 +338,84 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { alignItems: 'center', justifyContent: 'center', height: 56, top: 20 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#1A1D21' },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  customTipModal: {
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 24,
+    width: '80%',
+    maxWidth: 320,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1D21',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#64748B',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  customTipInput: {
+    flex: 1,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1D21',
+    paddingVertical: 12,
+  },
+  currencyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#64748B',
+    marginLeft: 8,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#F1F5F9',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  confirmButton: {
+    backgroundColor: '#E23744',
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFF',
+  },
 
   ticketWrapper: { alignItems: 'center', width: width, height: 310 },
   ticketBackgroundImage: { width: width * 0.99, height: '100%', justifyContent: 'flex-end' },

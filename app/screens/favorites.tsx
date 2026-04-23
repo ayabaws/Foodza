@@ -109,11 +109,11 @@ export default function FavoritesScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: '#FFFFFF' }]} edges={['bottom', 'left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: '#E5E5E5' }]}>
+      <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#333333" />
         </TouchableOpacity>
@@ -130,7 +130,7 @@ export default function FavoritesScreen() {
           </Text>
           <TouchableOpacity 
             style={[styles.exploreButton, { backgroundColor: '#BF5B30' }]}
-            onPress={() => router.push('/home')}
+            onPress={() => router.push('/screens/explore')}
           >
             <Text style={[styles.exploreButtonText, { color: '#FFFFFF' }]}>Explorer</Text>
           </TouchableOpacity>
@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    borderBottomWidth: 1,
   },
   backButton: {
     padding: 8,

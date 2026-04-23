@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Animated, Dimensions, Image, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Ionicons } from '@expo/vector-icons';
 
 import { useFavorites } from '@/contexts/FavoritesContext';
 
 
+const { width: screenWidth } = Dimensions.get('window');
+const isSmallScreen = screenWidth < 380;
 
 interface Size {
 
@@ -17,8 +20,6 @@ interface Size {
 
 }
 
-
-
 interface Extra {
 
   name: string;
@@ -26,8 +27,6 @@ interface Extra {
   price: number;
 
 }
-
-
 
 interface Dish {
 
@@ -43,8 +42,6 @@ interface Dish {
 
 }
 
-
-
 interface DishDetailModalProps {
 
   visible: boolean;
@@ -55,15 +52,11 @@ interface DishDetailModalProps {
 
 }
 
-
-
 export default function DishDetailModal({ visible, dish, onClose }: DishDetailModalProps) {
 
   const { toggleFavorite, isFavorite } = useFavorites();
 
   const slideAnim = useRef(new Animated.Value(Dimensions.get('window').height)).current;
-
-
 
   const [selectedSize, setSelectedSize] = useState<Size>({ name: 'Moyenne', price: 4500 });
 
@@ -72,8 +65,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
   const [quantity, setQuantity] = useState(1);
 
   const [specialInstructions, setSpecialInstructions] = useState('');
-
-
 
   const sizes: Size[] = [
 
@@ -85,8 +76,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
   ];
 
-
-
   const extras: Extra[] = [
 
     { name: 'Fromage', price: 250 },
@@ -94,8 +83,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
     { name: 'Mayonnaise', price: 100 },
 
   ];
-
-
 
   useEffect(() => {
 
@@ -119,8 +106,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
   }, [visible, dish]);
 
-
-
   const calculateTotal = () => {
 
     if (!dish) return 0;
@@ -130,8 +115,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
     return (selectedSize.price + extrasPrice) * quantity;
 
   };
-
-
 
   const toggleExtra = (extra: Extra) => {
 
@@ -147,11 +130,7 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
   };
 
-
-
   if (!dish) return null;
-
-
 
   return (
 
@@ -159,31 +138,17 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
       <View style={styles.modalOverlay}>
 
-
-
-        {/* Bouton Fermer Flottant */}
-
         <TouchableOpacity style={styles.floatingCloseButton} onPress={onClose}>
 
           <Ionicons name="close" size={28} color="#FFF" />
 
         </TouchableOpacity>
 
-
-
         <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
 
-
-
-          {/* CARTE BLANCHE (Celle qui contient le contenu) */}
-
-          <View style={styles.whiteCardContainer}>
+          <SafeAreaView style={styles.whiteCardContainer} edges={['bottom', 'left', 'right']}>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-
-
-
-              {/* Header avec Infos Plat */}
 
               <View style={styles.headerInfo}>
 
@@ -229,10 +194,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
               </View>
 
-
-
-              {/* Section Taille */}
-
               <View style={styles.section}>
 
                 <Text style={styles.sectionTitle}>Choisir la taille</Text>
@@ -263,10 +224,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
               </View>
 
-
-
-              {/* Section Options */}
-
               <View style={styles.optionsWrapper}>
 
                 <Text style={styles.sectionTitle}>Options supplémentaires :</Text>
@@ -293,8 +250,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
                 ))}
 
-
-
                 <Text style={[styles.sectionTitle, { marginTop: 15 }]}>Instructions special</Text>
 
                 <TextInput
@@ -315,11 +270,7 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
             </ScrollView>
 
-          </View>
-
-
-
-          {/* ZONE FOOTER (Sur le fond noir du modalContent) */}
+          </SafeAreaView>
 
           <View style={styles.blackFooterArea}>
 
@@ -341,8 +292,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
             </View>
 
-
-
             <TouchableOpacity style={styles.addMainButton} onPress={onClose}>
 
               <Text style={styles.addBtnLabel}>Ajouter un article</Text>
@@ -353,8 +302,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
 
           </View>
 
-
-
         </Animated.View>
 
       </View>
@@ -364,8 +311,6 @@ export default function DishDetailModal({ visible, dish, onClose }: DishDetailMo
   );
 
 }
-
-
 
 const styles = StyleSheet.create({
 
@@ -471,7 +416,7 @@ const styles = StyleSheet.create({
 
   dishName: {
 
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
 
     fontWeight: '700',
 
@@ -481,13 +426,25 @@ const styles = StyleSheet.create({
 
   dishPriceMain: {
 
-    fontSize: 13,
+    fontSize: isSmallScreen ? 11 : 13,
 
     fontWeight: '700',
 
     color: '#333',
 
     marginTop: 3,
+
+  },
+
+  dishDescriptionText: {
+
+    fontSize: isSmallScreen ? 10 : 12,
+
+    color: '#666',
+
+    marginTop: 6,
+
+    lineHeight: isSmallScreen ? 18 : 20,
 
   },
 
@@ -499,18 +456,6 @@ const styles = StyleSheet.create({
 
   },
 
-  dishDescriptionText: {
-
-    fontSize: 12,
-
-    color: '#666',
-
-    marginTop: 6,
-
-    lineHeight: 20,
-
-  },
-
   section: {
 
     padding: 25,
@@ -519,7 +464,7 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
 
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
 
     fontWeight: '600',
 
@@ -563,7 +508,7 @@ const styles = StyleSheet.create({
 
   sizeCardLabel: {
 
-    fontSize: 11,
+    fontSize: isSmallScreen ? 9 : 11,
 
     color: '#888',
 
@@ -579,7 +524,7 @@ const styles = StyleSheet.create({
 
   sizeCardPrice: {
 
-    fontSize: 13,
+    fontSize: isSmallScreen ? 11 : 13,
 
     fontWeight: '600',
 
@@ -621,7 +566,7 @@ const styles = StyleSheet.create({
 
   extraLabel: {
 
-    fontSize: 15,
+    fontSize: isSmallScreen ? 13 : 15,
 
     color: '#444',
 
@@ -637,7 +582,7 @@ const styles = StyleSheet.create({
 
   extraPriceText: {
 
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
 
     color: '#666',
 
@@ -677,9 +622,9 @@ const styles = StyleSheet.create({
 
     borderRadius: 15,
 
-    padding: 15,
+    padding: isSmallScreen ? 12 : 15,
 
-    height: 90,
+    height: isSmallScreen ? 80 : 90,
 
     textAlignVertical: 'top',
 
@@ -689,6 +634,8 @@ const styles = StyleSheet.create({
 
     marginTop: 5,
 
+    fontSize: isSmallScreen ? 12 : 14,
+
   },
 
   blackFooterArea: {
@@ -697,7 +644,7 @@ const styles = StyleSheet.create({
 
     alignItems: 'center',
 
-    paddingHorizontal: 25,
+    paddingHorizontal: isSmallScreen ? 15 : 25,
 
     paddingVertical: 20,
 
@@ -737,7 +684,7 @@ const styles = StyleSheet.create({
 
     color: '#8c3e22',
 
-    fontSize: 22,
+    fontSize: isSmallScreen ? 18 : 22,
 
     fontWeight: 'bold',
 
@@ -747,7 +694,7 @@ const styles = StyleSheet.create({
 
     color: '#FFF',
 
-    fontSize: 15,
+    fontSize: isSmallScreen ? 13 : 15,
 
     fontWeight: '600',
 
@@ -779,7 +726,7 @@ const styles = StyleSheet.create({
 
     color: '#FFF',
 
-    fontSize: 11,
+    fontSize: isSmallScreen ? 9 : 11,
 
     fontWeight: '600',
 
@@ -791,7 +738,7 @@ const styles = StyleSheet.create({
 
     color: '#FFF',
 
-    fontSize: 13,
+    fontSize: isSmallScreen ? 11 : 13,
 
     fontWeight: '600',
 

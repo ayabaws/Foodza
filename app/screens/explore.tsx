@@ -164,7 +164,7 @@ export default function ExploreScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom', 'left', 'right']}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   sortChipText: {
-    fontSize: 13,
+    fontSize: isSmallScreen ? 11 : 13,
     color: '#2C1810',
   },
   resultsContainer: {

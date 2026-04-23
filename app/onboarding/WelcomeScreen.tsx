@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface WelcomeScreenProps {
   screenNumber: number;
@@ -106,115 +107,116 @@ export default function WelcomeScreen({ screenNumber }: WelcomeScreenProps) {
           resizeMode="cover"
         >
           {/* Progress bar - positionné en absolu en haut */}
-          <View style={[
-            styles.progressContainer,
-            { 
-              position: 'absolute',
-              top: 50, // Position pour la barre de statut
-              left: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
-              gap: isSmallScreen ? 4 : 6,
-              width: isSmallScreen ? '70%' : isMediumScreen ? '75%' : '80%',
-            }
-          ]}>
-            {[1, 2, 3].map((item, index) => (
-              <View
-                key={item}
-                style={[
-                  styles.progressBar,
-                  item <= screenNumber && {
-                    backgroundColor: maliColors[index],
-                  },
-                ]}
-              />
-            ))}
-          </View>
+          <SafeAreaView style={styles.safeAreaTop} edges={['top', 'left', 'right']}>
+            <View style={[
+              styles.progressContainer,
+              { 
+                gap: isSmallScreen ? 4 : 6,
+                width: isSmallScreen ? '70%' : isMediumScreen ? '75%' : '80%',
+              }
+            ]}>
+              {[1, 2, 3].map((item, index) => (
+                <View
+                  key={item}
+                  style={[
+                    styles.progressBar,
+                    item <= screenNumber && {
+                      backgroundColor: maliColors[index],
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+          </SafeAreaView>
 
           {/* Gradient Bottom - positionné en absolu en bas */}
-          <LinearGradient
-            colors={['transparent', 'rgba(0, 0, 0, 1)']}
-            style={[
-              styles.bottomContent,
-              { 
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                paddingHorizontal: isSmallScreen ? 12 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 25 : 20,
-                paddingBottom: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
-                paddingTop: isSmallScreen ? 15 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 25 : 20
-              }
-            ]}
-          >
-            <Text style={[
-              styles.title,
-              { 
-                fontSize: isSmallScreen ? 20 : isMediumScreen ? 24 : isLargeScreen ? 26 : isTablet ? 32 : 28,
-                lineHeight: isSmallScreen ? 24 : isMediumScreen ? 28 : isLargeScreen ? 30 : isTablet ? 38 : 32,
-                width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%'
-              }
-            ]}>
-              {welcomeData[screenNumber - 1].title}
-            </Text>
+          <SafeAreaView style={styles.safeAreaBottom} edges={['bottom', 'left', 'right']}>
+            <LinearGradient
+              colors={['transparent', 'rgba(0, 0, 0, 1)']}
+              style={[
+                styles.bottomContent,
+                { 
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  paddingHorizontal: isSmallScreen ? 12 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 25 : 20,
+                  paddingBottom: isSmallScreen ? 20 : isMediumScreen ? 25 : isLargeScreen ? 28 : isTablet ? 40 : 30,
+                  paddingTop: isSmallScreen ? 15 : isMediumScreen ? 18 : isLargeScreen ? 20 : isTablet ? 25 : 20
+                }
+              ]}
+            >
+              <Text style={[
+                styles.title,
+                { 
+                  fontSize: isSmallScreen ? 20 : isMediumScreen ? 24 : isLargeScreen ? 26 : isTablet ? 32 : 28,
+                  lineHeight: isSmallScreen ? 24 : isMediumScreen ? 28 : isLargeScreen ? 30 : isTablet ? 38 : 32,
+                  width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%'
+                }
+              ]}>
+                {welcomeData[screenNumber - 1].title}
+              </Text>
 
-            <Text style={[
-              styles.description,
-              { 
-                fontSize: isSmallScreen ? 10 : isMediumScreen ? 11 : isLargeScreen ? 12 : isTablet ? 14 : 13,
-                lineHeight: isSmallScreen ? 14 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 22 : 18,
-                width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%'
-              }
-            ]}>
-              {welcomeData[screenNumber - 1].description}
-            </Text>
+              <Text style={[
+                styles.description,
+                { 
+                  fontSize: isSmallScreen ? 10 : isMediumScreen ? 11 : isLargeScreen ? 12 : isTablet ? 14 : 13,
+                  lineHeight: isSmallScreen ? 14 : isMediumScreen ? 16 : isLargeScreen ? 18 : isTablet ? 22 : 18,
+                  width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%'
+                }
+              ]}>
+                {welcomeData[screenNumber - 1].description}
+              </Text>
 
-            {/* Afficher le bouton "Continuer" sur les 2 premiers écrans */}
-            {screenNumber < 3 && (
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  styles.continueButton,
-                  { 
-                    paddingVertical: isSmallScreen ? 10 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 16 : 14,
-                    maxWidth: isTablet ? 300 : '100%',
-                    alignSelf: isTablet ? 'center' : 'stretch'
-                  }
-                ]}
-                onPress={handleNext}
-                activeOpacity={0.85}
-              >
-                <Text style={[
-                  styles.buttonText,
-                  styles.continueButtonText,
-                  { fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16 }
-                ]}>
-                  Continuer
-                </Text>
-              </TouchableOpacity>
-            )}
+              {/* Afficher le bouton "Continuer" sur les 2 premiers écrans */}
+              {screenNumber < 3 && (
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    styles.continueButton,
+                    { 
+                      paddingVertical: isSmallScreen ? 10 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 16 : 14,
+                      maxWidth: isTablet ? 300 : '100%',
+                      alignSelf: isTablet ? 'center' : 'stretch'
+                    }
+                  ]}
+                  onPress={handleNext}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[
+                    styles.buttonText,
+                    styles.continueButtonText,
+                    { fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16 }
+                  ]}>
+                    Continuer
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-            {/* Afficher le bouton "Commencer" uniquement sur le 3ème écran */}
-            {screenNumber === 3 && (
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  { 
-                    paddingVertical: isSmallScreen ? 10 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 16 : 14,
-                    maxWidth: isTablet ? 300 : '100%',
-                    alignSelf: isTablet ? 'center' : 'stretch'
-                  }
-                ]}
-                onPress={handleNext}
-                activeOpacity={0.85}
-              >
-                <Text style={[
-                  styles.buttonText,
-                  { fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16 }
-                ]}>
-                  Commencer
-                </Text>
-              </TouchableOpacity>
-            )}
-          </LinearGradient>
+              {/* Afficher le bouton "Commencer" uniquement sur le 3ème écran */}
+              {screenNumber === 3 && (
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    { 
+                      paddingVertical: isSmallScreen ? 10 : isMediumScreen ? 12 : isLargeScreen ? 13 : isTablet ? 16 : 14,
+                      maxWidth: isTablet ? 300 : '100%',
+                      alignSelf: isTablet ? 'center' : 'stretch'
+                    }
+                  ]}
+                  onPress={handleNext}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[
+                    styles.buttonText,
+                    { fontSize: isSmallScreen ? 12 : isMediumScreen ? 14 : isLargeScreen ? 15 : isTablet ? 18 : 16 }
+                  ]}>
+                    Commencer
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </LinearGradient>
+          </SafeAreaView>
         </ImageBackground>
       </View>
     </ScrollView>
@@ -298,5 +300,21 @@ const styles = StyleSheet.create({
   continueButtonText: {
     color: '#8C3E22',
     fontWeight: '600',
+  },
+
+  safeAreaTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingTop: 10,
+    paddingHorizontal: 20,
+  },
+
+  safeAreaBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });

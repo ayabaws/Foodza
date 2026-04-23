@@ -117,7 +117,7 @@ export default function OrderTrackingModal() {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 105,
+    bottom: 80,
     left: 0,
     right: 0,
     alignItems: 'center',

@@ -2,8 +2,11 @@ import { dataService } from '@/services/DataService';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width } = Dimensions.get('window');
+const isSmallScreen = width < 380;
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -32,7 +35,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: '#FFFFFF' }]} edges={['bottom', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
       
       {/* Header avec Titre en Gras et centré */}
@@ -113,7 +116,7 @@ const styles = StyleSheet.create({
   },
   backIcon: { padding: 5 },
   headerTitle: { 
-    fontSize: 17, 
+    fontSize: isSmallScreen ? 15 : 17, 
     fontWeight: '700', 
     textAlign: 'center',
     marginTop: 2
@@ -123,7 +126,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80 
   },
   sectionLabel: {
-    fontSize: 12,
+    fontSize: isSmallScreen ? 11 : 12,
     marginBottom: 4,
     marginTop: 4,
     marginLeft: 4,
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
+    paddingVertical: isSmallScreen ? 12 : 14,
     paddingHorizontal: 16,
     borderRadius: 12,
     marginBottom: 8, // L'espace entre chaque bouton
@@ -148,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   itemLabel: { 
-    fontSize: 15, 
+    fontSize: isSmallScreen ? 13 : 15, 
     fontWeight: '400' 
   },
   rightSide: { 
@@ -157,6 +160,6 @@ const styles = StyleSheet.create({
   },
   rightText: { 
     marginRight: 6, 
-    fontSize: 15 
+    fontSize: isSmallScreen ? 13 : 15 
   },
 });

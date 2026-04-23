@@ -257,283 +257,145 @@ export default function RestaurantCard({ restaurant, onPress }: RestaurantCardPr
     </TouchableOpacity>
 
   );
-
 }
 
-
-
 const styles = StyleSheet.create({
-
   card: {
-
     width: isSmallScreen ? screenWidth - 40 : isMediumScreen ? 352 : 364,
-
     borderRadius: isSmallScreen ? 16 : 20,
-
     marginRight: isSmallScreen ? 12 : 16,
-
     overflow: 'hidden',
-
     elevation: 4,
-
     shadowColor: '#000',
-
     shadowOffset: { width: 0, height: 2 },
-
     shadowOpacity: 0.1,
-
     shadowRadius: 10,
-
     marginBottom: isSmallScreen ? 8 : 10,
-
   },
-
   imageContainer: {
-
     height: isSmallScreen ? 160 : isMediumScreen ? 175 : 190,
-
     width: '100%',
-
     position: 'relative',
-
     backgroundColor: '#F0F0F0',
-
   },
-
   restaurantImage: {
-
     width: '100%',
-
     height: '100%',
-
+    resizeMode: 'cover',
   },
-
   dishOverlay: {
-
     position: 'absolute',
-
     top: isSmallScreen ? 10 : 12,
-
     left: isSmallScreen ? 10 : 12,
-
     backgroundColor: 'rgba(0,0,0,0.5)',
-
     padding: isSmallScreen ? 6 : 8,
-
     borderRadius: isSmallScreen ? 8 : 10,
-
     maxWidth: '60%',
-
   },
-
   dishNameText: {
-
     color: '#FFF',
-
     fontSize: isSmallScreen ? 11 : 12,
-
     fontWeight: '500',
-
   },
-
   dishPriceText: {
-
     color: '#FFF',
-
     fontSize: isSmallScreen ? 9 : 10,
-
   },
-
   topActions: {
-
     position: 'absolute',
-
     top: isSmallScreen ? 10 : 12,
-
     right: isSmallScreen ? 10 : 12,
-
     flexDirection: 'row',
-
   },
-
   circleButton: {
-
     width: isSmallScreen ? 32 : 36,
-
     height: isSmallScreen ? 32 : 36,
-
     borderRadius: isSmallScreen ? 16 : 18,
-
     backgroundColor: 'rgba(0,0,0,0.3)',
-
     justifyContent: 'center',
-
     alignItems: 'center',
-
     marginLeft: isSmallScreen ? 6 : 8,
-
   },
-
   deliveryNotch: {
-
     position: 'absolute',
-
     bottom: 0,
-
     left: 0,
-
     backgroundColor: '#FFF',
-
     borderTopRightRadius: isSmallScreen ? 8 : 10,
-
     paddingHorizontal: isSmallScreen ? 16 : 20,
-
     paddingVertical: isSmallScreen ? 6 : 8,
-
     flexDirection: 'row',
-
     alignItems: 'center',
-
     zIndex: 2,
-
   },
-
   deliveryText: {
-
     marginLeft: 6,
-
     fontSize: isSmallScreen ? 10 : 11,
-
     color: '#666',
-
     fontWeight: '500',
-
   },
-
   pagination: {
-
     position: 'absolute',
-
     bottom: isSmallScreen ? 10 : 12,
-
     right: isSmallScreen ? 10 : 12,
-
     flexDirection: 'row',
-
     alignItems: 'center',
-
   },
-
   dot: {
-
     height: isSmallScreen ? 5 : 6,
-
     borderRadius: isSmallScreen ? 2.5 : 3,
-
     marginHorizontal: isSmallScreen ? 1.5 : 2,
-
   },
-
   activeDot: {
-
     width: isSmallScreen ? 16 : 20,
-
     backgroundColor: '#FFF',
-
   },
-
   footer: {
-
     padding: isSmallScreen ? 12 : 15,
-
     backgroundColor: '#FFF',
-
   },
-
   footerMain: {
-
     flexDirection: 'row',
-
     justifyContent: 'space-between',
-
     alignItems: 'center',
-
     marginBottom: isSmallScreen ? 6 : 8,
-
   },
-
   brandName: {
-
     fontSize: isSmallScreen ? 14 : 16,
-
     fontWeight: '700',
-
   },
-
   ratingBadge: {
-
     backgroundColor: '#000',
-
     flexDirection: 'row',
-
     alignItems: 'center',
-
     paddingHorizontal: isSmallScreen ? 6 : 8,
-
     paddingVertical: isSmallScreen ? 3 : 4,
-
     borderRadius: isSmallScreen ? 6 : 8,
-
   },
-
   ratingValue: {
-
     color: '#FFF',
-
     fontWeight: '500',
-
     marginRight: 4,
-
     fontSize: isSmallScreen ? 10 : 12,
-
   },
-
   footerBottom: {
-
     flexDirection: 'row',
-
     justifyContent: 'space-between',
-
     alignItems: 'center',
-
   },
-
   promoContainer: {
-
     flexDirection: 'row',
-
     alignItems: 'center',
-
   },
-
   promoText: {
-
     marginLeft: 5,
-
     color: '#444',
-
     fontSize: isSmallScreen ? 10 : 11,
-
     fontWeight: '500',
-
   },
-
   forYouText: {
-
     color: '#999',
-
     fontSize: isSmallScreen ? 10 : 12,
-
   },
-
 });
+
