@@ -1,154 +1,22 @@
 import React from 'react';
 
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useTheme } from '@/contexts/ThemeContext';
 
-
-
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const isSmallScreen = screenWidth < 375;
-
 const isMediumScreen = screenWidth >= 375 && screenWidth < 414;
-
-const isLargeScreen = screenWidth >= 414;
-
-
-
-interface PopularDishCardProps {
-
-  item: {
-
-    id: string;
-
-    name: string;
-
-    image: string;
-
-    rating: number;
-
-    priceRange: string;
-
-    discount?: string;
-
-  };
-
-  onPress: (item: any) => void;
-
-  isFeatured?: boolean;
-
-  index?: number;
-
-}
-
-
-
-export default function PopularDishCard({ item, onPress, isFeatured, index }: PopularDishCardProps) {
-
-  const { colors } = useTheme();
-
-
-
-  return (
-
-    <TouchableOpacity 
-
-      style={[styles.card, { backgroundColor: colors.surface }]} 
-
-      onPress={() => onPress(item)}
-
-      activeOpacity={0.9}
-
-    >
-
-      {/* Image Wrapper avec coins arrondis en haut */}
-
-      <View style={styles.imageWrapper}>
-
-        <Image source={{ uri: item.image }} style={styles.dishImage} />
-
-        
-
-        {/* Badge de réduction (Haut Gauche) */}
-
-        {item.discount && (
-
-          <View style={styles.discountBadge}>
-
-            <Ionicons name="stopwatch-outline" size={12} color="#FFF" />
-
-            <Text style={styles.discountText}>{item.discount} OFF</Text>
-
-          </View>
-
-        )}
-
-
-
-        {/* Le "Notch" blanc pour le Rating (Bas Gauche) */}
-
-        <View style={styles.ratingNotch}>
-
-          <View style={styles.ratingBadge}>
-
-            <Text style={styles.ratingText}>{item.rating}</Text>
-
-            <Ionicons name="star" size={10} color="#FFD700" style={{ marginLeft: 3 }} />
-
-          </View>
-
-        </View>
-
-      </View>
-
-
-
-      {/* Section Contenu */}
-
-      <View style={styles.content}>
-
-        <Text style={[styles.dishName, { color: colors.text?.primary || '#000' }]} numberOfLines={1}>
-
-          {item.name}
-
-        </Text>
-
-        
-
-        <Text style={[styles.price, { color: colors.text?.secondary || '#666' }]}>
-
-          Prix: {item.priceRange}
-
-        </Text>
-
-
-
-        <View style={styles.deliveryRow}>
-
-          <MaterialCommunityIcons name="moped" size={16} color="#A0522D" />
-
-          <Text style={styles.deliveryText}>25 - 30 mins</Text>
-
-        </View>
-
-      </View>
-
-    </TouchableOpacity>
-
-  );
-
-}
-
-
 
 const styles = StyleSheet.create({
 
   card: {
 
-    width: isSmallScreen ? 200 : isMediumScreen ? 250 : 300,
+    width: screenWidth < 375 ? 200 : screenWidth >= 375 && screenWidth < 414 ? 250 : 300,
 
     borderRadius: isSmallScreen ? 16 : 20,
 
@@ -319,3 +187,107 @@ const styles = StyleSheet.create({
   },
 
 });
+
+interface PopularDishCardProps {
+
+  item: {
+
+    name: string;
+
+    image: string;
+
+    rating: number;
+
+    priceRange: string;
+
+    discount?: string;
+
+  };
+
+  onPress: (item: any) => void;
+
+  isFeatured?: boolean;
+
+  index?: number;
+
+}
+
+export default function PopularDishCard({ item, onPress, isFeatured, index }: PopularDishCardProps) {
+
+  const { colors } = useTheme();
+
+
+  return (
+
+    <TouchableOpacity 
+
+      style={[styles.card, { backgroundColor: colors.surface }]} 
+
+      onPress={() => onPress(item)}
+
+      activeOpacity={0.9}
+
+    >
+
+      {/* Image Wrapper avec coins arrondis en haut */}
+
+      <View style={styles.imageWrapper}>
+
+        <Image source={{ uri: item.image }} style={styles.dishImage} />
+
+        
+
+        {/* Badge de réduction (Haut Gauche) */}
+
+        {item.discount && (
+
+          <View style={styles.discountBadge}>
+
+            <Ionicons name="stopwatch-outline" size={12} color="#FFF" />
+
+            <Text style={styles.discountText}>{item.discount} OFF</Text>
+
+          </View>
+
+        )}
+
+
+
+        {/* Le "Notch" blanc pour le Rating (Bas Gauche) */}
+
+        <View style={styles.ratingNotch}>
+
+          <View style={styles.ratingBadge}>
+
+            <Text style={styles.ratingText}>{item.rating}</Text>
+
+            <Ionicons name="star" size={10} color="#FFD700" style={{ marginLeft: 3 }} />
+
+          </View>
+
+        </View>
+
+      </View>
+
+
+
+      {/* Section Contenu */}
+      <SafeAreaView style={styles.content} edges={['bottom', 'left', 'right']}>
+        <Text style={[styles.dishName, { color: colors.text?.primary || '#000' }]} numberOfLines={1}>
+          {item.name}
+        </Text>
+        
+        <Text style={[styles.price, { color: colors.text?.secondary || '#666' }]}>
+          Prix: {item.priceRange}
+        </Text>
+        
+        <View style={styles.deliveryRow}>
+          <MaterialCommunityIcons name="moped" size={16} color="#A0522D" />
+          <Text style={styles.deliveryText}>25 - 30 mins</Text>
+        </View>
+      </SafeAreaView>
+
+    </TouchableOpacity>
+
+  );
+}

@@ -2,20 +2,21 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 const BRAND_BROWN = '#6D3119';
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
   headerSubtitle: { fontSize: 12, color: '#666' },
   helpBtn: { backgroundColor: '#0000004d', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
   helpText: { color: '#FFF', fontWeight: 'bold', fontSize: 12, marginLeft: 4 },
-  mapWrapper: { height: height * 0.4 },
+  mapWrapper: { height: height * 0.5, marginTop: 0 },
   mapPlaceholder: { 
     flex: 1, 
     justifyContent: 'center', 
@@ -277,7 +278,7 @@ export default function OrderTrackScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
       {/* HEADER */}
       <View style={styles.headerFloating}>
@@ -420,11 +421,12 @@ export default function OrderTrackScreen() {
       {/* MODAL CHATBOT AVEC FIX CLAVIER */}
       <Modal visible={showChatBot} transparent={true} animationType="slide">
         <View style={styles.overlayContainer}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-            style={styles.overlayChatBox}
-          >
+          <SafeAreaView style={styles.overlayChatBox} edges={['bottom']}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+              style={{ flex: 1 }}
+            >
             <View style={styles.chatHeader}>
               <TouchableOpacity onPress={() => setShowChatBot(false)}>
                 <Ionicons name="chevron-down" size={28} />
@@ -484,7 +486,8 @@ export default function OrderTrackScreen() {
                 <Ionicons name="send" size={20} color="#FFF" />
               </TouchableOpacity>
             </View>
-          </KeyboardAvoidingView>
+            </KeyboardAvoidingView>
+          </SafeAreaView>
         </View>
       </Modal>
 

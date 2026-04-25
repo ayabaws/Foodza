@@ -80,18 +80,16 @@ export default function OrderTrackingModal() {
   return (
     <View style={styles.container}>
       <View style={styles.modalContent}>
-        {/* Images des articles empilées */}
+        {/* Images de plats prédéfinies */}
         <View style={styles.imagesContainer}>
-          {state.displayOrderData.items.slice(0, 2).map((item: any, index: number) => (
-            <Image
-              key={item.id}
-              source={{ uri: item.image }}
-              style={[
-                styles.itemImage,
-                index > 0 && { marginLeft: -18 } // Effet de chevauchement comme sur l'image
-              ]}
-            />
-          ))}
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200' }}
+            style={styles.itemImage}
+          />
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1571091716759-7b04365d6d1b?w=200' }}
+            style={[styles.itemImage, { marginLeft: -18 }]} // Effet de chevauchement
+          />
         </View>
 
         {/* Informations de la commande */}
@@ -117,7 +115,7 @@ export default function OrderTrackingModal() {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 80,
+    bottom: 120,
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -174,16 +172,16 @@ const styles = StyleSheet.create({
   },
   trackButton: {
     backgroundColor: '#7B3F1D', // Marron exact de l'image
-    paddingHorizontal: 9,
-    paddingVertical: 12,
-    borderRadius: 30,
+    paddingHorizontal: 6,
+    paddingVertical: 8,
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   trackButtonText: {
     color: '#FFF',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '600',
   },
 });

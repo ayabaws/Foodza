@@ -760,8 +760,6 @@ export default function RestaurantScreen() {
 
                 item={{
 
-                  id: item.id,
-
                   name: item.name,
 
                   image: item.img,
